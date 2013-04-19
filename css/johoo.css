@@ -1,0 +1,91 @@
+body {
+	margin: 0;
+}
+#Pyramid {
+	/*background-color: #CCCCCC;*/
+	width: 1000px;
+	height: 600px;
+	position:relative;
+	overflow: hidden;
+	border: 1px solid black;
+	z-index: 1;
+}
+#Tiles {
+	/* background-color:#FF0000;*/
+	position:relative;
+
+	z-index: 2;
+}
+#Shadow {
+	opacity: 0.8;
+	display: none;
+	position: absolute;
+	top: 0;
+	background: #000;
+	z-index: 2001;
+}
+#Popup {
+	opacity: 1;
+	display: none;
+	position: absolute;
+	z-index: 3001;
+	margin: auto;
+	width:100%;
+	color: #FFF;
+	text-align: center;
+}
+#SearchPanel {
+	opacity: 1;
+	display: none;
+	position: absolute;
+	z-index: 4001;
+	margin: auto;
+	width:100%;
+	color: #FFF;
+	text-align: center;
+}
+#ControlPanel {
+	position: absolute;
+	width: 100%;
+	z-index: 10;
+}
+#ControlPanel #ZoomInButton {
+	position: absolute;
+	background-image: url(../assets/buttons/plus.png);
+	width:60px;
+	height:60px;
+
+	left:0px;
+
+	z-index: 11;
+}
+#ControlPanel #ZoomOutButton {
+	position: absolute;
+	background-image: url(../assets/buttons/minus.png);
+	width:60px;
+	height:60px;
+
+	left:65px;
+
+	z-index: 12;
+}
+#ControlPanel #SearchPanelButton {
+	position: absolute;
+	background-image: url(../assets/buttons/searchOn.png);
+	width:60px;
+	height:60px;
+
+	left:130px;
+
+	z-index: 13;
+}
+#ControlPanel #TimelineButton {
+	position: absolute;
+	background-image: url(../assets/buttons/home.png);
+	width:60px;
+	height:60px;
+
+	left:195px;
+
+	z-index: 14;
+}
