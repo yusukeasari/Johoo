@@ -29,6 +29,6 @@
 
 
 <script src="app/pyramid2.js"></script>
-<script src="js/bootstrap.min.js"></script>
+<script src="lib/bootstrap.min.js"></script>
 </body>
 </html>
