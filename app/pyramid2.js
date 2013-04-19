@@ -289,7 +289,7 @@
       cords = Point.getPoint(e);
       e.preventDefault();
       this.dragging = true;
-      if (Utility.type(cords[0] !== 'array')) {
+      if (Utility.type(cords[0]) !== 'array') {
         $(this.el).css({
           'cursor': '-moz-grab'
         });
@@ -297,9 +297,10 @@
         this.dragStartY = cords[1];
         this.dragStartPyramidX = this.getPyramidPos()[0];
         return this.dragStartPyramidY = this.getPyramidPos()[1];
-      } else if (Utility.type(cords[0] === 'array')) {
+      } else if (Utility.type(cords[0]) === 'array') {
         this.pinchinStartCenterX = (cords[0].pageX + cords[1].pageX) / 2;
-        return this.pinchinStartCenterY = (cords[0].pageY + cords[1].pageY) / 2;
+        this.pinchinStartCenterY = (cords[0].pageY + cords[1].pageY) / 2;
+        return this.pinchinStart = cords;
       }
     };
 
@@ -327,11 +328,17 @@
 
       cords = Point.getPoint(e);
       e.preventDefault();
-      if (Utility.type(cords[0] !== 'array' && this.dragging)) {
+      if (Utility.type(cords[0] === "number" && this.dragging === true)) {
+        console.log('if');
         return $(this.el).css({
           'left': this.dragStartPyramidX + (this.getMousePos(e)[0] - this.dragStartX),
           'top': this.dragStartPyramidY + (this.getMousePos(e)[1] - this.dragStartY)
         });
+      } else if (Utility.type(cords[0] === "array" && this.dragging === true)) {
+        console.log("MOVEMO:", this.pinchinStart[0].pageX, this.pinchinStart[0].pageY);
+        return console.log('else if');
+      } else {
+        return console.log('else');
       }
     };
 
@@ -346,8 +353,6 @@
     Pyramid.prototype.getNumFromPoint = function(p) {
       var xb, yb;
 
-      console.log('P:::', p[0], this.getPyramidPos()[0], arrZoomSizeX[nowZoom]);
-      console.log('P:::', p[1], this.getPyramidPos()[1], arrZoomSizeY[nowZoom]);
       xb = Math.floor((p[0] - this.getPyramidPos()[0]) / arrZoomSizeX[nowZoom]);
       yb = Math.round((p[1] - this.getPyramidPos()[1]) / arrZoomSizeY[nowZoom]);
       yb = yb === 0 || yb === 1 ? 0 : yb - 1;

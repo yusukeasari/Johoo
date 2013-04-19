@@ -214,7 +214,7 @@ class Pyramid extends Backbone.View
 		e.preventDefault()
 		@dragging = true
 
-		if Utility.type cords[0] isnt 'array'
+		if Utility.type(cords[0]) isnt 'array'
 			$(@el).css {'cursor':'-moz-grab'}
 			
 			@dragStartX = cords[0]
@@ -222,11 +222,11 @@ class Pyramid extends Backbone.View
 			@dragStartPyramidX = @getPyramidPos()[0]
 
 			@dragStartPyramidY = @getPyramidPos()[1]
-		else if Utility.type cords[0] is 'array'
+		else if Utility.type(cords[0]) is 'array'
 			@pinchinStartCenterX = (cords[0].pageX + cords[1].pageX)/2
 			@pinchinStartCenterY = (cords[0].pageY + cords[1].pageY)/2
 
-			#@pinchinStart = cords
+			@pinchinStart = cords
 
 	onMouseUp:(e)->
 		cords = Point.getPoint e
@@ -248,19 +248,21 @@ class Pyramid extends Backbone.View
 	onMouseMove:(e)->
 		cords = Point.getPoint e
 		e.preventDefault()
-		if @dragging
-			# ...
-		
-
-		if Utility.type cords[0] isnt 'array' and @dragging
+		if Utility.type cords[0] is "number" and @dragging is true
+			console.log 'if'
 			$(@el).css {'left':@dragStartPyramidX+(@getMousePos(e)[0]-@dragStartX),'top':@dragStartPyramidY+(@getMousePos(e)[1]-@dragStartY)}
+		else if Utility.type cords[0] is "array" and @dragging is true
+			console.log "MOVEMO:",@pinchinStart[0].pageX,@pinchinStart[0].pageY
+			console.log 'else if'
+		else
+			console.log 'else'
+
+		
 
 	#与えられた座標がフォトモザイク上であるかどうか調べる
 	isOnTiles:(p)->
 		if p[0] >= @getPyramidPos()[0] && p[1]>=@getPyramidPos()[1] && p[0] <=zoomSize[nowZoom][0]+@getPyramidPos()[0] && p[1] <= parseInt(zoomSize[nowZoom][1])+@getPyramidPos()[1] then true else false
 	getNumFromPoint:(p)->
-		console.log 'P:::',p[0],@getPyramidPos()[0],arrZoomSizeX[nowZoom]
-		console.log 'P:::',p[1],@getPyramidPos()[1],arrZoomSizeY[nowZoom]
 		xb = Math.floor (p[0]-@getPyramidPos()[0])/arrZoomSizeX[nowZoom]
 		yb = Math.round (p[1]-@getPyramidPos()[1])/arrZoomSizeY[nowZoom]
 		yb = if yb is 0 or yb is 1 then 0 else yb-1
