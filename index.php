@@ -2,8 +2,6 @@
 <head>
 <?php require_once 'viewport.php'; ?>
 <meta content="yes" name="apple-mobile-web-app-capable" />
-<link href="css/bootstrap.min.css" rel="stylesheet">
-<link href="css/bootstrap-resposive.min.css" rel="stylesheet">
 <link href="css/johoo.css" rel="stylesheet">
 
 <script type="text/javascript" src="lib/jquery.js"></script>
@@ -29,6 +27,5 @@
 
 
 <script src="app/pyramid2.js"></script>
-<script src="lib/bootstrap.min.js"></script>
 </body>
 </html>

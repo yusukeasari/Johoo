@@ -151,6 +151,15 @@ class Browser extends Backbone.View
 	@getDevice:=> @device
 	@getOS:=> @os
 
+class Utility
+	@type = do ->
+		classToType = {}
+		for name in "Boolean Number String Function Array Date RegExp Undefined Null".split(" ")
+			classToType["[object " + name + "]"] = name.toLowerCase()
+		(obj) ->
+			strType = Object::toString.call(obj)
+			classToType[strType] or "object"
+
 ###*
  * Class Pyramidクラス
 ###
@@ -201,38 +210,49 @@ class Pyramid extends Backbone.View
 	マウスイベント関連メソッド群
 	###
 	onMouseDown:(e)->
+		cords = Point.getPoint(e)
 		e.preventDefault()
 		@dragging = true
-		
-		$(@el).css {'cursor':'-moz-grab'}
-		cords = Point.getPoint(e)
-		
-		@dragStartX = cords[0]
-		@dragStartY = cords[1]
-		@dragStartPyramidX = @getPyramidPos()[0]
 
-		@dragStartPyramidY = @getPyramidPos()[1]
+		if Utility.type cords[0] isnt 'array'
+			$(@el).css {'cursor':'-moz-grab'}
+			
+			@dragStartX = cords[0]
+			@dragStartY = cords[1]
+			@dragStartPyramidX = @getPyramidPos()[0]
+
+			@dragStartPyramidY = @getPyramidPos()[1]
+		else if Utility.type cords[0] is 'array'
+			@pinchinStartCenterX = (cords[0].pageX + cords[1].pageX)/2
+			@pinchinStartCenterY = (cords[0].pageY + cords[1].pageY)/2
+
+			#@pinchinStart = cords
 
 	onMouseUp:(e)->
+		cords = Point.getPoint e
 		e.preventDefault()
 		@dragging = false
-		
-		$(@el).css {'cursor':''}
-		cords = Point.getPoint(e)
-		console.log 'DEL:',Point.getPoint(e)[0]
 
-		#マウスの位置がdownとupで変わらない＝単純クリックなら拡大表示実行
-		if @dragStartX is cords[0] and @dragStartY is cords[1] and @isOnTiles [cords[0],cords[1]]
-			console.log 'CORDS:',cords[0],cords[1],@getNumFromPoint cords[0],cords[1]
-			#！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
-			if not Shadow.isShow() then @trigger 'openFromPoint',@getNumFromPoint [cords[0],cords[1]]
+		if Utility.type cords[0] isnt 'array'
+			$(@el).css {'cursor':''}
 
-		#フォトモザイクを描画
-		@update()
+			#マウスの位置がdownとupで変わらない＝単純クリックなら拡大表示実行
+			if @dragStartX is cords[0] and @dragStartY is cords[1] and @isOnTiles [cords[0],cords[1]]
+				#！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
+				if not Shadow.isShow()
+					@trigger 'openFromPoint',@getNumFromPoint [cords[0],cords[1]]
+
+			#フォトモザイクを描画
+			@update()
 
 	onMouseMove:(e)->
+		cords = Point.getPoint e
 		e.preventDefault()
-		if @dragging is true
+		if @dragging
+			# ...
+		
+
+		if Utility.type cords[0] isnt 'array' and @dragging
 			$(@el).css {'left':@dragStartPyramidX+(@getMousePos(e)[0]-@dragStartX),'top':@dragStartPyramidY+(@getMousePos(e)[1]-@dragStartY)}
 
 	#与えられた座標がフォトモザイク上であるかどうか調べる
@@ -245,7 +265,7 @@ class Pyramid extends Backbone.View
 		yb = Math.round (p[1]-@getPyramidPos()[1])/arrZoomSizeY[nowZoom]
 		yb = if yb is 0 or yb is 1 then 0 else yb-1
 		xb++;
-		console.log motifWidth,yb,xb
+		
 		motifWidth*yb+xb
 
 	###*
@@ -568,15 +588,16 @@ class Point
 		if Point.isTouch()
 			#SP or Tab
 			#for Single Touch
-			if e.originalEvent.changedTouches.length is 1
+			if e.originalEvent.touches.length is 1
 				#座標をかえす
-				console.log "SINGLE",e.originalEvent.changedTouches[0].pageX,e.originalEvent.changedTouches[0].pageY
-				[e.originalEvent.changedTouches[0].pageX,e.originalEvent.changedTouches[0].pageY]
+				console.log "SINGLE",e.originalEvent.touches[0].pageX,e.originalEvent.touches[0].pageY
+				[e.originalEvent.touches[0].pageX,e.originalEvent.touches[0].pageY]
 
 			#for Multi Touch
 			else
 				console.log "MULTI"
-				for item in e.originalEvent.changedTouches
+				cords = []
+				for item in e.originalEvent.touches
 					console.log item.pageX,item.pageY
 					cords.push [item.pageX,item.pageY]
 				#座標をかえす
