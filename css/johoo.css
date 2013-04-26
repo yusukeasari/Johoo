@@ -89,3 +89,22 @@ body {
 
 	z-index: 14;
 }
+#searchResult{
+	background-color: #000000;
+}
+#loadingAnimation{
+	background-color: #000000;
+}
+.timelineChild{
+	width:100%;
+	background-color: #FF0000;
+}
+.timelineBR {
+	clear:both;
+}
+.tlImg{
+	float:left;
+}
+.tlTitle{
+	float:left;
+}

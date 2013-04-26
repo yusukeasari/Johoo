@@ -8,6 +8,7 @@
 <script type="text/javascript" src="lib/underscore.js"></script>
 <script type="text/javascript" src="lib/backbone.js"></script>
 <script type="text/javascript" src="lib/jquery.flickable-1.0b3.js"></script>
+<script type="text/javascript" src="lib/jquery.bottom-1.0.js"></script>
 
 </head>
 <body>

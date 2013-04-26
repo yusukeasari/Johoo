@@ -8,6 +8,10 @@ minZoom = 1
 motifWidth = 56
 motifHeight = 60
 
+pinchTrigger = 15
+
+maxSearchResultNum = 50
+
 searchPhp = 'swfData/search.php'
 tileImageDir = 'swfData/web/'
 zoomImageDir = 'swfData/blockimg/'
@@ -29,6 +33,12 @@ zoomSize = [
 	[motifWidth * minBlockSize * arrZoomSizeX[5], motifHeight * minBlockSize * arrZoomSizeY[5]]
 ]
 
+#ピンチイン/アウトのトリガーとなる距離配列を作る
+pinchTriggerArray = []
+i=1
+for z in arrZoomSizeX
+	pinchTriggerArray.push pinchTrigger*i
+	i++
 
 $ ->
 	#処理開始
@@ -70,24 +80,138 @@ class PhotomosaicViewer extends Backbone.View
 
 class SearchPanel extends Backbone.View
 	@el: '#SearchPanel'
+	searchQuery: ''
 
 	initialize:->
 		_.bindAll @
+
+		@searchQuery = new SearchResult
+		@loadingStatus = false
+		@execSearched = false
+
 		$(@el).load "searchPanel.html",null,(data,status) =>
 			if status isnt 'success'
 				alert "ERROR:検索パネルが読み込めません"
 			else
-				#alert data
 				$(SearchPanel.el).html(data)
+				@setup()
+	setup:->
+		$('#searchSubmitButton').css {width:150,height:30}
+		$('#searchSubmitButton').bind 'click',@onTapSubmitButton
+		$(@el).bind 'bottom',@bottom
 
+		$(window).scroll =>
+			if $(document).height() < $(window).scrollTop()+Browser.height+4 and @loadingStatus is false and @execSearched
+				@loading true
+				$(@el).trigger 'bottom'
+
+			#else if @loadingStatus and $(document).height() > $(window).scrollTop()+Browser.height-100
+			#	@loading false
+
+	bottom:=>
+		#$('html,body').animate({scrollTop: $(selector).offset().top},'slow')
+		setTimeout =>
+			@sendQuery()
+		, 1500
+	loading:(bool)=>
+		if bool
+			$('#loadingAnimation').html('')
+			$('#loadingAnimation').append('<img src="img/loadingAnimation.gif">')
+			@loadingStatus = bool
+		else
+			$('#loadingAnimation').html('')
+			$('#loadingAnimation').append('<span style="font-size:36px;">MORE RESULT</span>')
+			@loadingStatus = bool
+	onTapSubmitButton:->
+		$('#searchResult').html ''
+		@execSearched = true
+		@searchQuery.resetPageCount()
+		@sendQuery()
+
+	sendQuery:->
+		query = ''
+		@searchQuery.unbind()
+		@searchQuery.bind 'return',(result) => @render result
+
+		#検索条件整形。とりあえず版に過ぎず、改良の余地あり。設定ファイルから読み込む方式にする事。
+		if $('#SearchPanelInnerContents #id').val() isnt undefined
+			query += 'id='+$('#SearchPanelInnerContents #id').val()+'&'
+		if $('#SearchPanelInnerContents #b1').val() isnt undefined
+			query += 'b1='+$('#SearchPanelInnerContents #b1').val()+'&'
+		if $('#SearchPanelInnerContents #b2').val() isnt undefined
+			query += 'b2='+$('#SearchPanelInnerContents #b2').val()+'&'
+
+		if query isnt '' then query.slice 0,-1
+		@searchQuery.sendQuery query
+
+	render:(result)->
+		if result isnt ""
+			for item in result
+				tlChild = new TimelineChild
+
+				tl = $('<div />').
+				  attr('class','timelineChild').
+				  attr('id','timelineChild'+item.id).
+				  appendTo $('#searchResult')
+				$('<img />').
+				  attr('class','tlImg').
+				  attr('width',80).
+				  attr('src','swfData/blockimg/'+item.img+'.jpg').
+				  load().
+				  appendTo tl
+				$('<div />').
+				  attr('class','tlTitle').
+				  html(item.b1).
+				  appendTo tl
+				$('<br />').
+				  attr('class','timelineBR').
+				  appendTo tl
+				$('<div />').
+				  attr('class','tlMsg').
+				  html(item.b2).
+				  appendTo tl
+				$('<br />').
+				  attr('class','timelineBR').
+				  appendTo tl
+		else
+			alert("「"+value+"」では見つかりませんでした。")
+		@loading false
 	@show:=>
 		Shadow.show()
 		$(@el).show()
 
 	@hide:=>
+		@execSearched = false
+		@loadingStatus = false
 		Shadow.hide()
 		$(@el).hide()
 
+class TimelineChild extends Backbone.Model
+	defaults:
+
+	clear:->
+		@destroy
+		@view.unrender()
+
+class SearchResult extends Backbone.View
+
+	page:1
+	linePerPage:30
+
+	sendQuery:(query)=>
+		console.log 'Q:',query
+		$.ajax "timeline.json",
+			type:"GET"
+			#data:query
+			dataType:"json"
+			error: (jqXHR, textStatus, errorThrown) ->
+				console.log textStatus
+			success:(data) => @queryResult data
+	queryResult:(result)=>
+		@trigger 'return',result
+	resetPageCount:=>
+		@page = 1
+	nextPage:=> @page++
 
 ###*
  * Class Browser 環境設定関連
@@ -128,6 +252,7 @@ class Browser extends Backbone.View
 			Browser.version = ''
 			Browser.width = screen.width
 			Browser.height = screen.height
+
 		#PC
 		else
 			Browser.device = 'pc'
@@ -178,6 +303,9 @@ class Pyramid extends Backbone.View
 			$(@el).bind 'touchstart',@onMouseDown
 			$(@el).bind 'touchend',@onMouseUp
 			$(@el).bind 'touchmove',@onMouseMove
+			#$(@el).bind 'gesturestart',@onGestureStart
+			#$(@el).bind 'gesturechange',@onGestureMove
+			#$(@el).bind 'gestureend',@onGestureEnd
 		else
 			$(@el).bind 'mousedown',@onMouseDown
 			$(@el).bind 'mouseup',@onMouseUp
@@ -223,8 +351,9 @@ class Pyramid extends Backbone.View
 
 			@dragStartPyramidY = @getPyramidPos()[1]
 		else if Utility.type(cords[0]) is 'array'
-			@pinchinStartCenterX = (cords[0].pageX + cords[1].pageX)/2
-			@pinchinStartCenterY = (cords[0].pageY + cords[1].pageY)/2
+			$(@el).css {'cursor':'-moz-grab'}
+			@pinchinStartCenterX = (cords[0][0] + cords[1][0])/2
+			@pinchinStartCenterY = (cords[0][1] + cords[1][1])/2
 
 			@pinchinStart = cords
 
@@ -233,30 +362,69 @@ class Pyramid extends Backbone.View
 		e.preventDefault()
 		@dragging = false
 
-		if Utility.type cords[0] isnt 'array'
-			$(@el).css {'cursor':''}
+		$(@el).css {'cursor':''}
 
-			#マウスの位置がdownとupで変わらない＝単純クリックなら拡大表示実行
-			if @dragStartX is cords[0] and @dragStartY is cords[1] and @isOnTiles [cords[0],cords[1]]
-				#！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
-				if not Shadow.isShow()
-					@trigger 'openFromPoint',@getNumFromPoint [cords[0],cords[1]]
-
+		#マウスの位置がdownとupで変わらない＝単純クリックなら拡大表示実行
+		if @dragStartX is cords[0] and @dragStartY is cords[1] and @isOnTiles [cords[0],cords[1]]
+			#！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
+			if not Shadow.isShow()
+				@trigger 'openFromPoint',@getNumFromPoint [cords[0],cords[1]]
+		else
 			#フォトモザイクを描画
 			@update()
 
 	onMouseMove:(e)->
 		cords = Point.getPoint e
 		e.preventDefault()
-		if Utility.type cords[0] is "number" and @dragging is true
-			console.log 'if'
+		if Utility.type(cords[0]) is "number" and @dragging is true
 			$(@el).css {'left':@dragStartPyramidX+(@getMousePos(e)[0]-@dragStartX),'top':@dragStartPyramidY+(@getMousePos(e)[1]-@dragStartY)}
-		else if Utility.type cords[0] is "array" and @dragging is true
-			console.log "MOVEMO:",@pinchinStart[0].pageX,@pinchinStart[0].pageY
-			console.log 'else if'
+		else if Utility.type(cords[0]) is "array" and @dragging is true
+			#dx = @pinchinStartCenterX*2 - (cords[0][0]+cords[1][0])
+			#dy = @pinchinStartCenterY*2 - (cords[0][1]+cords[1][1])
+			
 		else
-			console.log 'else'
 
+	onGestureStart:(e)->
+		
+		console.log e.originalEvent.scale
+	onGestureMove:(e)->
+		if e.originalEvent.scale > 1
+			@zoomIn e.originalEvent.scale
+		else
+			@zoomOut e.originalEvent.scale
+	onGestureEnd:(e)->
+		console.log e.originalEvent.scale
+
+	zoomIn:(_z)->
+		rate = Math.floor _z/2
+		console.log "plus",rate,nowZoom
+		if nowZoom < zoomSize.length-1
+			prevZoom = nowZoom
+			if nowZoom+rate < zoomSize.length-1
+				nowZoom = nowZoom+rate
+			else
+				nowZoom = zoomSize.length-1
+			
+
+			if nowZoom isnt prevZoom
+				@update 'pinchZoomIn'
+
+	#ズームアウトボタンが押下された
+	zoomOut:(_z)->
+		_z = (_z-1)*10
+		rate = Math.floor _z/2
+		console.log "minus:",rate,nowZoom
+
+		if nowZoom > minZoom
+			prevZoom = nowZoom
+
+			if nowZoom-rate > minZoom
+				nowZoom = minZoom
+			else
+				nowZoom = nowZoom+rate
+
+			if nowZoom isnt prevZoom
+				@update 'pinchZoomOut'
 		
 
 	#与えられた座標がフォトモザイク上であるかどうか調べる
@@ -336,12 +504,26 @@ class Pyramid extends Backbone.View
 				@moveToZoomInPos()
 			when 'zoomOut'
 				@moveToZoomOutPos()
+			when 'pinchZoomIn'
+				@moveToPinchZoomInPos()
+			when 'pinchZoomOut'
+				@moveToPinchZoomOutPos()
 			else
 
 		$(@el).width zoomSize[nowZoom][0];
 		$(@el).height zoomSize[nowZoom][1];
 		@render @checkActiveTile()
-		
+	
+	moveToPinchZoomInPos:->
+		$(@el).css
+			left:$(@el).position().left + @pinchinStartCenterX*-1
+			top:$(@el).position().top + @pinchinStartCenterY*-1
+
+	moveToPinchZoomOutPos:->
+		$(@el).css
+			left:$(@el).position().left + @pinchinStartCenterX/2
+			top:$(@el).position().top + @pinchinStartCenterY/2
+
 	moveToZoomInPos:->
 		pyramidPos = @convertToGrobalCenterPos $(@el).position().left,$(@el).position().top
 
