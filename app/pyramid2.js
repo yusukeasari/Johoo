@@ -120,7 +120,7 @@
       _.bindAll(this);
       this.timeline = new Timeline;
       this.timeline.bind('add', this.appendTimeline);
-      $(this.el).bind('onclicktimeline', this.onclicktimeline);
+      this.timeline.bind('onclicktimeline', this.onclicktimeline);
       this.searchQuery = new SearchResult;
       this.loadingStatus = false;
       this.execSearched = false;
@@ -301,7 +301,6 @@
 
     function TimelineChildView() {
       this.unrender = __bind(this.unrender, this);
-      this.onclick = __bind(this.onclick, this);
       this.render = __bind(this.render, this);      _ref4 = TimelineChildView.__super__.constructor.apply(this, arguments);
       return _ref4;
     }
@@ -323,13 +322,7 @@
       $('<br />').attr('class', 'timelineBR').appendTo(tl);
       $('<div />').attr('class', 'tlMsg').html(item.b2).appendTo(tl);
       $('<br />').attr('class', 'timelineBR').appendTo(tl);
-      $(this.el).bind('click', this.onclick);
       return this;
-    };
-
-    TimelineChildView.prototype.onclick = function() {
-      console.log('click!!');
-      return this.trigger('onclicktimeline', this.model.get('data'));
     };
 
     TimelineChildView.prototype.unrender = function() {

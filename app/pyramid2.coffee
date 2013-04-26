@@ -87,7 +87,7 @@ class SearchPanel extends Backbone.View
 
 		@timeline = new Timeline
 		@timeline.bind 'add', @appendTimeline
-		$(@el).bind 'onclicktimeline',@onclicktimeline
+		@timeline.bind 'onclicktimeline',@onclicktimeline
 
 		@searchQuery = new SearchResult
 		@loadingStatus = false
@@ -233,13 +233,7 @@ class TimelineChildView extends Backbone.View
 		  attr('class','timelineBR').
 		  appendTo tl
 
-		$(@el).bind 'click',@onclick
-
 		@
-
-	onclick:=>
-		console.log 'click!!'
-		@trigger 'onclicktimeline',@model.get 'data'
 
 	unrender:=>
 		$(@el).remove()
