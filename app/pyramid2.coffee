@@ -70,7 +70,7 @@ class PhotomosaicViewer extends Backbone.View
 		@controlPanel = new ControlPanel
 
 		#フォトモザイク部分がクリックされ、かつ有効な座標であった場合、拡大表示を実行
-		@pyramid.bind 'openFromPoint',(p) => @popup.openFromPoint p
+		@pyramid.bind 'openPopupFromPoint',(p) => @popup.openPopupFromPoint p
 		#コンパネイベント
 		@controlPanel.bind 'change',(h) => @pyramid.update h
 		@controlPanel.bind 'showSearchPanel', =>
@@ -85,6 +85,10 @@ class SearchPanel extends Backbone.View
 	initialize:->
 		_.bindAll @
 
+		@timeline = new Timeline
+		@timeline.bind 'add', @appendTimeline
+		$(@el).bind 'onclicktimeline',@onclicktimeline
+
 		@searchQuery = new SearchResult
 		@loadingStatus = false
 		@execSearched = false
@@ -95,6 +99,13 @@ class SearchPanel extends Backbone.View
 			else
 				$(SearchPanel.el).html(data)
 				@setup()
+
+	onclicktimeline:(d)->
+		console.log "onclicktimeline",d
+	appendTimeline:(tile)->
+		timelineChildView = new TimelineChildView model: tile
+		$("#searchResult").append timelineChildView.render().el
+
 	setup:->
 		$('#searchSubmitButton').css {width:150,height:30}
 		$('#searchSubmitButton').bind 'click',@onTapSubmitButton
@@ -113,6 +124,7 @@ class SearchPanel extends Backbone.View
 		setTimeout =>
 			@sendQuery()
 		, 1500
+
 	loading:(bool)=>
 		if bool
 			$('#loadingAnimation').html('')
@@ -122,9 +134,10 @@ class SearchPanel extends Backbone.View
 			$('#loadingAnimation').html('')
 			$('#loadingAnimation').append('<span style="font-size:36px;">MORE RESULT</span>')
 			@loadingStatus = bool
+
 	onTapSubmitButton:->
-		$('#searchResult').html ''
 		@execSearched = true
+		@timeline.each @clear
 		@searchQuery.resetPageCount()
 		@sendQuery()
 
@@ -132,6 +145,7 @@ class SearchPanel extends Backbone.View
 		query = ''
 		@searchQuery.unbind()
 		@searchQuery.bind 'return',(result) => @render result
+		@searchQuery.bind 'error', => @error
 
 		#検索条件整形。とりあえず版に過ぎず、改良の余地あり。設定ファイルから読み込む方式にする事。
 		if $('#SearchPanelInnerContents #id').val() isnt undefined
@@ -142,40 +156,23 @@ class SearchPanel extends Backbone.View
 			query += 'b2='+$('#SearchPanelInnerContents #b2').val()+'&'
 
 		if query isnt '' then query.slice 0,-1
+
 		@searchQuery.sendQuery query
+
+	error:=>
+		@loading false
 
 	render:(result)->
 		if result isnt ""
 			for item in result
 				tlChild = new TimelineChild
-
-				tl = $('<div />').
-				  attr('class','timelineChild').
-				  attr('id','timelineChild'+item.id).
-				  appendTo $('#searchResult')
-				$('<img />').
-				  attr('class','tlImg').
-				  attr('width',80).
-				  attr('src','swfData/blockimg/'+item.img+'.jpg').
-				  load().
-				  appendTo tl
-				$('<div />').
-				  attr('class','tlTitle').
-				  html(item.b1).
-				  appendTo tl
-				$('<br />').
-				  attr('class','timelineBR').
-				  appendTo tl
-				$('<div />').
-				  attr('class','tlMsg').
-				  html(item.b2).
-				  appendTo tl
-				$('<br />').
-				  attr('class','timelineBR').
-				  appendTo tl
+				tlChild.set
+					data:item
+				@timeline.add tlChild
 		else
 			alert("「"+value+"」では見つかりませんでした。")
 		@loading false
+
 	@show:=>
 		Shadow.show()
 		$(@el).show()
@@ -183,15 +180,70 @@ class SearchPanel extends Backbone.View
 	@hide:=>
 		@execSearched = false
 		@loadingStatus = false
+		@timeline.each @clear
 		Shadow.hide()
 		$(@el).hide()
+	clear:(tl)->
+		tl.clear()
+
+class Timeline extends Backbone.Collection
+	model: TimelineChild
 
 class TimelineChild extends Backbone.Model
 	defaults:
+		data: ''
 
 	clear:->
 		@destroy
 		@view.unrender()
+
+class TimelineChildView extends Backbone.View
+	tagName: 'div'
+
+	initialize:->
+		#クラス内でthisを使うおまじない
+		_.bindAll @
+
+		@model.view = @;
+
+	#tile描画に必要なhtml情報をreturnする
+	render: =>
+		item = @model.get 'data'
+		tl = $(@el).
+		  attr('class','timelineChild').
+		  attr('id','timelineChild'+item.id)
+		$('<img />').
+		  attr('class','tlImg').
+		  attr('width',80).
+		  attr('src','swfData/blockimg/'+item.img+'.jpg').
+		  load().
+		  appendTo tl
+		$('<div />').
+		  attr('class','tlTitle').
+		  html(item.b1).
+		  appendTo tl
+		$('<br />').
+		  attr('class','timelineBR').
+		  appendTo tl
+		$('<div />').
+		  attr('class','tlMsg').
+		  html(item.b2).
+		  appendTo tl
+		$('<br />').
+		  attr('class','timelineBR').
+		  appendTo tl
+
+		$(@el).bind 'click',@onclick
+
+		@
+
+	onclick:=>
+		console.log 'click!!'
+		@trigger 'onclicktimeline',@model.get 'data'
+
+	unrender:=>
+		$(@el).remove()
+		$(@el).unbind()
 
 class SearchResult extends Backbone.View
 
@@ -205,12 +257,15 @@ class SearchResult extends Backbone.View
 			#data:query
 			dataType:"json"
 			error: (jqXHR, textStatus, errorThrown) ->
-				console.log textStatus
+				@trigger 'error'
 			success:(data) => @queryResult data
+
 	queryResult:(result)=>
 		@trigger 'return',result
+
 	resetPageCount:=>
 		@page = 1
+
 	nextPage:=> @page++
 
 ###*
@@ -224,6 +279,7 @@ class Browser extends Backbone.View
 	@width: 0
 	@height: 0
 	@orient: 0
+
 	initialize:->
 		_.bindAll @
 		#デバイスをチェック 縦横サイズ
@@ -246,8 +302,16 @@ class Browser extends Backbone.View
 			Browser.version = ''
 
 		#Android Phone
-		else if navigator.userAgent.match /Android/i
+		else if navigator.userAgent.match /Android/i and navigator.userAgent.match /Mobile/i
 			Browser.device = 'smartphone'
+			Browser.os = 'android'
+			Browser.version = ''
+			Browser.width = screen.width
+			Browser.height = screen.height
+
+		#Android Tablet
+		else if navigator.userAgent.match /Android/i and not navigator.userAgent.match /Mobile/i
+			Browser.device = 'tablet'
 			Browser.os = 'android'
 			Browser.version = ''
 			Browser.width = screen.width
@@ -306,11 +370,11 @@ class Pyramid extends Backbone.View
 			#$(@el).bind 'gesturestart',@onGestureStart
 			#$(@el).bind 'gesturechange',@onGestureMove
 			#$(@el).bind 'gestureend',@onGestureEnd
+			#
 		else
 			$(@el).bind 'mousedown',@onMouseDown
 			$(@el).bind 'mouseup',@onMouseUp
 			$(@el).bind 'mousemove',@onMouseMove
-
 
 		$(@el).flickable()
 		#Pyramid.el = @el
@@ -332,7 +396,6 @@ class Pyramid extends Backbone.View
 		$(@outerel).show()
 	@hide = ->
 		$(@outerel).hide()
-
 
 	###
 	マウスイベント関連メソッド群
@@ -368,7 +431,7 @@ class Pyramid extends Backbone.View
 		if @dragStartX is cords[0] and @dragStartY is cords[1] and @isOnTiles [cords[0],cords[1]]
 			#！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
 			if not Shadow.isShow()
-				@trigger 'openFromPoint',@getNumFromPoint [cords[0],cords[1]]
+				@trigger 'openPopupFromPoint',@getNumFromPoint [cords[0],cords[1]]
 		else
 			#フォトモザイクを描画
 			@update()
@@ -381,17 +444,17 @@ class Pyramid extends Backbone.View
 		else if Utility.type(cords[0]) is "array" and @dragging is true
 			#dx = @pinchinStartCenterX*2 - (cords[0][0]+cords[1][0])
 			#dy = @pinchinStartCenterY*2 - (cords[0][1]+cords[1][1])
-			
 		else
 
 	onGestureStart:(e)->
-		
 		console.log e.originalEvent.scale
+
 	onGestureMove:(e)->
 		if e.originalEvent.scale > 1
 			@zoomIn e.originalEvent.scale
 		else
 			@zoomOut e.originalEvent.scale
+
 	onGestureEnd:(e)->
 		console.log e.originalEvent.scale
 
@@ -404,8 +467,7 @@ class Pyramid extends Backbone.View
 				nowZoom = nowZoom+rate
 			else
 				nowZoom = zoomSize.length-1
-			
-
+				
 			if nowZoom isnt prevZoom
 				@update 'pinchZoomIn'
 
@@ -425,11 +487,11 @@ class Pyramid extends Backbone.View
 
 			if nowZoom isnt prevZoom
 				@update 'pinchZoomOut'
-		
-
+				
 	#与えられた座標がフォトモザイク上であるかどうか調べる
 	isOnTiles:(p)->
 		if p[0] >= @getPyramidPos()[0] && p[1]>=@getPyramidPos()[1] && p[0] <=zoomSize[nowZoom][0]+@getPyramidPos()[0] && p[1] <= parseInt(zoomSize[nowZoom][1])+@getPyramidPos()[1] then true else false
+
 	getNumFromPoint:(p)->
 		xb = Math.floor (p[0]-@getPyramidPos()[0])/arrZoomSizeX[nowZoom]
 		yb = Math.round (p[1]-@getPyramidPos()[1])/arrZoomSizeY[nowZoom]
@@ -560,8 +622,6 @@ class Pyramid extends Backbone.View
 			
 		x = (_x+prevPyramidWidth/2)-Browser.width/2
 		y = (_y+prevPyramidHeight/2)-Browser.height/2
-
-		#console.log "cvtG:",x,y,_x,_y,prevPyramidWidth,prevPyramidHeight,viewPortWidth,viewPortHeight
 		
 		[x,y]
 
@@ -732,7 +792,7 @@ class ControlPanel extends Backbone.View
 	#検索パネル表示ボタンが押下された
 	showSearchPanel:->
 		@trigger 'showSearchPanel'
-		#
+		
 	#タイムラインパネル表示ボタンが押下された
 	showTLPanel:->
 		#
@@ -758,6 +818,7 @@ class ClickOnlyButton extends Backbone.View
 	onMouseUp:(e)->
 		e.preventDefault()
 		@trigger 'change'
+
 	destroy:->
 		$(@el).unbind()
 		$(@el).remove()
@@ -800,16 +861,21 @@ class Shadow extends Backbone.View
 
 	initialize:->
 		$(window).bind "load resize orientationchange",@resize
+
 	@show:=>
 		Shadow.setSize()
 		$(@el).show()
+
 	@hide:=>
 		Shadow.setSize()
 		$(@el).hide()
+
 	resize:-> Shadow.setSize()
+
 	@setSize:-> 
 		$(@el).width Browser.width
 		$(@el).height Browser.height
+
 	@isShow:=>
 		res = $(@el).css 'display'
 		if res is 'none' then false else true
@@ -820,20 +886,25 @@ class Popup extends Backbone.View
 	initialize:->
 		_.bindAll @
 		$(window).bind "resize orientationchange",@resize
-	openFromPoint:(p)->
+
+	openPopupFromPoint:(p)->
 		$.getJSON searchPhp,{'n':p},(data,status)->
+			#タップ拡大時に特殊なフラグによって条件分岐するならココ
 			if status and data isnt null then Popup.render data[0]
+
 	@clear:->
 		#
 		if $(Popup.el).html() isnt ''
 			$("#closeButton").unbind()
 			$(Popup.el).html ''
+
 	@closePopup:(e)->
 		if e isnt undefined
 			e.stopPropagation()
 			e.preventDefault()
 		Popup.clear()
 		Popup.hide()
+
 	@render:(data)->
 		Popup.show()
 		$('<img />').
@@ -875,14 +946,18 @@ class Popup extends Backbone.View
 		Shadow.setSize()
 		$(@el).show()
 		Shadow.show()
+
 	@hide:=>
 		Shadow.setSize()
 		$(@el).hide()
 		Shadow.hide()
+
 	resize:-> Shadow.setSize()
+
 	@setSize:-> 
 		$(@el).width Browser.width
 		$(@el).height Browser.height
+
 	resize:->
 		#	Browser.width = if Math.abs window.orientation isnt 90 then screen.width else screen.height
 		#	Browser.height = if Math.abs window.orientation isnt 90 then screen.height-64 else screen.width-52
