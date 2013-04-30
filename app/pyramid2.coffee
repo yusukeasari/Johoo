@@ -54,6 +54,8 @@ class PhotomosaicViewer extends Backbone.View
 	initialize:->
 		_.bindAll @
 
+		@smodel = new SModel
+
 		#環境設定とか
 		@uniBrowse = new Browser
 
@@ -78,6 +80,19 @@ class PhotomosaicViewer extends Backbone.View
 			Pyramid.hide()
 			ControlPanel.hide()
 
+###*
+ * Class SModel 現在はイベント管理のみ
+ * 
+###
+class SModel extends Backbone.Model
+	setEvent:(_target,_eventname)=>
+		@.bind _eventname,(_data) =>
+			@cEvent(_eventname,_data)
+	removeEvent:(_e)=>
+		@.unbind _e
+	cEvent:(_event,_data)->
+		@trigger "#{_event}R",_data
+
 class SearchPanel extends Backbone.View
 	@el: '#SearchPanel'
 	searchQuery: ''
@@ -101,9 +116,11 @@ class SearchPanel extends Backbone.View
 				@setup()
 
 	onclicktimeline:(d)->
+		#GW明けここから
 		console.log "onclicktimeline",d
 	appendTimeline:(tile)->
 		timelineChildView = new TimelineChildView model: tile
+
 		$("#searchResult").append timelineChildView.render().el
 
 	setup:->
@@ -193,22 +210,31 @@ class TimelineChild extends Backbone.Model
 	defaults:
 		data: ''
 
+	initialize:->
+		@bind 'onclicktimeline',@onclicktimeline
+
 	clear:->
+		@unbind
 		@destroy
 		@view.unrender()
 
 class TimelineChildView extends Backbone.View
 	tagName: 'div'
+	id: ''
+
+	events:
+		"click"	:	"onclicks"
 
 	initialize:->
 		#クラス内でthisを使うおまじない
 		_.bindAll @
 
-		@model.view = @;
+		@model.view = @
 
 	#tile描画に必要なhtml情報をreturnする
-	render: =>
+	render:=>
 		item = @model.get 'data'
+		@id = item.id
 		tl = $(@el).
 		  attr('class','timelineChild').
 		  attr('id','timelineChild'+item.id)
@@ -232,12 +258,15 @@ class TimelineChildView extends Backbone.View
 		$('<br />').
 		  attr('class','timelineBR').
 		  appendTo tl
-
+		
 		@
 
 	unrender:=>
 		$(@el).remove()
 		$(@el).unbind()
+
+	onclicks:=>
+		@model.trigger 'onclicktimeline',@id
 
 class SearchResult extends Backbone.View
 
