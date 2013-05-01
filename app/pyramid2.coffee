@@ -5,7 +5,10 @@ blockWidth = 20
 blockHeight = 20
 minZoom = 1
 
-motifWidth = 56
+#ズームアウト未実装
+commentZoom = false
+
+motifWidth = 85
 motifHeight = 60
 
 pinchTrigger = 15
@@ -18,8 +21,8 @@ zoomImageDir = 'swfData/blockimg/'
 tileImageExtension = '.jpg'
 
 minBlockSize = 1
-arrZoomSizeX = [13,13,26,52,104,208]
-arrZoomSizeY = [9,9,18,36,72,144]
+arrZoomSizeX = [8,8,16,32,64,128,256]
+arrZoomSizeY = [8,8,16,32,64,128,256]
 
 #外部設定予定 ここまで
 nowZoom = minZoom
@@ -73,6 +76,11 @@ class PhotomosaicViewer extends Backbone.View
 
 		#フォトモザイク部分がクリックされ、かつ有効な座標であった場合、拡大表示を実行
 		@pyramid.bind 'openPopupFromPoint',(p) => @popup.openPopupFromPoint p
+		@searchPanel.bind 'onclicktimeline',(d) =>
+			SearchPanel.hide()
+			Pyramid.show()
+			ControlPanel.show()
+			@pyramid.moveToNum d
 		#コンパネイベント
 		@controlPanel.bind 'change',(h) => @pyramid.update h
 		@controlPanel.bind 'showSearchPanel', =>
@@ -96,6 +104,7 @@ class SModel extends Backbone.Model
 class SearchPanel extends Backbone.View
 	@el: '#SearchPanel'
 	searchQuery: ''
+	@timeline: ''
 
 	initialize:->
 		_.bindAll @
@@ -114,10 +123,16 @@ class SearchPanel extends Backbone.View
 			else
 				$(SearchPanel.el).html(data)
 				@setup()
+		_clear = =>
+			@execSearched = false
+			@clear()
 
 	onclicktimeline:(d)->
 		#GW明けここから
-		console.log "onclicktimeline",d
+		#@clear()
+		@clear()
+		@trigger 'onclicktimeline',d
+		console.log "S onclicktimeline",d
 	appendTimeline:(tile)->
 		timelineChildView = new TimelineChildView model: tile
 
@@ -133,11 +148,7 @@ class SearchPanel extends Backbone.View
 				@loading true
 				$(@el).trigger 'bottom'
 
-			#else if @loadingStatus and $(document).height() > $(window).scrollTop()+Browser.height-100
-			#	@loading false
-
 	bottom:=>
-		#$('html,body').animate({scrollTop: $(selector).offset().top},'slow')
 		setTimeout =>
 			@sendQuery()
 		, 1500
@@ -152,9 +163,9 @@ class SearchPanel extends Backbone.View
 			$('#loadingAnimation').append('<span style="font-size:36px;">MORE RESULT</span>')
 			@loadingStatus = bool
 
-	onTapSubmitButton:->
+	onTapSubmitButton:=>
 		@execSearched = true
-		@timeline.each @clear
+		@clear()
 		@searchQuery.resetPageCount()
 		@sendQuery()
 
@@ -191,20 +202,28 @@ class SearchPanel extends Backbone.View
 		@loading false
 
 	@show:=>
+		@_clear
 		Shadow.show()
 		$(@el).show()
 
 	@hide:=>
 		@execSearched = false
 		@loadingStatus = false
-		@timeline.each @clear
 		Shadow.hide()
 		$(@el).hide()
-	clear:(tl)->
-		tl.clear()
+
+	clear:=>
+		@execSearched = false
+		$('#loadingAnimation').html('')
+		@timeline.clear()
 
 class Timeline extends Backbone.Collection
 	model: TimelineChild
+
+	clear:->
+		console.log "CLEAR!!!"
+		@each (tlChild) ->
+			tlChild.clear()
 
 class TimelineChild extends Backbone.Model
 	defaults:
@@ -220,21 +239,21 @@ class TimelineChild extends Backbone.Model
 
 class TimelineChildView extends Backbone.View
 	tagName: 'div'
-	id: ''
-
+	data: ''
+	
 	events:
 		"click"	:	"onclicks"
 
 	initialize:->
 		#クラス内でthisを使うおまじない
 		_.bindAll @
-
-		@model.view = @
-
+		
+		@model.view = @;
+		
 	#tile描画に必要なhtml情報をreturnする
 	render:=>
 		item = @model.get 'data'
-		@id = item.id
+		@data = item
 		tl = $(@el).
 		  attr('class','timelineChild').
 		  attr('id','timelineChild'+item.id)
@@ -249,7 +268,6 @@ class TimelineChildView extends Backbone.View
 		  html(item.b1).
 		  appendTo tl
 		$('<br />').
-		  attr('class','timelineBR').
 		  appendTo tl
 		$('<div />').
 		  attr('class','tlMsg').
@@ -266,7 +284,7 @@ class TimelineChildView extends Backbone.View
 		$(@el).unbind()
 
 	onclicks:=>
-		@model.trigger 'onclicktimeline',@id
+		@model.trigger 'onclicktimeline',@data.num
 
 class SearchResult extends Backbone.View
 
@@ -274,7 +292,6 @@ class SearchResult extends Backbone.View
 	linePerPage:30
 
 	sendQuery:(query)=>
-		console.log 'Q:',query
 		$.ajax "timeline.json",
 			type:"GET"
 			#data:query
@@ -390,17 +407,17 @@ class Pyramid extends Backbone.View
 			$(@el).bind 'touchstart',@onMouseDown
 			$(@el).bind 'touchend',@onMouseUp
 			$(@el).bind 'touchmove',@onMouseMove
+			#一旦コメントアウト
 			#$(@el).bind 'gesturestart',@onGestureStart
 			#$(@el).bind 'gesturechange',@onGestureMove
 			#$(@el).bind 'gestureend',@onGestureEnd
-			#
+			
 		else
 			$(@el).bind 'mousedown',@onMouseDown
 			$(@el).bind 'mouseup',@onMouseUp
 			$(@el).bind 'mousemove',@onMouseMove
 
 		$(@el).flickable()
-		#Pyramid.el = @el
 
 		#初期化
 		@dragging = false
@@ -436,18 +453,28 @@ class Pyramid extends Backbone.View
 			@dragStartPyramidX = @getPyramidPos()[0]
 
 			@dragStartPyramidY = @getPyramidPos()[1]
+		else
+			$(@el).css {'cursor':'-moz-grab'}
+			
+			@dragStartX = cords[0][0]
+			@dragStartY = cords[0][1]
+			@dragStartPyramidX = @getPyramidPos()[0]
+
+			@dragStartPyramidY = @getPyramidPos()[1]
+
+		###
 		else if Utility.type(cords[0]) is 'array'
 			$(@el).css {'cursor':'-moz-grab'}
 			@pinchinStartCenterX = (cords[0][0] + cords[1][0])/2
 			@pinchinStartCenterY = (cords[0][1] + cords[1][1])/2
 
 			@pinchinStart = cords
-
+		###
 	onMouseUp:(e)->
 		cords = Point.getPoint e
 		e.preventDefault()
 		@dragging = false
-
+		console.log cords
 		$(@el).css {'cursor':''}
 
 		#マウスの位置がdownとupで変わらない＝単純クリックなら拡大表示実行
@@ -455,6 +482,10 @@ class Pyramid extends Backbone.View
 			#！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
 			if not Shadow.isShow()
 				@trigger 'openPopupFromPoint',@getNumFromPoint [cords[0],cords[1]]
+		else if  @dragStartX is cords[0][0] and @dragStartY is cords[0][1] and @isOnTiles [cords[0][0],cords[0][1]]
+			#！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
+			if not Shadow.isShow()
+				@trigger 'openPopupFromPoint',@getNumFromPoint [cords[0][0],cords[0][1]]
 		else
 			#フォトモザイクを描画
 			@update()
@@ -598,7 +629,28 @@ class Pyramid extends Backbone.View
 		$(@el).width zoomSize[nowZoom][0];
 		$(@el).height zoomSize[nowZoom][1];
 		@render @checkActiveTile()
-	
+	moveToNum:(d)->
+
+		###
+		xb = Math.floor (p[0]-@getPyramidPos()[0])/arrZoomSizeX[nowZoom]
+		yb = Math.round (p[1]-@getPyramidPos()[1])/arrZoomSizeY[nowZoom]
+		yb = if yb is 0 or yb is 1 then 0 else yb-1
+		xb++;
+		
+		motifWidth*yb+xb
+		###
+		tx = d%56 * arrZoomSizeX[nowZoom]*-1
+		ty = Math.floor(d/56)*arrZoomSizeX[nowZoom]*-1
+		console.log tx,ty
+
+		$(@el).css
+			left:(Browser.width/2)+tx
+			top:(Browser.height/2)+ty
+		setTimeout =>
+			@update ''
+		, 500
+
+
 	moveToPinchZoomInPos:->
 		$(@el).css
 			left:$(@el).position().left + @pinchinStartCenterX*-1
@@ -612,10 +664,11 @@ class Pyramid extends Backbone.View
 	moveToZoomInPos:->
 		pyramidPos = @convertToGrobalCenterPos $(@el).position().left,$(@el).position().top
 
-		if nowZoom isnt zoomSize.length-1
-			newPyramidPos = @convertToLocalCenterPos pyramidPos[0]*2,pyramidPos[1]*2
-		else
+		if nowZoom isnt zoomSize.length-1 and commentZoom is true
 			newPyramidPos = @convertToLocalCenterPos pyramidPos[0],pyramidPos[1]
+		else
+			newPyramidPos = @convertToLocalCenterPos pyramidPos[0]*2,pyramidPos[1]*2
+
 		$(@el).css
 			left:newPyramidPos[0]
 			top:newPyramidPos[1]
@@ -628,7 +681,7 @@ class Pyramid extends Backbone.View
 		else if prevZoom is 8
 			newPyramidPos = @convertToLocalCenterPos pyramidPos[0],pyramidPos[1]
 		else
-			newPyramidPos = @convertToLocalCenterPos pyramidPos[0]/2,pyramidPos[0]/2
+			newPyramidPos = @convertToLocalCenterPos pyramidPos[0]/2,pyramidPos[1]/2
 
 		$(@el).css
 			left:newPyramidPos[0]
@@ -636,7 +689,7 @@ class Pyramid extends Backbone.View
 
 	convertToGrobalCenterPos:(_x,_y)->
 		if nowZoom isnt 1 or prevZoom is zoomSize.length-1
-			console.log "GROBAL"
+			console.log "GROBAL",arrZoomSizeX[nowZoom],arrZoomSizeY[nowZoom],nowZoom
 			prevPyramidWidth = zoomSize[prevZoom][0]
 			prevPyramidHeight = zoomSize[prevZoom][1]
 		else
@@ -650,7 +703,7 @@ class Pyramid extends Backbone.View
 
 	convertToLocalCenterPos:(_x,_y)->
 		#注意
-		console.log _x,_y
+		console.log "convertToLocalCenterPos",_x,_y
 		nowPyramidWidth =  zoomSize[nowZoom][0]
 		nowPyramidHeight =  zoomSize[nowZoom][1]
 		
@@ -862,14 +915,17 @@ class Point
 				[e.originalEvent.touches[0].pageX,e.originalEvent.touches[0].pageY]
 
 			#for Multi Touch
-			else
-				console.log "MULTI"
+			else if e.originalEvent.touches.length > 1
+				console.log "MULTI",e.originalEvent.touches
 				cords = []
 				for item in e.originalEvent.touches
 					console.log item.pageX,item.pageY
 					cords.push [item.pageX,item.pageY]
 				#座標をかえす
 				cords
+			else
+				console.log "SINGLE",e.originalEvent
+				[e.originalEvent.changedTouches[0].pageX,e.originalEvent.changedTouches[0].pageY]
 		else
 			#PC
 			#座標をかえす

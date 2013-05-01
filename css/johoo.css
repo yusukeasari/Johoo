@@ -11,7 +11,7 @@ body {
 	z-index: 1;
 }
 #Tiles {
-	/* background-color:#FF0000;*/
+	background-color:#E7E7E7;
 	position:relative;
 
 	z-index: 2;
@@ -97,7 +97,9 @@ body {
 }
 .timelineChild{
 	width:100%;
-	background-color: #FF0000;
+	background-color: #E7E7E7;
+	border:solid 1px #CCCCCC;
+	color:#000;
 }
 .timelineBR {
 	clear:both;
@@ -107,7 +109,10 @@ body {
 }
 .tlTitle{
 	float:left;
+	margin-left:5px;
+	font-weight: bold;
 }
 .tlMsg{
 	float:left;
+	margin-left:5px;
 }
