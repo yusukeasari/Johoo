@@ -27,6 +27,6 @@
 </div>
 
 
-<script src="app/pyramid2.js"></script>
+<script src="app/Johoo.js"></script>
 </body>
 </html>
