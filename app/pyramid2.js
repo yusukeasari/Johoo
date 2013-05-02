@@ -329,7 +329,6 @@
     Timeline.prototype.model = TimelineChild;
 
     Timeline.prototype.clear = function() {
-      console.log("CLEAR!!!");
       return this.each(function(tlChild) {
         return tlChild.clear();
       });
