@@ -9,7 +9,7 @@ minZoom = 1
 commentZoom = false
 
 motifWidth = 85
-motifHeight = 60
+motifHeight = 120
 
 pinchTrigger = 15
 
@@ -21,10 +21,11 @@ zoomImageDir = 'swfData/blockimg/'
 tileImageExtension = '.jpg'
 
 minBlockSize = 1
-arrZoomSizeX = [8,8,16,32,64,128,256]
-arrZoomSizeY = [8,8,16,32,64,128,256]
+arrZoomSizeX = [4,4,8,16,32,64,128,256]
+arrZoomSizeY = [4,4,8,16,32,64,128,256]
 
 #外部設定予定 ここまで
+tlImageWidth = 80
 nowZoom = minZoom
 prevZoom = minZoom
 zoomSize = [
@@ -33,7 +34,9 @@ zoomSize = [
 	[motifWidth * minBlockSize * arrZoomSizeX[2], motifHeight * minBlockSize * arrZoomSizeY[2]],
 	[motifWidth * minBlockSize * arrZoomSizeX[3], motifHeight * minBlockSize * arrZoomSizeY[3]],
 	[motifWidth * minBlockSize * arrZoomSizeX[4], motifHeight * minBlockSize * arrZoomSizeY[4]],
-	[motifWidth * minBlockSize * arrZoomSizeX[5], motifHeight * minBlockSize * arrZoomSizeY[5]]
+	[motifWidth * minBlockSize * arrZoomSizeX[5], motifHeight * minBlockSize * arrZoomSizeY[5]],
+	[motifWidth * minBlockSize * arrZoomSizeX[6], motifHeight * minBlockSize * arrZoomSizeY[5]],
+	[motifWidth * minBlockSize * arrZoomSizeX[7], motifHeight * minBlockSize * arrZoomSizeY[5]]
 ]
 
 #ピンチイン/アウトのトリガーとなる距離配列を作る
@@ -258,7 +261,7 @@ class TimelineChildView extends Backbone.View
 		  attr('id','timelineChild'+item.id)
 		$('<img />').
 		  attr('class','tlImg').
-		  attr('width',80).
+		  attr('width',tlImageWidth).
 		  attr('src','swfData/blockimg/'+item.img+'.jpg').
 		  load().
 		  appendTo tl
