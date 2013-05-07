@@ -395,8 +395,10 @@ class Utility
  * Class Pyramidクラス
 ###
 class Pyramid extends Backbone.View
-	el: "#Tiles"
 	@outerel: '#Pyramid'
+
+	el: "#Tiles"
+	searchHit: ''
 
 	###
 	初期化メソッド
@@ -426,7 +428,7 @@ class Pyramid extends Backbone.View
 
 		@tiles = new Tiles
 		@tiles.bind 'add', @appendTile
-		@tiles.bind 'change', @changeTile
+		@marker = new Marker
 
 		$(@el).css {'cursor':'-moz-grab'}
 
@@ -612,6 +614,7 @@ class Pyramid extends Backbone.View
 			x=t[0]
 		y = t[1]
 
+
 	###*
 	 * イベントコールバック用
 	###
@@ -743,6 +746,13 @@ class Pyramid extends Backbone.View
 
 	getPyramidPos:->
 		[$(@el).position().left,$(@el).position().top]
+
+class Marker extends Backbone.View
+	#
+	el: '#Tiles'
+
+	initialize:->
+		#
 
 ###*
  * Tileクラス
