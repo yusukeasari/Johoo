@@ -21,13 +21,17 @@ zoomImageDir = 'swfData/blockimg/'
 tileImageExtension = '.jpg'
 
 minBlockSize = 1
-arrZoomSizeX = [4,4,8,16,32,64,128,256]
-arrZoomSizeY = [4,4,8,16,32,64,128,256]
 
-#外部設定予定 ここまで
+#0番目は適当に
+arrZoomSizeX = [0,4,8,16,32,64,128,256]
+arrZoomSizeY = [0,4,8,16,32,64,128,256]
+
+### 外部設定予定 ここまで ###
 tlImageWidth = 80
 nowZoom = minZoom
 prevZoom = minZoom
+
+#0番目は適当に
 zoomSize = [
 	[],
 	[motifWidth * minBlockSize * arrZoomSizeX[1], motifHeight * minBlockSize * arrZoomSizeY[1]],
@@ -35,8 +39,8 @@ zoomSize = [
 	[motifWidth * minBlockSize * arrZoomSizeX[3], motifHeight * minBlockSize * arrZoomSizeY[3]],
 	[motifWidth * minBlockSize * arrZoomSizeX[4], motifHeight * minBlockSize * arrZoomSizeY[4]],
 	[motifWidth * minBlockSize * arrZoomSizeX[5], motifHeight * minBlockSize * arrZoomSizeY[5]],
-	[motifWidth * minBlockSize * arrZoomSizeX[6], motifHeight * minBlockSize * arrZoomSizeY[5]],
-	[motifWidth * minBlockSize * arrZoomSizeX[7], motifHeight * minBlockSize * arrZoomSizeY[5]]
+	[motifWidth * minBlockSize * arrZoomSizeX[6], motifHeight * minBlockSize * arrZoomSizeY[6]],
+	[motifWidth * minBlockSize * arrZoomSizeX[7], motifHeight * minBlockSize * arrZoomSizeY[7]]
 ]
 
 #ピンチイン/アウトのトリガーとなる距離配列を作る
@@ -77,12 +81,24 @@ class PhotomosaicViewer extends Backbone.View
 		#コンパネ ズームボタン、検索ウィンドウ表示ボタン、ヘルプ表示ボタンとか
 		@controlPanel = new ControlPanel
 
+		@marker = new Marker
+
 		#フォトモザイク部分がクリックされ、かつ有効な座標であった場合、拡大表示を実行
 		@pyramid.bind 'openPopupFromPoint',(p) => @popup.openPopupFromPoint p
+		@pyramid.bind 'marker', =>
+			console.log 'marker'
+			@marker.render()
+		@searchPanel.bind 'startSearch', =>
+			@marker.clear()
 		@searchPanel.bind 'onclicktimeline',(d) =>
 			SearchPanel.hide()
 			Pyramid.show()
 			ControlPanel.show()
+
+			nowZoom = 5
+			prevZoom = 4
+
+			@marker.setResult d
 			@pyramid.moveToNum d
 		#コンパネイベント
 		@controlPanel.bind 'change',(h) => @pyramid.update h
@@ -146,10 +162,10 @@ class SearchPanel extends Backbone.View
 		$('#searchSubmitButton').bind 'click',@onTapSubmitButton
 		$(@el).bind 'bottom',@bottom
 
-		$(window).scroll =>
-			if $(document).height() < $(window).scrollTop()+Browser.height+4 and @loadingStatus is false and @execSearched
-				@loading true
-				$(@el).trigger 'bottom'
+		#$(window).scroll =>
+		#	if $(document).height() < $(window).scrollTop()+Browser.height+4 and @loadingStatus is false and @execSearched
+		#		@loading true
+		#		$(@el).trigger 'bottom'
 
 	bottom:=>
 		setTimeout =>
@@ -160,10 +176,17 @@ class SearchPanel extends Backbone.View
 		if bool
 			$('#loadingAnimation').html('')
 			$('#loadingAnimation').append('<img src="img/loadingAnimation.gif">')
+			$('#loadingAnimation').height 48
 			@loadingStatus = bool
 		else
 			$('#loadingAnimation').html('')
-			$('#loadingAnimation').append('<span style="font-size:36px;">MORE RESULT</span>')
+			$('#loadingAnimation').append('<span style="font-size:24px;margin:auto;vertical-align: middle;">タップして続きを見る</span>')
+			$('#loadingAnimation').height 48
+			$('#loadingAnimation').bind 'click', =>
+				@loading true
+				$(@el).trigger 'bottom'
+				$('#loadingAnimation').unbind()
+
 			@loadingStatus = bool
 
 	onTapSubmitButton:=>
@@ -171,6 +194,8 @@ class SearchPanel extends Backbone.View
 		@clear()
 		@searchQuery.resetPageCount()
 		@sendQuery()
+
+		@trigger 'startSearch'
 
 	sendQuery:->
 		query = ''
@@ -208,10 +233,15 @@ class SearchPanel extends Backbone.View
 		@_clear
 		Shadow.show()
 		$(@el).show()
+		$('#loadingAnimation').show()
+		$('#loadingAnimation').height 0
 
 	@hide:=>
 		@execSearched = false
 		@loadingStatus = false
+		$('#loadingAnimation').hide()
+		$('#loadingAnimation').html('')
+		$('#loadingAnimation').height 0
 		Shadow.hide()
 		$(@el).hide()
 
@@ -256,6 +286,7 @@ class TimelineChildView extends Backbone.View
 	render:=>
 		item = @model.get 'data'
 		@data = item
+
 		tl = $(@el).
 		  attr('class','timelineChild').
 		  attr('id','timelineChild'+item.id)
@@ -294,13 +325,20 @@ class SearchResult extends Backbone.View
 	linePerPage:30
 
 	sendQuery:(query)=>
+		if query isnt ''
+			pageQuery = '&page='+@page
+		else
+			pageQuery = 'page='+@page
+
 		$.ajax "timeline.json",
 			type:"GET"
-			#data:query
+			data:query+pageQuery
 			dataType:"json"
 			error: (jqXHR, textStatus, errorThrown) ->
 				@trigger 'error'
-			success:(data) => @queryResult data
+			success:(data) =>
+				@nextPage()
+				@queryResult data
 
 	queryResult:(result)=>
 		@trigger 'return',result
@@ -428,7 +466,7 @@ class Pyramid extends Backbone.View
 
 		@tiles = new Tiles
 		@tiles.bind 'add', @appendTile
-		@marker = new Marker
+		
 
 		$(@el).css {'cursor':'-moz-grab'}
 
@@ -579,8 +617,8 @@ class Pyramid extends Backbone.View
 		#タイル番号へ
 		loadStartX = Math.floor displayAreaStartX/tileWidth
 		loadStartY = Math.floor displayAreaStartY/tileHeight
-		loadEndX = Math.floor displayAreaEndX/tileWidth
-		loadEndY = Math.floor displayAreaEndY/tileHeight
+		loadEndX = if Math.floor displayAreaEndX/tileWidth is Math.floor zoomSize[nowZoom][0]/tileWidth then Math.floor(displayAreaEndX/tileWidth)-1 else Math.floor displayAreaEndX/tileWidth
+		loadEndY = if Math.floor displayAreaEndY/tileHeight is Math.floor zoomSize[nowZoom][1]/tileHeight then Math.floor(displayAreaEndY/tileHeight)-1 else Math.floor displayAreaEndY/tileHeight
 
 		[loadStartX,loadStartY,loadEndX,loadEndY]
 
@@ -614,6 +652,7 @@ class Pyramid extends Backbone.View
 			x=t[0]
 		y = t[1]
 
+		@trigger 'marker'
 
 	###*
 	 * イベントコールバック用
@@ -634,23 +673,16 @@ class Pyramid extends Backbone.View
 		$(@el).width zoomSize[nowZoom][0];
 		$(@el).height zoomSize[nowZoom][1];
 		@render @checkActiveTile()
+
 	moveToNum:(d)->
 
-		###
-		xb = Math.floor (p[0]-@getPyramidPos()[0])/arrZoomSizeX[nowZoom]
-		yb = Math.round (p[1]-@getPyramidPos()[1])/arrZoomSizeY[nowZoom]
-		yb = if yb is 0 or yb is 1 then 0 else yb-1
-		xb++;
-		
-		motifWidth*yb+xb
-		###
-		tx = d%56 * arrZoomSizeX[nowZoom]*-1
-		ty = Math.floor(d/56)*arrZoomSizeX[nowZoom]*-1
+		tx = d%motifWidth * arrZoomSizeX[nowZoom]*-1
+		ty = Math.floor(d/motifWidth)*arrZoomSizeX[nowZoom]*-1
 		console.log tx,ty
 
 		$(@el).css
-			left:(Browser.width/2)+tx
-			top:(Browser.height/2)+ty
+			left:(Browser.width/2)+tx+arrZoomSizeX[nowZoom]/2
+			top:(Browser.height/2)+ty-arrZoomSizeY[nowZoom]/2
 		setTimeout =>
 			@update ''
 		, 500
@@ -748,11 +780,51 @@ class Pyramid extends Backbone.View
 		[$(@el).position().left,$(@el).position().top]
 
 class Marker extends Backbone.View
-	#
-	el: '#Tiles'
+	result: ''
 
 	initialize:->
-		#
+	change:->
+	clear:->
+		@result = ''
+		$('#Marker').remove()
+	setResult:(num)->
+		@result = num
+		console.log 'result',@result
+
+	render:->
+		if @result isnt ''
+			$('#Marker').remove()
+
+			tx = (@result%motifWidth-1) * arrZoomSizeX[nowZoom]
+			ty = Math.floor(@result/motifWidth)*arrZoomSizeY[nowZoom]
+			console.log '@result',@resul,tx,ty
+			if tx < 0
+				tx = 0
+
+			$('<div />').
+				attr('id','Marker').
+				appendTo $('#Tiles')
+
+
+			weight = if Math.floor(nowZoom/2) < 1 then 1 else Math.floor(nowZoom/2)
+
+			$('#Marker').css
+				zIndex:3000
+				width:arrZoomSizeX[nowZoom]-(2*weight)
+				height:arrZoomSizeY[nowZoom]-(2*weight)
+				left:tx
+				top:ty-2
+				border:'solid '+weight+'px #FF0000'
+
+			setTimeout =>
+				@swap()
+			, 1000
+			console.log 'AAA:',weight
+		else
+			console.log 'result',@result
+
+	swap:->
+		$('#Marker').css {'zIndex':3000}
 
 ###*
  * Tileクラス
@@ -789,6 +861,11 @@ class TileView extends Backbone.View
 		y = @model.get 'y'
 		z = @model.get 'z'
 		url = tileImageDir + "#{z}/#{y}/" + 'z' + z + 'x' + x + 'y' + y + tileImageExtension
+
+
+		#httpRequest = $.get url
+		#console.log 'REQ',url
+		#if httpRequest.status isnt 404
 		$(@el).
 			attr({id:'z'+z+'x'+x+'y'+y,src:url}).
 			css({'position':'absolute','left':x*tileWidth,'top':y*tileWidth}).
@@ -981,6 +1058,7 @@ class Popup extends Backbone.View
 	openPopupFromPoint:(p)->
 		$.getJSON searchPhp,{'n':p},(data,status)->
 			#タップ拡大時に特殊なフラグによって条件分岐するならココ
+			##and "#{data.img}" isnt 'undefined' 
 			if status and data isnt null then Popup.render data[0]
 
 	@clear:->

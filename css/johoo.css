@@ -16,6 +16,10 @@ body {
 
 	z-index: 2;
 }
+#Marker {
+	position:relative;
+	/*background-color:#FF0000;*/
+}
 #Shadow {
 	opacity: 0.8;
 	display: none;

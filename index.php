@@ -23,10 +23,11 @@
 	<div id="TimelineButton"></div>
 </div>
 <div id="Pyramid">
+	
 	<div id="Tiles"></div>
 </div>
 
 
-<script src="app/Johoo.js"></script>
+<script src="app/johoo.js"></script>
 </body>
 </html>

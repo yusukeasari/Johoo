@@ -35,9 +35,13 @@
 
   minBlockSize = 1;
 
-  arrZoomSizeX = [4, 4, 8, 16, 32, 64, 128, 256];
+  arrZoomSizeX = [0, 4, 8, 16, 32, 64, 128, 256];
 
-  arrZoomSizeY = [4, 4, 8, 16, 32, 64, 128, 256];
+  arrZoomSizeY = [0, 4, 8, 16, 32, 64, 128, 256];
+
+  /* 外部設定予定 ここまで
+  */
+
 
   tlImageWidth = 80;
 
@@ -45,7 +49,7 @@
 
   prevZoom = minZoom;
 
-  zoomSize = [[], [motifWidth * minBlockSize * arrZoomSizeX[1], motifHeight * minBlockSize * arrZoomSizeY[1]], [motifWidth * minBlockSize * arrZoomSizeX[2], motifHeight * minBlockSize * arrZoomSizeY[2]], [motifWidth * minBlockSize * arrZoomSizeX[3], motifHeight * minBlockSize * arrZoomSizeY[3]], [motifWidth * minBlockSize * arrZoomSizeX[4], motifHeight * minBlockSize * arrZoomSizeY[4]], [motifWidth * minBlockSize * arrZoomSizeX[5], motifHeight * minBlockSize * arrZoomSizeY[5]], [motifWidth * minBlockSize * arrZoomSizeX[6], motifHeight * minBlockSize * arrZoomSizeY[5]], [motifWidth * minBlockSize * arrZoomSizeX[7], motifHeight * minBlockSize * arrZoomSizeY[5]]];
+  zoomSize = [[], [motifWidth * minBlockSize * arrZoomSizeX[1], motifHeight * minBlockSize * arrZoomSizeY[1]], [motifWidth * minBlockSize * arrZoomSizeX[2], motifHeight * minBlockSize * arrZoomSizeY[2]], [motifWidth * minBlockSize * arrZoomSizeX[3], motifHeight * minBlockSize * arrZoomSizeY[3]], [motifWidth * minBlockSize * arrZoomSizeX[4], motifHeight * minBlockSize * arrZoomSizeY[4]], [motifWidth * minBlockSize * arrZoomSizeX[5], motifHeight * minBlockSize * arrZoomSizeY[5]], [motifWidth * minBlockSize * arrZoomSizeX[6], motifHeight * minBlockSize * arrZoomSizeY[6]], [motifWidth * minBlockSize * arrZoomSizeX[7], motifHeight * minBlockSize * arrZoomSizeY[7]]];
 
   pinchTriggerArray = [];
 
@@ -88,13 +92,24 @@
       this.popup = new Popup;
       this.searchPanel = new SearchPanel;
       this.controlPanel = new ControlPanel;
+      this.marker = new Marker;
       this.pyramid.bind('openPopupFromPoint', function(p) {
         return _this.popup.openPopupFromPoint(p);
+      });
+      this.pyramid.bind('marker', function() {
+        console.log('marker');
+        return _this.marker.render();
+      });
+      this.searchPanel.bind('startSearch', function() {
+        return _this.marker.clear();
       });
       this.searchPanel.bind('onclicktimeline', function(d) {
         SearchPanel.hide();
         Pyramid.show();
         ControlPanel.show();
+        nowZoom = 5;
+        prevZoom = 4;
+        _this.marker.setResult(d);
         return _this.pyramid.moveToNum(d);
       });
       this.controlPanel.bind('change', function(h) {
@@ -205,20 +220,12 @@
     };
 
     SearchPanel.prototype.setup = function() {
-      var _this = this;
-
       $('#searchSubmitButton').css({
         width: 150,
         height: 30
       });
       $('#searchSubmitButton').bind('click', this.onTapSubmitButton);
-      $(this.el).bind('bottom', this.bottom);
-      return $(window).scroll(function() {
-        if ($(document).height() < $(window).scrollTop() + Browser.height + 4 && _this.loadingStatus === false && _this.execSearched) {
-          _this.loading(true);
-          return $(_this.el).trigger('bottom');
-        }
-      });
+      return $(this.el).bind('bottom', this.bottom);
     };
 
     SearchPanel.prototype.bottom = function() {
@@ -230,13 +237,22 @@
     };
 
     SearchPanel.prototype.loading = function(bool) {
+      var _this = this;
+
       if (bool) {
         $('#loadingAnimation').html('');
         $('#loadingAnimation').append('<img src="img/loadingAnimation.gif">');
+        $('#loadingAnimation').height(48);
         return this.loadingStatus = bool;
       } else {
         $('#loadingAnimation').html('');
-        $('#loadingAnimation').append('<span style="font-size:36px;">MORE RESULT</span>');
+        $('#loadingAnimation').append('<span style="font-size:24px;margin:auto;vertical-align: middle;">タップして続きを見る</span>');
+        $('#loadingAnimation').height(48);
+        $('#loadingAnimation').bind('click', function() {
+          _this.loading(true);
+          $(_this.el).trigger('bottom');
+          return $('#loadingAnimation').unbind();
+        });
         return this.loadingStatus = bool;
       }
     };
@@ -245,7 +261,8 @@
       this.execSearched = true;
       this.clear();
       this.searchQuery.resetPageCount();
-      return this.sendQuery();
+      this.sendQuery();
+      return this.trigger('startSearch');
     };
 
     SearchPanel.prototype.sendQuery = function() {
@@ -300,12 +317,17 @@
     SearchPanel.show = function() {
       SearchPanel._clear;
       Shadow.show();
-      return $(SearchPanel.el).show();
+      $(SearchPanel.el).show();
+      $('#loadingAnimation').show();
+      return $('#loadingAnimation').height(0);
     };
 
     SearchPanel.hide = function() {
       SearchPanel.execSearched = false;
       SearchPanel.loadingStatus = false;
+      $('#loadingAnimation').hide();
+      $('#loadingAnimation').html('');
+      $('#loadingAnimation').height(0);
       Shadow.hide();
       return $(SearchPanel.el).hide();
     };
@@ -432,15 +454,23 @@
     SearchResult.prototype.linePerPage = 30;
 
     SearchResult.prototype.sendQuery = function(query) {
-      var _this = this;
+      var pageQuery,
+        _this = this;
 
+      if (query !== '') {
+        pageQuery = '&page=' + this.page;
+      } else {
+        pageQuery = 'page=' + this.page;
+      }
       return $.ajax("timeline.json", {
         type: "GET",
+        data: query + pageQuery,
         dataType: "json",
         error: function(jqXHR, textStatus, errorThrown) {
           return this.trigger('error');
         },
         success: function(data) {
+          _this.nextPage();
           return _this.queryResult(data);
         }
       });
@@ -609,7 +639,6 @@
       this.dragging = false;
       this.tiles = new Tiles;
       this.tiles.bind('add', this.appendTile);
-      this.marker = new Marker;
       $(this.el).css({
         'cursor': '-moz-grab'
       });
@@ -796,8 +825,8 @@
       }
       loadStartX = Math.floor(displayAreaStartX / tileWidth);
       loadStartY = Math.floor(displayAreaStartY / tileHeight);
-      loadEndX = Math.floor(displayAreaEndX / tileWidth);
-      loadEndY = Math.floor(displayAreaEndY / tileHeight);
+      loadEndX = Math.floor(displayAreaEndX / tileWidth === Math.floor(zoomSize[nowZoom][0] / tileWidth)) ? Math.floor(displayAreaEndX / tileWidth) - 1 : Math.floor(displayAreaEndX / tileWidth);
+      loadEndY = Math.floor(displayAreaEndY / tileHeight === Math.floor(zoomSize[nowZoom][1] / tileHeight)) ? Math.floor(displayAreaEndY / tileHeight) - 1 : Math.floor(displayAreaEndY / tileHeight);
       return [loadStartX, loadStartY, loadEndX, loadEndY];
     };
 
@@ -835,7 +864,8 @@
         y++;
         x = t[0];
       }
-      return y = t[1];
+      y = t[1];
+      return this.trigger('marker');
     };
 
     /**
@@ -864,24 +894,15 @@
     };
 
     Pyramid.prototype.moveToNum = function(d) {
-      /*
-      		xb = Math.floor (p[0]-@getPyramidPos()[0])/arrZoomSizeX[nowZoom]
-      		yb = Math.round (p[1]-@getPyramidPos()[1])/arrZoomSizeY[nowZoom]
-      		yb = if yb is 0 or yb is 1 then 0 else yb-1
-      		xb++;
-      		
-      		motifWidth*yb+xb
-      */
-
       var tx, ty,
         _this = this;
 
-      tx = d % 56 * arrZoomSizeX[nowZoom] * -1;
-      ty = Math.floor(d / 56) * arrZoomSizeX[nowZoom] * -1;
+      tx = d % motifWidth * arrZoomSizeX[nowZoom] * -1;
+      ty = Math.floor(d / motifWidth) * arrZoomSizeX[nowZoom] * -1;
       console.log(tx, ty);
       $(this.el).css({
-        left: (Browser.width / 2) + tx,
-        top: (Browser.height / 2) + ty
+        left: (Browser.width / 2) + tx + arrZoomSizeX[nowZoom] / 2,
+        top: (Browser.height / 2) + ty - arrZoomSizeY[nowZoom] / 2
       });
       return setTimeout(function() {
         return _this.update('');
@@ -1019,9 +1040,58 @@
       return _ref9;
     }
 
-    Marker.prototype.el = '#Tiles';
+    Marker.prototype.result = '';
 
     Marker.prototype.initialize = function() {};
+
+    Marker.prototype.change = function() {};
+
+    Marker.prototype.clear = function() {
+      this.result = '';
+      return $('#Marker').remove();
+    };
+
+    Marker.prototype.setResult = function(num) {
+      this.result = num;
+      return console.log('result', this.result);
+    };
+
+    Marker.prototype.render = function() {
+      var tx, ty, weight,
+        _this = this;
+
+      if (this.result !== '') {
+        $('#Marker').remove();
+        tx = (this.result % motifWidth - 1) * arrZoomSizeX[nowZoom];
+        ty = Math.floor(this.result / motifWidth) * arrZoomSizeY[nowZoom];
+        console.log('@result', this.resul, tx, ty);
+        if (tx < 0) {
+          tx = 0;
+        }
+        $('<div />').attr('id', 'Marker').appendTo($('#Tiles'));
+        weight = Math.floor(nowZoom / 2) < 1 ? 1 : Math.floor(nowZoom / 2);
+        $('#Marker').css({
+          zIndex: 3000,
+          width: arrZoomSizeX[nowZoom] - (2 * weight),
+          height: arrZoomSizeY[nowZoom] - (2 * weight),
+          left: tx,
+          top: ty - 2,
+          border: 'solid ' + weight + 'px #FF0000'
+        });
+        setTimeout(function() {
+          return _this.swap();
+        }, 1000);
+        return console.log('AAA:', weight);
+      } else {
+        return console.log('result', this.result);
+      }
+    };
+
+    Marker.prototype.swap = function() {
+      return $('#Marker').css({
+        'zIndex': 3000
+      });
+    };
 
     return Marker;
 
