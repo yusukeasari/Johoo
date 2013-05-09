@@ -20,7 +20,7 @@
 	<div id="ZoomInButton"></div>
 	<div id="ZoomOutButton"></div>
 	<div id="SearchPanelButton"></div>
-	<div id="TimelineButton"></div>
+	<div id="HomeButton"></div>
 </div>
 <div id="Pyramid">
 	

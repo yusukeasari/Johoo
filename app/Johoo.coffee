@@ -15,7 +15,9 @@ pinchTrigger = 15
 
 maxSearchResultNum = 50
 
-searchPhp = 'swfData/search.php'
+SEARCH_API = 'swfData/search.php'
+TIMELINE_API = 'swfData/search.php'
+
 tileImageDir = 'swfData/web/'
 zoomImageDir = 'swfData/blockimg/'
 tileImageExtension = '.jpg'
@@ -85,11 +87,16 @@ class PhotomosaicViewer extends Backbone.View
 
 		#フォトモザイク部分がクリックされ、かつ有効な座標であった場合、拡大表示を実行
 		@pyramid.bind 'openPopupFromPoint',(p) => @popup.openPopupFromPoint p
+
+		#検索位置を示すマーカーを表示
 		@pyramid.bind 'marker', =>
-			console.log 'marker'
 			@marker.render()
+
+		#検索開始イベント
 		@searchPanel.bind 'startSearch', =>
 			@marker.clear()
+
+		#タイムラインクリック時のイベント
 		@searchPanel.bind 'onclicktimeline',(d) =>
 			SearchPanel.hide()
 			Pyramid.show()
@@ -100,8 +107,27 @@ class PhotomosaicViewer extends Backbone.View
 
 			@marker.setResult d
 			@pyramid.moveToNum d
+
+		#メイン画面へ戻る
+		@searchPanel.bind 'backtomain', =>
+			SearchPanel.hide()
+			Pyramid.show()
+			ControlPanel.show()
+
 		#コンパネイベント
 		@controlPanel.bind 'change',(h) => @pyramid.update h
+
+		#フォトモザイクを標準位置へセット
+		@controlPanel.bind 'onclickhomebutton', =>
+			nowZoom = 1
+			prevZoom = 2
+			@pyramid.update()
+			@pyramid.pyramidSetPositionToCenter()
+			setTimeout =>
+				@pyramid.update()
+			, 100
+
+		#検索パネル表示イベント
 		@controlPanel.bind 'showSearchPanel', =>
 			SearchPanel.show()
 			Pyramid.hide()
@@ -123,6 +149,7 @@ class SModel extends Backbone.Model
 class SearchPanel extends Backbone.View
 	@el: '#SearchPanel'
 	searchQuery: ''
+	noMoreResult: false
 	@timeline: ''
 
 	initialize:->
@@ -141,24 +168,28 @@ class SearchPanel extends Backbone.View
 				alert "ERROR:検索パネルが読み込めません"
 			else
 				$(SearchPanel.el).html(data)
+				$('#backToMainButton').bind 'click',@onbacktomain
 				@setup()
 		_clear = =>
 			@execSearched = false
 			@clear()
 
+	onbacktomain:->
+		@trigger 'backtomain'
+
 	onclicktimeline:(d)->
-		#GW明けここから
-		#@clear()
 		@clear()
 		@trigger 'onclicktimeline',d
-		console.log "S onclicktimeline",d
 	appendTimeline:(tile)->
 		timelineChildView = new TimelineChildView model: tile
 
 		$("#searchResult").append timelineChildView.render().el
+		$('.tlTitle').css
+			width:Browser.width-tlImageWidth-10
+		$('.tlMsg').css
+			width:Browser.width-tlImageWidth-10
 
 	setup:->
-		$('#searchSubmitButton').css {width:150,height:30}
 		$('#searchSubmitButton').bind 'click',@onTapSubmitButton
 		$(@el).bind 'bottom',@bottom
 
@@ -180,16 +211,18 @@ class SearchPanel extends Backbone.View
 			@loadingStatus = bool
 		else
 			$('#loadingAnimation').html('')
-			$('#loadingAnimation').append('<span style="font-size:24px;margin:auto;vertical-align: middle;">タップして続きを見る</span>')
-			$('#loadingAnimation').height 48
-			$('#loadingAnimation').bind 'click', =>
-				@loading true
-				$(@el).trigger 'bottom'
-				$('#loadingAnimation').unbind()
+			if @noMoreResult isnt true
+				$('#loadingAnimation').append('<span style="font-size:24px;margin:auto;vertical-align: middle;">タップして続きを見る</span>')
+				$('#loadingAnimation').height 48
+				$('#loadingAnimation').bind 'click', =>
+					@loading true
+					$(@el).trigger 'bottom'
+					$('#loadingAnimation').unbind()
 
 			@loadingStatus = bool
 
 	onTapSubmitButton:=>
+		@noMoreResult = false
 		@execSearched = true
 		@clear()
 		@searchQuery.resetPageCount()
@@ -219,6 +252,10 @@ class SearchPanel extends Backbone.View
 		@loading false
 
 	render:(result)->
+		console.log "length:",result.length
+		if result.length < 10
+			@noMoreResult = true
+
 		if result isnt ""
 			for item in result
 				tlChild = new TimelineChild
@@ -296,20 +333,19 @@ class TimelineChildView extends Backbone.View
 		  attr('src','swfData/blockimg/'+item.img+'.jpg').
 		  load().
 		  appendTo tl
-		$('<div />').
+		$('<div>').
 		  attr('class','tlTitle').
 		  html(item.b1).
 		  appendTo tl
 		$('<br />').
 		  appendTo tl
-		$('<div />').
+		$('<div>').
 		  attr('class','tlMsg').
 		  html(item.b2).
 		  appendTo tl
 		$('<br />').
 		  attr('class','timelineBR').
 		  appendTo tl
-		
 		@
 
 	unrender:=>
@@ -330,7 +366,7 @@ class SearchResult extends Backbone.View
 		else
 			pageQuery = 'page='+@page
 
-		$.ajax "timeline.json",
+		$.ajax TIMELINE_API,
 			type:"GET"
 			data:query+pageQuery
 			dataType:"json"
@@ -590,7 +626,7 @@ class Pyramid extends Backbone.View
 
 	getNumFromPoint:(p)->
 		xb = Math.floor (p[0]-@getPyramidPos()[0])/arrZoomSizeX[nowZoom]
-		yb = Math.round (p[1]-@getPyramidPos()[1])/arrZoomSizeY[nowZoom]
+		yb = Math.round (p[1]-@getPyramidPos()[1]+(arrZoomSizeX[nowZoom]/2))/arrZoomSizeY[nowZoom]
 		yb = if yb is 0 or yb is 1 then 0 else yb-1
 		xb++;
 		
@@ -787,9 +823,9 @@ class Marker extends Backbone.View
 	clear:->
 		@result = ''
 		$('#Marker').remove()
+
 	setResult:(num)->
 		@result = num
-		console.log 'result',@result
 
 	render:->
 		if @result isnt ''
@@ -937,8 +973,8 @@ class ControlPanel extends Backbone.View
 		showSearchPanelButton.bind 'change',@showSearchPanel
 
 		#タイムラインパネル表示ボタン
-		showTLPanelButton = new ClickOnlyButton '#TimelineButton'
-		showTLPanelButton.bind 'change',@showTLPanel
+		showHomeButton = new ClickOnlyButton '#HomeButton'
+		showHomeButton.bind 'change',@onclickhomebutton
 
 	#ズームインボタンが押下された
 	zoomIn:->
@@ -959,8 +995,9 @@ class ControlPanel extends Backbone.View
 		@trigger 'showSearchPanel'
 		
 	#タイムラインパネル表示ボタンが押下された
-	showTLPanel:->
-		#
+	onclickhomebutton:->
+		@trigger 'onclickhomebutton'
+
 	@show:=> $(@el).show()
 	@hide:=> $(@el).hide()
 
@@ -1056,7 +1093,7 @@ class Popup extends Backbone.View
 		$(window).bind "resize orientationchange",@resize
 
 	openPopupFromPoint:(p)->
-		$.getJSON searchPhp,{'n':p},(data,status)->
+		$.getJSON SEARCH_API,{'n':p},(data,status)->
 			#タップ拡大時に特殊なフラグによって条件分岐するならココ
 			##and "#{data.img}" isnt 'undefined' 
 			if status and data isnt null then Popup.render data[0]

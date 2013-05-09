@@ -43,10 +43,42 @@ body {
 	display: none;
 	position: absolute;
 	z-index: 4001;
-	margin: auto;
 	width:100%;
 	color: #FFF;
+}
+#SearchPanel #SearchPanelInnerContents {
+	margin: auto;
+	margin-top:15px;
 	text-align: center;
+}
+#SearchPanel #SearchPanelInnerContents #id {
+	width:80%;
+	font-size: 140%;
+}
+#SearchPanel #SearchPanelInnerContents #b1 {
+	width:80%;
+	font-size: 140%;
+}
+#SearchPanel #SearchPanelInnerContents #b2 {
+	width:80%;
+	font-size: 140%;
+}
+#SearchPanel #SearchPanelInnerContents #searchSubmitButton {
+	width:80%;
+	height:40px;
+	font-size: 130%;
+	margin: 0;
+	padding: 5px;
+	background: -webkit-gradient(linear, left top, left bottom, from(#FFAA33), to(#FF8800));	
+	border: 1px #F27300 solid;
+	color: #FFF;
+	-webkit-appearance: none;
+	-webkit-border-radius: 10px;
+	-webkit-box-shadow: 0 2px 2px #CCC;
+	text-shadow: 1px 2px 3px #C45C00;
+}
+#SearchPanel #SearchPanelInnerContents #searchResult {
+	margin-top: 40px;
 }
 #ControlPanel {
 	position: absolute;
@@ -83,7 +115,7 @@ body {
 
 	z-index: 13;
 }
-#ControlPanel #TimelineButton {
+#ControlPanel #HomeButton {
 	position: absolute;
 	background-image: url(../assets/buttons/home.png);
 	width:60px;
@@ -115,8 +147,10 @@ body {
 	float:left;
 	margin-left:5px;
 	font-weight: bold;
+	text-align:left;
 }
 .tlMsg{
 	float:left;
 	margin-left:5px;
+	text-align:left;
 }
