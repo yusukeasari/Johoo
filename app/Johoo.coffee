@@ -237,6 +237,8 @@ class SearchPanel extends Backbone.View
 			@loadingStatus = bool
 
 	onTapSubmitButton:=>
+		$('#searchResultError').text()
+
 		@noMoreResult = false
 		@execSearched = true
 		@clear()
@@ -263,13 +265,21 @@ class SearchPanel extends Backbone.View
 
 		@searchQuery.sendQuery query
 
-	error:=>
+	error:(t)=>
 		@loading false
+		$('#searchResultError').text t
 
 	render:(result)->
-		
-		if result.ERROR isnt '' and result.ERROR isnt undefined
-			console.log 'ERROR',result.ERROR
+
+		switch result.ERROR
+			when 'TOOMUCHRESULT'
+				@error '検索結果が100件を超えました。条件を指定しなおしてください'
+
+			when 'NOTFOUND'
+				@error '検索にヒットしませんでした。'
+
+			else
+				console.log ''
 
 		if result.length < 10
 			@noMoreResult = true
@@ -297,6 +307,8 @@ class SearchPanel extends Backbone.View
 		$('#loadingAnimation').hide()
 		$('#loadingAnimation').html('')
 		$('#loadingAnimation').height 0
+		$('#searchResultError').text()
+
 		Shadow.hide()
 		$(@el).hide()
 
@@ -388,7 +400,8 @@ class SearchResult extends Backbone.View
 			type:"GET"
 			data:query+pageQuery
 			dataType:"json"
-			error: (jqXHR, textStatus, errorThrown) ->
+			error: (jqXHR, textStatus, errorThrown) =>
+				console.log jqXHR,textStatus
 				@trigger 'error'
 			success:(data) =>
 				@nextPage()

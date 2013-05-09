@@ -294,6 +294,7 @@
     };
 
     SearchPanel.prototype.onTapSubmitButton = function() {
+      $('#searchResultError').text();
       this.noMoreResult = false;
       this.execSearched = true;
       this.clear();
@@ -329,15 +330,23 @@
       return this.searchQuery.sendQuery(query);
     };
 
-    SearchPanel.prototype.error = function() {
-      return this.loading(false);
+    SearchPanel.prototype.error = function(t) {
+      this.loading(false);
+      return $('#searchResultError').text(t);
     };
 
     SearchPanel.prototype.render = function(result) {
       var item, tlChild, _j, _len1;
 
-      if (result.ERROR !== '' && result.ERROR !== void 0) {
-        console.log('ERROR', result.ERROR);
+      switch (result.ERROR) {
+        case 'TOOMUCHRESULT':
+          this.error('検索結果が100件を超えました。条件を指定しなおしてください');
+          break;
+        case 'NOTFOUND':
+          this.error('検索にヒットしませんでした。');
+          break;
+        default:
+          console.log('');
       }
       if (result.length < 10) {
         this.noMoreResult = true;
@@ -371,6 +380,7 @@
       $('#loadingAnimation').hide();
       $('#loadingAnimation').html('');
       $('#loadingAnimation').height(0);
+      $('#searchResultError').text();
       Shadow.hide();
       return $(SearchPanel.el).hide();
     };
@@ -510,7 +520,8 @@
         data: query + pageQuery,
         dataType: "json",
         error: function(jqXHR, textStatus, errorThrown) {
-          return this.trigger('error');
+          console.log(jqXHR, textStatus);
+          return _this.trigger('error');
         },
         success: function(data) {
           _this.nextPage();
