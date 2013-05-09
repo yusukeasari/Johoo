@@ -267,6 +267,7 @@ class SearchPanel extends Backbone.View
 		@loading false
 
 	render:(result)->
+		
 		if result.ERROR isnt '' and result.ERROR isnt undefined
 			console.log 'ERROR',result.ERROR
 
