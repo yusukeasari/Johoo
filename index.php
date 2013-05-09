@@ -2,7 +2,7 @@
 <head>
 <?php require_once 'viewport.php'; ?>
 <meta content="yes" name="apple-mobile-web-app-capable" />
-<link href="css/johoo.css" rel="stylesheet">
+<!-- <link href="css/johoo.css" rel="stylesheet"> -->
 
 <script type="text/javascript" src="lib/jquery.js"></script>
 <script type="text/javascript" src="lib/underscore.js"></script>

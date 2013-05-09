@@ -84,11 +84,22 @@
     }
 
     PhotomosaicViewer.prototype.initialize = function() {
-      var _this = this;
+      var css_href, link,
+        _this = this;
 
       _.bindAll(this);
-      this.smodel = new SModel;
       this.uniBrowse = new Browser;
+      css_href = 'css/johoo_' + Browser.device + '.css';
+      return link = $('<link>').attr('href', css_href).attr('rel', 'stylesheet').load(function() {
+        console.log('CSS LOADED');
+        return _this.setup();
+      }).appendTo($('head'));
+    };
+
+    PhotomosaicViewer.prototype.setup = function() {
+      var _this = this;
+
+      this.smodel = new SModel;
       this.shadow = new Shadow;
       this.pyramid = new Pyramid;
       this.popup = new Popup;
@@ -325,7 +336,9 @@
     SearchPanel.prototype.render = function(result) {
       var item, tlChild, _j, _len1;
 
-      console.log("length:", result.length);
+      if (result.ERROR !== '' && result.ERROR !== void 0) {
+        console.log('ERROR', result.ERROR);
+      }
       if (result.length < 10) {
         this.noMoreResult = true;
       }
@@ -564,6 +577,8 @@
         Browser.device = 'tablet';
         Browser.os = 'ios';
         Browser.version = '';
+        Browser.width = Math.abs(window.orientation !== 90) ? screen.width : screen.height;
+        Browser.height = Math.abs(window.orientation !== 90) ? screen.height - 96 : screen.width - 96;
       } else if (navigator.userAgent.match(/Android/i && navigator.userAgent.match(/Mobile/i))) {
         Browser.device = 'smartphone';
         Browser.os = 'android';
@@ -923,6 +938,11 @@
       return this.render(this.checkActiveTile());
     };
 
+    /**
+    	 * Pyramidを指定numにあわせて移動させるメソッド
+    */
+
+
     Pyramid.prototype.moveToNum = function(d) {
       var tx, ty,
         _this = this;
@@ -985,6 +1005,11 @@
       });
     };
 
+    /**
+    	 * 座標コンバーター
+    */
+
+
     Pyramid.prototype.convertToGrobalCenterPos = function(_x, _y) {
       var prevPyramidHeight, prevPyramidWidth, x, y;
 
@@ -1000,6 +1025,11 @@
       y = (_y + prevPyramidHeight / 2) - Browser.height / 2;
       return [x, y];
     };
+
+    /**
+    	 * 座標コンバーター2
+    */
+
 
     Pyramid.prototype.convertToLocalCenterPos = function(_x, _y) {
       var nowPyramidHeight, nowPyramidWidth, x, y;
@@ -1496,11 +1526,14 @@
     __extends(Popup, _super);
 
     function Popup() {
-      _ref17 = Popup.__super__.constructor.apply(this, arguments);
+      this.hide = __bind(this.hide, this);
+      this.show = __bind(this.show, this);
+      this.closeButtonAction = __bind(this.closeButtonAction, this);
+      this.render = __bind(this.render, this);      _ref17 = Popup.__super__.constructor.apply(this, arguments);
       return _ref17;
     }
 
-    Popup.el = '#Popup';
+    Popup.prototype.el = '#Popup';
 
     Popup.prototype.initialize = function() {
       _.bindAll(this);
@@ -1508,66 +1541,73 @@
     };
 
     Popup.prototype.openPopupFromPoint = function(p) {
+      var _this = this;
+
+      this.show();
       return $.getJSON(SEARCH_API, {
         'n': p
       }, function(data, status) {
         if (status && data !== null) {
-          return Popup.render(data[0]);
+          return _this.render(data[0]);
+        } else {
+          return _this.hide();
         }
       });
     };
 
-    Popup.clear = function() {
-      if ($(Popup.el).html() !== '') {
+    Popup.prototype.clear = function() {
+      if ($(this.el).html() !== '') {
         $("#closeButton").unbind();
-        return $(Popup.el).html('');
+        return $(this.el).html('');
       }
     };
 
-    Popup.closePopup = function(e) {
+    Popup.prototype.closePopup = function(e) {
       if (e !== void 0) {
         e.stopPropagation();
         e.preventDefault();
       }
-      Popup.clear();
-      return Popup.hide();
+      this.clear();
+      return this.hide();
     };
 
-    Popup.render = function(data) {
-      Popup.show();
+    Popup.prototype.render = function(data) {
+      var _this = this;
+
       return $('<img />').css('margin-top', 5).attr('src', zoomImageDir + data.img + '.jpg').load(function() {
-        $('<div />').attr('id', 'popupOuterText').appendTo($(Popup.el));
+        $('<div />').attr('id', 'popupOuterText').appendTo($(_this.el));
         $("#popupOuterText").css({
           'width': '80%',
           'margin': 'auto'
         });
-        $('<p>').attr('class', 'popupB1Style').text(data.b1).appendTo($(Popup.el));
-        $('<p>').attr('class', 'popupB2Style').text(data.b2).appendTo($(Popup.el));
-        return $('<img>').attr('id', 'closeButton').attr('src', 'assets/buttons/close.png').load(function() {
-          return Popup.onClick();
-        }).appendTo($(Popup.el));
+        $('<p>').attr('class', 'popupB1Style').text(data.b1).appendTo($(_this.el));
+        $('<p>').attr('class', 'popupB2Style').text(data.b2).appendTo($(_this.el));
+        $('<input>').attr('id', 'closeButton').attr('type', 'button').attr('value', '閉じる').appendTo($(_this.el));
+        return _this.closeButtonAction();
       }).error(function() {
-        return Popup.closePopup();
+        return this.closePopup();
       }).appendTo($(this.el));
     };
 
-    Popup.onClick = function() {
+    Popup.prototype.closeButtonAction = function() {
+      var _this = this;
+
       return $("#closeButton").bind("touchend mouseup", function(e) {
         e.stopPropagation();
         e.preventDefault();
-        return Popup.closePopup();
+        return _this.closePopup(e);
       });
     };
 
-    Popup.show = function() {
+    Popup.prototype.show = function() {
       Shadow.setSize();
-      $(Popup.el).show();
+      $(this.el).show();
       return Shadow.show();
     };
 
-    Popup.hide = function() {
+    Popup.prototype.hide = function() {
       Shadow.setSize();
-      $(Popup.el).hide();
+      $(this.el).hide();
       return Shadow.hide();
     };
 
@@ -1584,6 +1624,6 @@
 
     return Popup;
 
-  }).call(this, Backbone.View);
+  })(Backbone.View);
 
 }).call(this);

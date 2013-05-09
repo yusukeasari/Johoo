@@ -66,10 +66,23 @@ class PhotomosaicViewer extends Backbone.View
 	initialize:->
 		_.bindAll @
 
-		@smodel = new SModel
-
 		#環境設定とか
 		@uniBrowse = new Browser
+
+
+		css_href = 'css/johoo_'+Browser.device+'.css'
+
+		link = $('<link>').
+			attr('href',css_href).
+			attr('rel','stylesheet').
+			load( =>
+				console.log 'CSS LOADED'
+				@setup()
+				).
+			appendTo $('head')
+
+	setup:->
+		@smodel = new SModel
 
 		@shadow = new Shadow
 		#フォトモザイク部分
@@ -132,6 +145,8 @@ class PhotomosaicViewer extends Backbone.View
 			SearchPanel.show()
 			Pyramid.hide()
 			ControlPanel.hide()
+
+
 
 ###*
  * Class SModel 現在はイベント管理のみ
@@ -252,7 +267,9 @@ class SearchPanel extends Backbone.View
 		@loading false
 
 	render:(result)->
-		console.log "length:",result.length
+		if result.ERROR isnt '' and result.ERROR isnt undefined
+			console.log 'ERROR',result.ERROR
+
 		if result.length < 10
 			@noMoreResult = true
 
@@ -416,6 +433,8 @@ class Browser extends Backbone.View
 			Browser.device = 'tablet'
 			Browser.os = 'ios'
 			Browser.version = ''
+			Browser.width = if Math.abs window.orientation isnt 90 then screen.width else screen.height
+			Browser.height = if Math.abs window.orientation isnt 90 then screen.height-96 else screen.width-96
 
 		#Android Phone
 		else if navigator.userAgent.match /Android/i and navigator.userAgent.match /Mobile/i
@@ -710,6 +729,9 @@ class Pyramid extends Backbone.View
 		$(@el).height zoomSize[nowZoom][1];
 		@render @checkActiveTile()
 
+	###*
+	 * Pyramidを指定numにあわせて移動させるメソッド
+	###
 	moveToNum:(d)->
 
 		tx = d%motifWidth * arrZoomSizeX[nowZoom]*-1
@@ -760,6 +782,9 @@ class Pyramid extends Backbone.View
 			left:newPyramidPos[0]
 			top:newPyramidPos[1]
 
+	###*
+	 * 座標コンバーター
+	###
 	convertToGrobalCenterPos:(_x,_y)->
 		if nowZoom isnt 1 or prevZoom is zoomSize.length-1
 			console.log "GROBAL",arrZoomSizeX[nowZoom],arrZoomSizeY[nowZoom],nowZoom
@@ -774,6 +799,9 @@ class Pyramid extends Backbone.View
 		
 		[x,y]
 
+	###*
+	 * 座標コンバーター2
+	###
 	convertToLocalCenterPos:(_x,_y)->
 		#注意
 		console.log "convertToLocalCenterPos",_x,_y
@@ -898,10 +926,6 @@ class TileView extends Backbone.View
 		z = @model.get 'z'
 		url = tileImageDir + "#{z}/#{y}/" + 'z' + z + 'x' + x + 'y' + y + tileImageExtension
 
-
-		#httpRequest = $.get url
-		#console.log 'REQ',url
-		#if httpRequest.status isnt 404
 		$(@el).
 			attr({id:'z'+z+'x'+x+'y'+y,src:url}).
 			css({'position':'absolute','left':x*tileWidth,'top':y*tileWidth}).
@@ -1086,74 +1110,74 @@ class Shadow extends Backbone.View
 		if res is 'none' then false else true
 
 class Popup extends Backbone.View
-	@el: '#Popup'
+	el: '#Popup'
 
 	initialize:->
 		_.bindAll @
 		$(window).bind "resize orientationchange",@resize
 
 	openPopupFromPoint:(p)->
-		$.getJSON SEARCH_API,{'n':p},(data,status)->
+		@show()
+		$.getJSON SEARCH_API,{'n':p},(data,status)=>
 			#タップ拡大時に特殊なフラグによって条件分岐するならココ
 			##and "#{data.img}" isnt 'undefined' 
-			if status and data isnt null then Popup.render data[0]
+			if status and data isnt null then @render data[0] else @hide()
 
-	@clear:->
+	clear:->
 		#
-		if $(Popup.el).html() isnt ''
+		if $(@el).html() isnt ''
 			$("#closeButton").unbind()
-			$(Popup.el).html ''
+			$(@el).html ''
 
-	@closePopup:(e)->
+	closePopup:(e)->
 		if e isnt undefined
 			e.stopPropagation()
 			e.preventDefault()
-		Popup.clear()
-		Popup.hide()
+		@clear()
+		@hide()
 
-	@render:(data)->
-		Popup.show()
+	render:(data)=>
 		$('<img />').
 			css('margin-top',5).
 			attr('src',zoomImageDir+data.img+'.jpg').
-			load( ->
-			  	$('<div />').
-			  		attr('id','popupOuterText').
-			  		appendTo $(Popup.el)
-			  	$("#popupOuterText").css {'width':'80%','margin':'auto'}
-			  	$('<p>').
-			  		attr('class','popupB1Style').
-			  		text(data.b1).
-			  		appendTo $(Popup.el)
-			  	$('<p>').
-			  		attr('class','popupB2Style').
-			  		text(data.b2).
-			  		appendTo $(Popup.el)
-			  	$('<img>').
-			  		attr('id','closeButton').
-			  		attr('src','assets/buttons/close.png').
-			  		load( ->
-			  			Popup.onClick()
-			  		).
-			  		appendTo $(Popup.el)
+			load( =>
+				$('<div />').
+					attr('id','popupOuterText').
+					appendTo $(@el)
+				$("#popupOuterText").css {'width':'80%','margin':'auto'}
+				$('<p>').
+					attr('class','popupB1Style').
+					text(data.b1).
+					appendTo $(@el)
+				$('<p>').
+					attr('class','popupB2Style').
+					text(data.b2).
+					appendTo $(@el)
+				$('<input>').
+					attr('id','closeButton').
+					attr('type','button').
+					attr('value','閉じる').
+					appendTo $(@el)
+				@closeButtonAction()
+
 			).
 			error( ->
-				Popup.closePopup()
+				@closePopup()
 			).
 			appendTo $(@el)
 
-	@onClick:=>
-		$("#closeButton").bind "touchend mouseup", (e)->
+	closeButtonAction:=>
+		$("#closeButton").bind "touchend mouseup",(e) =>
 			e.stopPropagation()
 			e.preventDefault()
-			Popup.closePopup()
+			@closePopup(e)
 
-	@show:=>
+	show:=>
 		Shadow.setSize()
 		$(@el).show()
 		Shadow.show()
 
-	@hide:=>
+	hide:=>
 		Shadow.setSize()
 		$(@el).hide()
 		Shadow.hide()

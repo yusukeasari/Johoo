@@ -39,7 +39,7 @@ body {
 	text-align: center;
 }
 #Popup #closeButton {
-	width:80%;
+	width:25%;
 	height:40px;
 	font-size: 130%;
 	margin: 0;
@@ -67,19 +67,19 @@ body {
 	text-align: center;
 }
 #SearchPanel #SearchPanelInnerContents #id {
-	width:80%;
+	width:50%;
 	font-size: 140%;
 }
 #SearchPanel #SearchPanelInnerContents #b1 {
-	width:80%;
+	width:50%;
 	font-size: 140%;
 }
 #SearchPanel #SearchPanelInnerContents #b2 {
-	width:80%;
+	width:50%;
 	font-size: 140%;
 }
 #SearchPanel #SearchPanelInnerContents #searchSubmitButton {
-	width:80%;
+	width:25%;
 	height:40px;
 	font-size: 130%;
 	margin: 0;
