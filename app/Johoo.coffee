@@ -1199,7 +1199,3 @@ class Popup extends Backbone.View
 	@setSize:-> 
 		$(@el).width Browser.width
 		$(@el).height Browser.height
-
-	resize:->
-		#	Browser.width = if Math.abs window.orientation isnt 90 then screen.width else screen.height
-		#	Browser.height = if Math.abs window.orientation isnt 90 then screen.height-64 else screen.width-52

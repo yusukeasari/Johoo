@@ -1629,8 +1629,6 @@
       return $(this.el).height(Browser.height);
     };
 
-    Popup.prototype.resize = function() {};
-
     return Popup;
 
   })(Backbone.View);
