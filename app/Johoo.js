@@ -84,16 +84,13 @@
     }
 
     PhotomosaicViewer.prototype.initialize = function() {
-      var css_href, link,
-        _this = this;
+      var css_href, link;
 
       _.bindAll(this);
       this.uniBrowse = new Browser;
       css_href = 'css/johoo_' + Browser.device + '.css';
-      return link = $('<link>').attr('href', css_href).attr('rel', 'stylesheet').load(function() {
-        console.log('CSS LOADED');
-        return _this.setup();
-      }).appendTo($('head'));
+      link = $('<link>').attr('href', css_href).attr('rel', 'stylesheet').load().appendTo($('head'));
+      return this.setup();
     };
 
     PhotomosaicViewer.prototype.setup = function() {
@@ -192,6 +189,7 @@
 
     function SearchPanel() {
       this.clear = __bind(this.clear, this);
+      this.render = __bind(this.render, this);
       this.error = __bind(this.error, this);
       this.onTapSubmitButton = __bind(this.onTapSubmitButton, this);
       this.loading = __bind(this.loading, this);
@@ -294,7 +292,7 @@
     };
 
     SearchPanel.prototype.onTapSubmitButton = function() {
-      $('#searchResultError').text();
+      $('#searchResultError').html('');
       this.noMoreResult = false;
       this.execSearched = true;
       this.clear();
@@ -331,14 +329,15 @@
     };
 
     SearchPanel.prototype.error = function(t) {
-      this.loading(false);
-      return $('#searchResultError').text(t);
+      this.noMoreResult = true;
+      console.log($('#searchResultError'));
+      return $('#searchResultError').html(t);
     };
 
     SearchPanel.prototype.render = function(result) {
       var item, tlChild, _j, _len1;
 
-      switch (result.ERROR) {
+      switch (result[0].ERROR) {
         case 'TOOMUCHRESULT':
           this.error('検索結果が100件を超えました。条件を指定しなおしてください');
           break;
@@ -346,22 +345,21 @@
           this.error('検索にヒットしませんでした。');
           break;
         default:
-          console.log('');
-      }
-      if (result.length < 10) {
-        this.noMoreResult = true;
-      }
-      if (result !== "") {
-        for (_j = 0, _len1 = result.length; _j < _len1; _j++) {
-          item = result[_j];
-          tlChild = new TimelineChild;
-          tlChild.set({
-            data: item
-          });
-          this.timeline.add(tlChild);
-        }
-      } else {
-        alert("「" + value + "」では見つかりませんでした。");
+          if (result.length < 10) {
+            this.noMoreResult = true;
+          }
+          if (result !== "") {
+            for (_j = 0, _len1 = result.length; _j < _len1; _j++) {
+              item = result[_j];
+              tlChild = new TimelineChild;
+              tlChild.set({
+                data: item
+              });
+              this.timeline.add(tlChild);
+            }
+          } else {
+            alert("「" + value + "」では見つかりませんでした。");
+          }
       }
       return this.loading(false);
     };
@@ -380,7 +378,7 @@
       $('#loadingAnimation').hide();
       $('#loadingAnimation').html('');
       $('#loadingAnimation').height(0);
-      $('#searchResultError').text();
+      $('#searchResultError').html('');
       Shadow.hide();
       return $(SearchPanel.el).hide();
     };

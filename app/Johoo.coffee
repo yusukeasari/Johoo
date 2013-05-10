@@ -75,11 +75,9 @@ class PhotomosaicViewer extends Backbone.View
 		link = $('<link>').
 			attr('href',css_href).
 			attr('rel','stylesheet').
-			load( =>
-				console.log 'CSS LOADED'
-				@setup()
-				).
+			load().
 			appendTo $('head')
+		@setup()
 
 	setup:->
 		@smodel = new SModel
@@ -237,7 +235,7 @@ class SearchPanel extends Backbone.View
 			@loadingStatus = bool
 
 	onTapSubmitButton:=>
-		$('#searchResultError').text()
+		$('#searchResultError').html('')
 
 		@noMoreResult = false
 		@execSearched = true
@@ -266,12 +264,13 @@ class SearchPanel extends Backbone.View
 		@searchQuery.sendQuery query
 
 	error:(t)=>
-		@loading false
-		$('#searchResultError').text t
+		@noMoreResult = true
+		console.log $('#searchResultError')
+		$('#searchResultError').html t
 
-	render:(result)->
+	render:(result)=>
 
-		switch result.ERROR
+		switch result[0].ERROR
 			when 'TOOMUCHRESULT'
 				@error '検索結果が100件を超えました。条件を指定しなおしてください'
 
@@ -279,19 +278,18 @@ class SearchPanel extends Backbone.View
 				@error '検索にヒットしませんでした。'
 
 			else
-				console.log ''
+				if result.length < 10
+					@noMoreResult = true
 
-		if result.length < 10
-			@noMoreResult = true
+				if result isnt ""
+					for item in result
+						tlChild = new TimelineChild
+						tlChild.set
+							data:item
+						@timeline.add tlChild
+				else
+					alert("「"+value+"」では見つかりませんでした。")
 
-		if result isnt ""
-			for item in result
-				tlChild = new TimelineChild
-				tlChild.set
-					data:item
-				@timeline.add tlChild
-		else
-			alert("「"+value+"」では見つかりませんでした。")
 		@loading false
 
 	@show:=>
@@ -307,7 +305,7 @@ class SearchPanel extends Backbone.View
 		$('#loadingAnimation').hide()
 		$('#loadingAnimation').html('')
 		$('#loadingAnimation').height 0
-		$('#searchResultError').text()
+		$('#searchResultError').html('')
 
 		Shadow.hide()
 		$(@el).hide()
