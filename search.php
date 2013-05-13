@@ -1,0 +1,78 @@
+<?php
+
+if(!empty($_GET['id'])){
+//$res = intval($_GET['id'])
+
+	$json = file("pitcomdb.json");
+	$line=json_decode($json[0],true);
+	foreach($line as $k=>$v){
+		if($v["id"] == $_GET['id']){
+			$v["result"]="FOUND";
+			echo "[".json_encode($v)."]";
+			$FOUND = true;
+			break;
+		}
+	}
+
+	if(!$FOUND){
+		echo '[{"ERROR":"NOTFOUND"}]';
+	}
+}else if(!empty($_GET['n'])){
+	$json = file("pitcomdb.json");
+	$line=json_decode($json[0],true);
+	foreach($line as $k=>$v){
+		if($v["num"] == $_GET['n']){
+			$v["result"]="FOUND";
+			echo "[".json_encode($v)."]";
+			$FOUND = true;
+			break;
+		}
+	}
+
+	if(!$FOUND){
+		echo '[{"ERROR":"NOTFOUND"}]';
+	}
+}else{
+	$result = array();
+	$json = file("pitcomdb.json");
+	$line=json_decode($json[0],true);
+	foreach($line as $k => $v){
+		$b1 = '';
+		$b2 = '';
+		foreach($_GET as $k2 => $v2){
+			if($k2 == 'b1'){
+				$b1 = $v2;
+			}
+			if($k2 == 'b2'){
+				$b2 = $v2;
+			}
+		}
+		if(!empty($b1) && !empty($b2) && preg_match("/".$b1."/", $v['b1']) && preg_match("/".$b2."/", $v['b2']) && $v['flg'] == 1){
+			//print "パターン1:"."{$b1}/{$b2}:{$v['b1']}/{$v['b2']}/{$v['flg']}<br />";
+			array_push($result,$v);
+		}else if(!empty($b1) && empty($b2) && preg_match("/".$b1."/", $v['b1']) && $v['flg'] == 1){
+			//print "パターン2:"."{$b1}/{$v['b1']}/{$v['flg']}<br />";
+			array_push($result,$v);
+		}else if(!empty($b2) && empty($b1) && preg_match("/".$b2."/", $v['b2']) && $v['flg'] == 1){
+			//print "パターン3:"."{$b2}/{$v['b2']}/{$v['flg']}<br />";
+			array_push($result,$v);
+		}
+	}
+
+	if (count($result) > 100){
+		echo '[{"ERROR":"TOOMUCHRESULT"}]';
+		exit;
+	}
+	if(!empty($_GET['page'])){
+		$result = array_splice($result, ($_GET['page']-1)*10,10);
+	}else{
+		$result = array_splice($result, 0,10);
+	}
+
+	if(count($result) > 0){
+		echo json_encode($result);
+	}else{
+		echo '[{"ERROR":"NOWORD"}]';
+	}
+
+}

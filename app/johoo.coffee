@@ -63,7 +63,7 @@ $ ->
  * 表示別にクラスを分けるようにすること
 ###
 class PhotomosaicViewer extends Backbone.View
-	initialize:->
+	initialize:=>
 		_.bindAll @
 
 		#環境設定とか
@@ -79,21 +79,26 @@ class PhotomosaicViewer extends Backbone.View
 			appendTo $('head')
 		@setup()
 
-	setup:->
+	setup:=>
+		#基底モデル
 		@smodel = new SModel
 
+		#半透明黒背景クラス
 		@shadow = new Shadow
+
 		#フォトモザイク部分
 		@pyramid = new Pyramid
 
 		#拡大表示クラス
 		@popup = new Popup
 
+		#検索パネルクラス
 		@searchPanel = new SearchPanel
 
 		#コンパネ ズームボタン、検索ウィンドウ表示ボタン、ヘルプ表示ボタンとか
 		@controlPanel = new ControlPanel
 
+		#検索位置を示すマーカー
 		@marker = new Marker
 
 		#フォトモザイク部分がクリックされ、かつ有効な座標であった場合、拡大表示を実行
@@ -109,7 +114,7 @@ class PhotomosaicViewer extends Backbone.View
 
 		#タイムラインクリック時のイベント
 		@searchPanel.bind 'onclicktimeline',(d) =>
-			SearchPanel.hide()
+			@searchPanel.hide()
 			Pyramid.show()
 			ControlPanel.show()
 
@@ -121,7 +126,7 @@ class PhotomosaicViewer extends Backbone.View
 
 		#メイン画面へ戻る
 		@searchPanel.bind 'backtomain', =>
-			SearchPanel.hide()
+			@searchPanel.hide()
 			Pyramid.show()
 			ControlPanel.show()
 
@@ -140,11 +145,9 @@ class PhotomosaicViewer extends Backbone.View
 
 		#検索パネル表示イベント
 		@controlPanel.bind 'showSearchPanel', =>
-			SearchPanel.show()
+			@searchPanel.show()
 			Pyramid.hide()
 			ControlPanel.hide()
-
-
 
 ###*
  * Class SModel 現在はイベント管理のみ
@@ -154,13 +157,15 @@ class SModel extends Backbone.Model
 	setEvent:(_target,_eventname)=>
 		@.bind _eventname,(_data) =>
 			@cEvent(_eventname,_data)
+
 	removeEvent:(_e)=>
 		@.unbind _e
+
 	cEvent:(_event,_data)->
 		@trigger "#{_event}R",_data
 
 class SearchPanel extends Backbone.View
-	@el: '#SearchPanel'
+	el: '#SearchPanel'
 	searchQuery: ''
 	noMoreResult: false
 	@timeline: ''
@@ -168,6 +173,7 @@ class SearchPanel extends Backbone.View
 	initialize:->
 		_.bindAll @
 
+		#タイムラインを構築
 		@timeline = new Timeline
 		@timeline.bind 'add', @appendTimeline
 		@timeline.bind 'onclicktimeline',@onclicktimeline
@@ -181,18 +187,16 @@ class SearchPanel extends Backbone.View
 				alert "ERROR:検索パネルが読み込めません"
 			else
 				$(SearchPanel.el).html(data)
-				$('#backToMainButton').bind 'click',@onbacktomain
+				$('#backToMainButton').bind 'click',@onBackToMain
 				@setup()
-		_clear = =>
-			@execSearched = false
-			@clear()
 
-	onbacktomain:->
+	onBackToMain:->
 		@trigger 'backtomain'
 
 	onclicktimeline:(d)->
 		@clear()
 		@trigger 'onclicktimeline',d
+
 	appendTimeline:(tile)->
 		timelineChildView = new TimelineChildView model: tile
 
@@ -206,6 +210,7 @@ class SearchPanel extends Backbone.View
 		$('#searchSubmitButton').bind 'click',@onTapSubmitButton
 		$(@el).bind 'bottom',@bottom
 
+		#スクロールされたら自動読み込み。現在凍結中。
 		#$(window).scroll =>
 		#	if $(document).height() < $(window).scrollTop()+Browser.height+4 and @loadingStatus is false and @execSearched
 		#		@loading true
@@ -265,17 +270,19 @@ class SearchPanel extends Backbone.View
 
 	error:(t)=>
 		@noMoreResult = true
-		console.log $('#searchResultError')
 		$('#searchResultError').html t
 
 	render:(result)=>
 
 		switch result[0].ERROR
 			when 'TOOMUCHRESULT'
-				@error '検索結果が100件を超えました。条件を指定しなおしてください'
+				@error '検索結果が100件を超えました。条件を指定しなおしてください。'
 
 			when 'NOTFOUND'
 				@error '検索にヒットしませんでした。'
+				
+			when 'NOWORD'
+				@error '検索条件を指定してください。'
 
 			else
 				if result.length < 10
@@ -292,14 +299,14 @@ class SearchPanel extends Backbone.View
 
 		@loading false
 
-	@show:=>
-		@_clear
+	show:=>
+		@clear()
 		Shadow.show()
 		$(@el).show()
 		$('#loadingAnimation').show()
 		$('#loadingAnimation').height 0
 
-	@hide:=>
+	hide:=>
 		@execSearched = false
 		@loadingStatus = false
 		$('#loadingAnimation').hide()
@@ -399,7 +406,6 @@ class SearchResult extends Backbone.View
 			data:query+pageQuery
 			dataType:"json"
 			error: (jqXHR, textStatus, errorThrown) =>
-				console.log jqXHR,textStatus
 				@trigger 'error'
 			success:(data) =>
 				@nextPage()
@@ -583,7 +589,6 @@ class Pyramid extends Backbone.View
 		cords = Point.getPoint e
 		e.preventDefault()
 		@dragging = false
-		console.log cords
 		$(@el).css {'cursor':''}
 
 		#マウスの位置がdownとupで変わらない＝単純クリックなら拡大表示実行
@@ -623,7 +628,6 @@ class Pyramid extends Backbone.View
 
 	zoomIn:(_z)->
 		rate = Math.floor _z/2
-		console.log "plus",rate,nowZoom
 		if nowZoom < zoomSize.length-1
 			prevZoom = nowZoom
 			if nowZoom+rate < zoomSize.length-1
@@ -638,7 +642,6 @@ class Pyramid extends Backbone.View
 	zoomOut:(_z)->
 		_z = (_z-1)*10
 		rate = Math.floor _z/2
-		console.log "minus:",rate,nowZoom
 
 		if nowZoom > minZoom
 			prevZoom = nowZoom
@@ -748,7 +751,6 @@ class Pyramid extends Backbone.View
 
 		tx = d%motifWidth * arrZoomSizeX[nowZoom]*-1
 		ty = Math.floor(d/motifWidth)*arrZoomSizeX[nowZoom]*-1
-		console.log tx,ty
 
 		$(@el).css
 			left:(Browser.width/2)+tx+arrZoomSizeX[nowZoom]/2
@@ -799,7 +801,6 @@ class Pyramid extends Backbone.View
 	###
 	convertToGrobalCenterPos:(_x,_y)->
 		if nowZoom isnt 1 or prevZoom is zoomSize.length-1
-			console.log "GROBAL",arrZoomSizeX[nowZoom],arrZoomSizeY[nowZoom],nowZoom
 			prevPyramidWidth = zoomSize[prevZoom][0]
 			prevPyramidHeight = zoomSize[prevZoom][1]
 		else
@@ -816,7 +817,6 @@ class Pyramid extends Backbone.View
 	###
 	convertToLocalCenterPos:(_x,_y)->
 		#注意
-		console.log "convertToLocalCenterPos",_x,_y
 		nowPyramidWidth =  zoomSize[nowZoom][0]
 		nowPyramidHeight =  zoomSize[nowZoom][1]
 		
@@ -873,7 +873,6 @@ class Marker extends Backbone.View
 
 			tx = (@result%motifWidth-1) * arrZoomSizeX[nowZoom]
 			ty = Math.floor(@result/motifWidth)*arrZoomSizeY[nowZoom]
-			console.log '@result',@resul,tx,ty
 			if tx < 0
 				tx = 0
 
@@ -895,9 +894,6 @@ class Marker extends Backbone.View
 			setTimeout =>
 				@swap()
 			, 1000
-			console.log 'AAA:',weight
-		else
-			console.log 'result',@result
 
 	swap:->
 		$('#Marker').css {'zIndex':3000}
@@ -1073,20 +1069,16 @@ class Point
 			#for Single Touch
 			if e.originalEvent.touches.length is 1
 				#座標をかえす
-				console.log "SINGLE",e.originalEvent.touches[0].pageX,e.originalEvent.touches[0].pageY
 				[e.originalEvent.touches[0].pageX,e.originalEvent.touches[0].pageY]
 
 			#for Multi Touch
 			else if e.originalEvent.touches.length > 1
-				console.log "MULTI",e.originalEvent.touches
 				cords = []
 				for item in e.originalEvent.touches
-					console.log item.pageX,item.pageY
 					cords.push [item.pageX,item.pageY]
 				#座標をかえす
 				cords
 			else
-				console.log "SINGLE",e.originalEvent
 				[e.originalEvent.changedTouches[0].pageX,e.originalEvent.changedTouches[0].pageY]
 		else
 			#PC
@@ -1173,7 +1165,7 @@ class Popup extends Backbone.View
 				@closeButtonAction()
 
 			).
-			error( ->
+			error( =>
 				@closePopup()
 			).
 			appendTo $(@el)
@@ -1184,12 +1176,12 @@ class Popup extends Backbone.View
 			e.preventDefault()
 			@closePopup(e)
 
-	show:=>
+	show:->
 		Shadow.setSize()
 		$(@el).show()
 		Shadow.show()
 
-	hide:=>
+	hide:->
 		Shadow.setSize()
 		$(@el).hide()
 		Shadow.hide()
