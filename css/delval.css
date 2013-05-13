@@ -1,0 +1,26 @@
+@charset "utf-8";
+ 
+span.delval-group {
+	position: relative;
+	display: inline-block;
+	*display: inline;
+	zoom: 1;
+}
+
+	span.delval-group input {
+		padding-right: 20px;
+	}
+
+	span.delval-group span.delval {
+		width: 17px;
+		position: absolute;
+		right: 2px;
+		top: 1px;
+		background: url(../img/delval.png) no-repeat left center;
+		cursor: pointer;
+	}
+	
+	* html span.delval-group span.delval {
+		background: url(../img/blank.gif) repeat;
+		filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='img/delval.png',sizingMethod=scale);
+	}
