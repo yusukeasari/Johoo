@@ -66,15 +66,24 @@ body {
 	margin-top:15px;
 	text-align: center;
 }
-#SearchPanel #SearchPanelInnerContents #id {
+#SearchPanel #SearchPanelInnerContents #delig {
+	position: relative;
+	display: inline-block;
+	*display: inline;
+	zoom: 1;
+}
+#SearchPanel #SearchPanelInnerContents #delig input {
+	padding-right: 20px;
+}
+#SearchPanel #SearchPanelInnerContents #delig #id {
 	width:80%;
 	font-size: 140%;
 }
-#SearchPanel #SearchPanelInnerContents #b1 {
+#SearchPanel #SearchPanelInnerContents #delig #b1 {
 	width:80%;
 	font-size: 140%;
 }
-#SearchPanel #SearchPanelInnerContents #b2 {
+#SearchPanel #SearchPanelInnerContents #delig #b2 {
 	width:80%;
 	font-size: 140%;
 }

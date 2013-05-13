@@ -72,12 +72,13 @@ class PhotomosaicViewer extends Backbone.View
 
 		css_href = 'css/johoo_'+Browser.device+'.css'
 
-		link = $('<link>').
+		$('<link>').
 			attr('href',css_href).
 			attr('rel','stylesheet').
 			load().
 			appendTo $('head')
 		@setup()
+		
 
 	setup:=>
 		#基底モデル
@@ -207,7 +208,17 @@ class SearchPanel extends Backbone.View
 			width:Browser.width-tlImageWidth-10
 
 	setup:->
+		#検索ボタンを有効化
 		$('#searchSubmitButton').bind 'click',@onTapSubmitButton
+
+		#ボタンリスト(MVCは？)
+		
+		deleteValueButtons = []
+		$('span.delig').each (i)->
+			console.log 'test0'
+			deleteValueButtons.push new DeleteValueButton $(@)
+
+		#「続きを読む」を有効化
 		$(@el).bind 'bottom',@bottom
 
 		#スクロールされたら自動読み込み。現在凍結中。
@@ -280,7 +291,7 @@ class SearchPanel extends Backbone.View
 
 			when 'NOTFOUND'
 				@error '検索にヒットしませんでした。'
-				
+
 			when 'NOWORD'
 				@error '検索条件を指定してください。'
 
@@ -321,6 +332,30 @@ class SearchPanel extends Backbone.View
 		@execSearched = false
 		$('#loadingAnimation').html('')
 		@timeline.clear()
+
+class DeleteValueButton extends Backbone.View
+	el: ''
+	button: ''
+
+	initialize:(_el)->
+		@el = _el
+
+		$('<span>').
+			attr('id',@el.children('input').attr('id')+'DelButton').
+			appendTo @el
+
+		$('#'+@el.children('input').attr('id')+'DelButton').css {'position':'relative','height':'19px','width':'19px','right':'20px','background-image':'url(img/delval.png)','cursor':'pointer','display':'inline-block','backgroundRepeat':'no-repeat'}
+
+		@el.children('input').bind 'keyup', =>
+			console.log @
+			if @el.children('input').val() is '' then $('#'+@el.children('input').attr('id')+'DelButton').css {'opacity':0} else $('#'+@el.children('input').attr('id')+'DelButton').css {'opacity':1}
+		$('#'+@el.children('input').attr('id')+'DelButton').bind 'click', =>
+			console.log @
+			@el.children('input').val('')
+			$('#'+@el.children('input').attr('id')+'DelButton').css {'opacity':0}
+			$('#'+@el.children('input').attr('id')+'DelButton').focus()
+
+		$('#'+@el.children('input').attr('id')+'DelButton').css {'opacity':0}
 
 class Timeline extends Backbone.Collection
 	model: TimelineChild
