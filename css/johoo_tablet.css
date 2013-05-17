@@ -20,6 +20,14 @@ body {
 	position:relative;
 	/*background-color:#FF0000;*/
 }
+#SmallMap {
+	position: absolute;
+	border:solid 1px #000;
+	z-index: 30;
+}
+#SmallMap #smallMapImage {
+	z-index: 31;
+}
 #Shadow {
 	opacity: 0.8;
 	display: none;
@@ -37,12 +45,15 @@ body {
 	width:100%;
 	color: #FFF;
 	text-align: center;
+	font-size: 150%;
+	margin-top:150px;
 }
 #Popup #closeButton {
 	width:25%;
 	height:40px;
 	font-size: 130%;
 	margin: 0;
+	margin-top:20px;
 	padding: 5px;
 	background: -webkit-gradient(linear, left top, left bottom, from(#c01618), to(#7d0203));	
 	border: 1px #af1014 solid;
@@ -66,17 +77,27 @@ body {
 	margin-top:15px;
 	text-align: center;
 }
+#SearchPanel #SearchPanelInnerContents .delig {
+	position: relative;
+	display: inline-block;
+	*display: inline;
+	zoom: 1;
+}
+#SearchPanel #SearchPanelInnerContents input {
+	padding-right: 20px;
+	margin-left:22px;
+}
 #SearchPanel #SearchPanelInnerContents #id {
-	width:50%;
-	font-size: 140%;
+	width:80%;
+	font-size: 150%;
 }
 #SearchPanel #SearchPanelInnerContents #b1 {
-	width:50%;
-	font-size: 140%;
+	width:80%;
+	font-size: 150%;
 }
 #SearchPanel #SearchPanelInnerContents #b2 {
-	width:50%;
-	font-size: 140%;
+	width:80%;
+	font-size: 150%;
 }
 #SearchPanel #SearchPanelInnerContents #searchSubmitButton {
 	width:25%;

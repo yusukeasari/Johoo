@@ -1,8 +1,6 @@
 <?php
 
 if(!empty($_GET['id'])){
-//$res = intval($_GET['id'])
-
 	$json = file("pitcomdb.json");
 	$line=json_decode($json[0],true);
 	foreach($line as $k=>$v){
@@ -15,7 +13,7 @@ if(!empty($_GET['id'])){
 	}
 
 	if(!$FOUND){
-		echo '[{"ERROR":"NOTFOUND"}]';
+		echo '[[],[{"ERROR":"NOTFOUND"}]]';
 	}
 }else if(!empty($_GET['n'])){
 	$json = file("pitcomdb.json");
@@ -58,9 +56,10 @@ if(!empty($_GET['id'])){
 			array_push($result,$v);
 		}
 	}
+	$count = count($result);
 
 	if (count($result) > 100){
-		echo '[{"ERROR":"TOOMUCHRESULT"}]';
+		echo '[[],[{"ERROR":"TOOMUCHRESULT"},{"TOTAL":'.$count.'}]]';
 		exit;
 	}
 	if(!empty($_GET['page'])){
@@ -70,9 +69,10 @@ if(!empty($_GET['id'])){
 	}
 
 	if(count($result) > 0){
-		echo json_encode($result);
+		echo '['.json_encode($result).',[{"ERROR":""},{"TOTAL":'.$count.'}]]';
+	}else if($_GET['id'] == '' && $_GET['b1'] == '' && $_GET['b2'] == ''){
+		echo '[[],[{"ERROR":"NOWORD"},{"TOTAL":0}]]';
 	}else{
-		echo '[{"ERROR":"NOWORD"}]';
+		echo '[[],[{"ERROR":"NOTFOUND"},{"TOTAL":0}]]';
 	}
-
 }

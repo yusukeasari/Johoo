@@ -23,6 +23,8 @@
 	<div id="SearchPanelButton"></div>
 	<div id="HomeButton"></div>
 </div>
+<div id="SmallMap">
+</div>
 <div id="Pyramid">
 	
 	<div id="Tiles"></div>

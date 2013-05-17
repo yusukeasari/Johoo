@@ -11,9 +11,8 @@ body {
 	z-index: 1;
 }
 #Tiles {
-	background-color:#E7E7E7;
+	/*background-color:#E7E7E7;*/
 	position:relative;
-
 	z-index: 2;
 }
 #Marker {
@@ -44,6 +43,7 @@ body {
 	font-size: 130%;
 	margin: 0;
 	padding: 5px;
+	margin-top:20px;
 	background: -webkit-gradient(linear, left top, left bottom, from(#c01618), to(#7d0203));	
 	border: 1px #af1014 solid;
 	color: #FFF;
@@ -66,20 +66,30 @@ body {
 	margin-top:15px;
 	text-align: center;
 }
+#SearchPanel #SearchPanelInnerContents .delig {
+	position: relative;
+	display: inline-block;
+	*display: inline;
+	zoom: 1;
+}
+#SearchPanel #SearchPanelInnerContents input {
+	padding-right: 20px;
+	margin-left:22px;
+}
 #SearchPanel #SearchPanelInnerContents #id {
 	width:80%;
-	font-size: 140%;
+	font-size: 150%;
 }
 #SearchPanel #SearchPanelInnerContents #b1 {
 	width:80%;
-	font-size: 140%;
+	font-size: 150%;
 }
 #SearchPanel #SearchPanelInnerContents #b2 {
 	width:80%;
-	font-size: 140%;
+	font-size: 150%;
 }
 #SearchPanel #SearchPanelInnerContents #searchSubmitButton {
-	width:80%;
+	width:70%;
 	height:40px;
 	font-size: 130%;
 	margin: 0;
@@ -140,13 +150,21 @@ body {
 
 	z-index: 14;
 }
-#searchResult{
+#SmallMap {
+	position: absolute;
+	border:solid 1px #000;
+	z-index: 30;
+}
+#SmallMap #smallMapImage {
+	z-index: 31;
+}
+#searchResult {
 	background-color: #000000;
 }
-#loadingAnimation{
+#loadingAnimation {
 	background-color: #000000;
 }
-.timelineChild{
+.timelineChild {
 	width:100%;
 	background-color: #E7E7E7;
 	border:solid 1px #CCCCCC;
@@ -155,7 +173,7 @@ body {
 .timelineBR {
 	clear:both;
 }
-.tlImg{
+.tlImg {
 	float:left;
 }
 .tlTitle{

@@ -69,7 +69,6 @@ class PhotomosaicViewer extends Backbone.View
 		#環境設定とか
 		@uniBrowse = new Browser
 
-
 		css_href = 'css/johoo_'+Browser.device+'.css'
 
 		$('<link>').
@@ -79,13 +78,14 @@ class PhotomosaicViewer extends Backbone.View
 			appendTo $('head')
 		@setup()
 		
-
 	setup:=>
 		#基底モデル
 		@smodel = new SModel
 
 		#半透明黒背景クラス
 		@shadow = new Shadow
+
+		@smallMap = new SmallMap '#SmallMap','swfData/map.jpg'
 
 		#フォトモザイク部分
 		@pyramid = new Pyramid
@@ -103,7 +103,10 @@ class PhotomosaicViewer extends Backbone.View
 		@marker = new Marker
 
 		#フォトモザイク部分がクリックされ、かつ有効な座標であった場合、拡大表示を実行
-		@pyramid.bind 'openPopupFromPoint',(p) => @popup.openPopupFromPoint p
+		@pyramid.bind 'openPopupFromPoint',(p) =>
+			@popup.openPopupFromPoint p
+			@marker.setResult p
+			@marker.render()
 
 		#検索位置を示すマーカーを表示
 		@pyramid.bind 'marker', =>
@@ -116,6 +119,7 @@ class PhotomosaicViewer extends Backbone.View
 		#タイムラインクリック時のイベント
 		@searchPanel.bind 'onclicktimeline',(d) =>
 			@searchPanel.hide()
+			@smallMap.show()
 			Pyramid.show()
 			ControlPanel.show()
 
@@ -128,11 +132,15 @@ class PhotomosaicViewer extends Backbone.View
 		#メイン画面へ戻る
 		@searchPanel.bind 'backtomain', =>
 			@searchPanel.hide()
+			@smallMap.show()
 			Pyramid.show()
 			ControlPanel.show()
 
+		@pyramid.bind 'moving',(c) =>
+			@smallMap.setCoords c
 		#コンパネイベント
-		@controlPanel.bind 'change',(h) => @pyramid.update h
+		@controlPanel.bind 'change',(h) =>
+			@pyramid.update h
 
 		#フォトモザイクを標準位置へセット
 		@controlPanel.bind 'onclickhomebutton', =>
@@ -147,8 +155,70 @@ class PhotomosaicViewer extends Backbone.View
 		#検索パネル表示イベント
 		@controlPanel.bind 'showSearchPanel', =>
 			@searchPanel.show()
+			@smallMap.hide()
 			Pyramid.hide()
 			ControlPanel.hide()
+
+class SmallMap extends Backbone.View
+	el: ''
+	cursor: '#smallMapCursor'
+	image: '#smallMapImage'
+	m:4
+	dm:1
+
+	initialize:(_el,_url)=>
+		@el = _el
+		$(window).bind "orientationchange resize",@setup
+
+		@dm = if Browser.device is 'smartphone' then 1 else 2
+		@m = @m/@dm
+
+		$(@el).css
+			'overflow':'hidden'
+			'background-image':"url('"+_url+"')"
+			'background-size':zoomSize[1][0]/@m
+
+		$('<div>').
+			attr('id','smallMapCursor').
+			appendTo $(@el)
+
+		@setup()
+
+	setup:=>
+		@defaultRatio = [@m/zoomSize[1][0],@m/zoomSize[1][1]]
+
+		$(@cursor).css
+			width:Browser.width/@m
+			position:'relative'
+			height:Browser.height/@m
+			border:'solid 1px #FF0000'
+			zIndex:40
+			left:20
+			top:50
+
+		$(@el).css
+			left:Browser.width-(zoomSize[1][0]/@m)-5
+			top:Browser.height-(zoomSize[1][1]/@m)-5
+			width:zoomSize[1][0]/@m
+			height:zoomSize[1][1]/@m
+
+		@setCoords([Browser.width/2 - zoomSize[nowZoom][0]/2,Browser.height/2 - zoomSize[nowZoom][1]/2])
+
+	setCoords:(c)=>
+		$(@cursor).css
+			left:(c[0]/(@m*(zoomSize[nowZoom][0]/zoomSize[1][0])))*-1
+			top:(c[1]/(@m*(zoomSize[nowZoom][1]/zoomSize[1][1])))*-1
+			width:Browser.width/(@m*(zoomSize[nowZoom][0]/zoomSize[1][0]))
+			height:Browser.height/(@m*(zoomSize[nowZoom][1]/zoomSize[1][1]))
+	hide:->
+		$(@el).hide()
+	show:->
+		$(@el).show()
+
+	#setCursolSize:=>
+		# コレが基準
+		#@cursor.width(Browser.width*(zoomSize[nowZoom][0]/Browser.width))
+		#@cursor.height(Browser.height*(zoomSize[nowZoom][1]/Browser.height))
 
 ###*
  * Class SModel 現在はイベント管理のみ
@@ -215,8 +285,12 @@ class SearchPanel extends Backbone.View
 		
 		deleteValueButtons = []
 		$('span.delig').each (i)->
-			console.log 'test0'
 			deleteValueButtons.push new DeleteValueButton $(@)
+		$('input[type=text]').each (i,o)=>
+			$(o).bind 'keyup',(e) =>
+				if e.keyCode is 13
+					@onTapSubmitButton()
+					$(o).blur()
 
 		#「続きを読む」を有効化
 		$(@el).bind 'bottom',@bottom
@@ -284,18 +358,22 @@ class SearchPanel extends Backbone.View
 		$('#searchResultError').html t
 
 	render:(result)=>
+		ERROR = result[1][0].ERROR
+		TOTAL = result[1][1].TOTAL
+		result = result[0]
 
-		switch result[0].ERROR
+		switch ERROR
 			when 'TOOMUCHRESULT'
-				@error '検索結果が100件を超えました。条件を指定しなおしてください。'
+				@error '<br />検索結果が100件を超えました。<br />条件を指定しなおしてください。'
 
 			when 'NOTFOUND'
-				@error '検索にヒットしませんでした。'
+				@error '<br />検索にヒットしませんでした。'
 
 			when 'NOWORD'
-				@error '検索条件を指定してください。'
+				@error '<br />検索条件を指定してください。'
 
 			else
+				$('#searchResultError').html TOTAL+'件ヒットしました。'
 				if result.length < 10
 					@noMoreResult = true
 
@@ -344,13 +422,11 @@ class DeleteValueButton extends Backbone.View
 			attr('id',@el.children('input').attr('id')+'DelButton').
 			appendTo @el
 
-		$('#'+@el.children('input').attr('id')+'DelButton').css {'position':'relative','height':'19px','width':'19px','right':'20px','background-image':'url(img/delval.png)','cursor':'pointer','display':'inline-block','backgroundRepeat':'no-repeat'}
+		$('#'+@el.children('input').attr('id')+'DelButton').css {'position':'relative','height':'22px','width':'22px','top':'2px','right':'25px','background-image':'url(img/delval.png)','cursor':'pointer','display':'inline-block','backgroundRepeat':'no-repeat','backgroundPosition':'center'}
 
 		@el.children('input').bind 'keyup', =>
-			console.log @
 			if @el.children('input').val() is '' then $('#'+@el.children('input').attr('id')+'DelButton').css {'opacity':0} else $('#'+@el.children('input').attr('id')+'DelButton').css {'opacity':1}
 		$('#'+@el.children('input').attr('id')+'DelButton').bind 'click', =>
-			console.log @
 			@el.children('input').val('')
 			$('#'+@el.children('input').attr('id')+'DelButton').css {'opacity':0}
 			$('#'+@el.children('input').attr('id')+'DelButton').focus()
@@ -411,11 +487,12 @@ class TimelineChildView extends Backbone.View
 		  appendTo tl
 		$('<div>').
 		  attr('class','tlMsg').
-		  html(item.b2).
+		  html(item.b2+"(#{item.id})").
 		  appendTo tl
 		$('<br />').
 		  attr('class','timelineBR').
 		  appendTo tl
+
 		@
 
 	unrender:=>
@@ -478,16 +555,16 @@ class Browser extends Backbone.View
 			Browser.device = 'smartphone'
 			Browser.os = 'ios'
 			Browser.version = ''
-			Browser.width = if Math.abs window.orientation isnt 90 then screen.width else screen.height
-			Browser.height = if Math.abs window.orientation isnt 90 then screen.height-64 else screen.width-52
+			Browser.width = if Math.abs(window.orientation) isnt 90 then screen.width else screen.height
+			Browser.height = if Math.abs(window.orientation) isnt 90 then screen.height-64 else screen.width-52
 
 		#iPad
 		else if navigator.userAgent.match /iPad/i
 			Browser.device = 'tablet'
 			Browser.os = 'ios'
 			Browser.version = ''
-			Browser.width = if Math.abs window.orientation isnt 90 then screen.width else screen.height
-			Browser.height = if Math.abs window.orientation isnt 90 then screen.height-96 else screen.width-96
+			Browser.width = if Math.abs(window.orientation) isnt 90 then screen.width else screen.height
+			Browser.height = if Math.abs(window.orientation) isnt 90 then screen.height-96 else screen.width-96
 
 		#Android Phone
 		else if navigator.userAgent.match /Android/i and navigator.userAgent.match /Mobile/i
@@ -578,6 +655,16 @@ class Pyramid extends Backbone.View
 
 		$(@el).css {'cursor':'-moz-grab'}
 
+		#背景を設定
+		$(@el).css
+			'background-image':"url('swfData/bg.jpg')"
+			'background-size':'contain'
+			#'-webkit-transform':'scale(2)'
+			#'-moz-transform':'scale(2)'
+			#'-o-transform':'scale(2)'
+			#'-ms-transform':'scale(2)'
+			#'transform':'scale(2)'
+
 		#初期画面を表示
 		@update()
 		@pyramidSetPositionToCenter()
@@ -629,11 +716,11 @@ class Pyramid extends Backbone.View
 		#マウスの位置がdownとupで変わらない＝単純クリックなら拡大表示実行
 		if @dragStartX is cords[0] and @dragStartY is cords[1] and @isOnTiles [cords[0],cords[1]]
 			#！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
-			if not Shadow.isShow()
+			if not Shadow.isShow() and nowZoom > 3
 				@trigger 'openPopupFromPoint',@getNumFromPoint [cords[0],cords[1]]
 		else if  @dragStartX is cords[0][0] and @dragStartY is cords[0][1] and @isOnTiles [cords[0][0],cords[0][1]]
 			#！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
-			if not Shadow.isShow()
+			if not Shadow.isShow() and nowZoom > 3
 				@trigger 'openPopupFromPoint',@getNumFromPoint [cords[0][0],cords[0][1]]
 		else
 			#フォトモザイクを描画
@@ -644,6 +731,7 @@ class Pyramid extends Backbone.View
 		e.preventDefault()
 		if Utility.type(cords[0]) is "number" and @dragging is true
 			$(@el).css {'left':@dragStartPyramidX+(@getMousePos(e)[0]-@dragStartX),'top':@dragStartPyramidY+(@getMousePos(e)[1]-@dragStartY)}
+			@trigger 'moving',[@dragStartPyramidX+(@getMousePos(e)[0]-@dragStartX),@dragStartPyramidY+(@getMousePos(e)[1]-@dragStartY)]
 		else if Utility.type(cords[0]) is "array" and @dragging is true
 			#dx = @pinchinStartCenterX*2 - (cords[0][0]+cords[1][0])
 			#dy = @pinchinStartCenterY*2 - (cords[0][1]+cords[1][1])
@@ -794,6 +882,7 @@ class Pyramid extends Backbone.View
 			@update ''
 		, 500
 
+		@trigger 'moving',[(Browser.width/2)+tx+arrZoomSizeX[nowZoom]/2,(Browser.height/2)+ty-arrZoomSizeY[nowZoom]/2]
 
 	moveToPinchZoomInPos:->
 		$(@el).css
@@ -816,6 +905,7 @@ class Pyramid extends Backbone.View
 		$(@el).css
 			left:newPyramidPos[0]
 			top:newPyramidPos[1]
+		@trigger 'moving',[newPyramidPos[0],newPyramidPos[1]]
 
 	moveToZoomOutPos:->
 		pyramidPos = @convertToGrobalCenterPos $(@el).position().left,$(@el).position().top
@@ -830,6 +920,7 @@ class Pyramid extends Backbone.View
 		$(@el).css
 			left:newPyramidPos[0]
 			top:newPyramidPos[1]
+		@trigger 'moving',[newPyramidPos[0],newPyramidPos[1]]
 
 	###*
 	 * 座標コンバーター
@@ -875,8 +966,10 @@ class Pyramid extends Backbone.View
 	#中央寄せ処理
 	pyramidSetPositionToCenter:->
 		$(@el).css
-			left:Browser.width/2 - zoomSize[nowZoom][0]/2;
-			top:Browser.height/2 - zoomSize[nowZoom][1]/2;
+			left:Browser.width/2 - zoomSize[nowZoom][0]/2
+			top:Browser.height/2 - zoomSize[nowZoom][1]/2
+
+		@trigger 'moving',[Browser.width/2 - zoomSize[nowZoom][0]/2,Browser.height/2 - zoomSize[nowZoom][1]/2]
 
 	###
 	 * 位置取得メソッド群
@@ -894,7 +987,6 @@ class Marker extends Backbone.View
 	result: ''
 
 	initialize:->
-	change:->
 	clear:->
 		@result = ''
 		$('#Marker').remove()
@@ -914,7 +1006,6 @@ class Marker extends Backbone.View
 			$('<div />').
 				attr('id','Marker').
 				appendTo $('#Tiles')
-
 
 			weight = if Math.floor(nowZoom/2) < 1 then 1 else Math.floor(nowZoom/2)
 
@@ -1082,7 +1173,11 @@ class ClickOnlyButton extends Backbone.View
 		_.bindAll @
 
 		@el = _el
-		$(@el).bind "mouseup touchend",@onMouseUp
+
+		if Browser.device isnt 'pc'
+			$(@el).bind "touchend",@onMouseUp
+		else
+			$(@el).bind "mouseup",@onMouseUp
 
 	onMouseUp:(e)->
 		e.preventDefault()
@@ -1190,7 +1285,7 @@ class Popup extends Backbone.View
 					appendTo $(@el)
 				$('<p>').
 					attr('class','popupB2Style').
-					text(data.b2).
+					text(data.b2+"(#{data.id})").
 					appendTo $(@el)
 				$('<input>').
 					attr('id','closeButton').
@@ -1206,10 +1301,16 @@ class Popup extends Backbone.View
 			appendTo $(@el)
 
 	closeButtonAction:=>
-		$("#closeButton").bind "touchend mouseup",(e) =>
-			e.stopPropagation()
-			e.preventDefault()
-			@closePopup(e)
+		if Browser.device isnt 'pc'
+			$("#closeButton").bind "touchend",(e) =>
+				e.stopPropagation()
+				e.preventDefault()
+				@closePopup(e)
+		else
+			$("#closeButton").bind "mouseup",(e) =>
+				e.stopPropagation()
+				e.preventDefault()
+				@closePopup(e)
 
 	show:->
 		Shadow.setSize()

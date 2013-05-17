@@ -28,6 +28,17 @@ body {
 	background: #000;
 	z-index: 2001;
 }
+#SmallMap {
+	position: absolute;
+	border:solid 1px #000;
+	z-index: 30;
+}
+#SmallMap #smallMapImage {
+	z-index: 31;
+}
+#searchResult {
+	background-color: #000000;
+}
 #Popup {
 	opacity: 1;
 	display: none;

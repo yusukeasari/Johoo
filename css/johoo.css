@@ -66,29 +66,30 @@ body {
 	margin-top:15px;
 	text-align: center;
 }
-#SearchPanel #SearchPanelInnerContents #delig {
+#SearchPanel #SearchPanelInnerContents .delig {
 	position: relative;
 	display: inline-block;
 	*display: inline;
 	zoom: 1;
 }
-#SearchPanel #SearchPanelInnerContents #delig input {
+#SearchPanel #SearchPanelInnerContents input {
 	padding-right: 20px;
+	margin-left:22px;
 }
-#SearchPanel #SearchPanelInnerContents #delig #id {
+#SearchPanel #SearchPanelInnerContents #id {
 	width:80%;
-	font-size: 140%;
+	font-size: 150%;
 }
-#SearchPanel #SearchPanelInnerContents #delig #b1 {
+#SearchPanel #SearchPanelInnerContents #b1 {
 	width:80%;
-	font-size: 140%;
+	font-size: 150%;
 }
-#SearchPanel #SearchPanelInnerContents #delig #b2 {
+#SearchPanel #SearchPanelInnerContents #b2 {
 	width:80%;
-	font-size: 140%;
+	font-size: 150%;
 }
 #SearchPanel #SearchPanelInnerContents #searchSubmitButton {
-	width:80%;
+	width:70%;
 	height:40px;
 	font-size: 130%;
 	margin: 0;
