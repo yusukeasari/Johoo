@@ -1,12 +1,9 @@
 #外部設定予定
 tileWidth = 256
 tileHeight = 256
-blockWidth = 20
-blockHeight = 20
-minZoom = 1
 
 #ズームアウト未実装
-commentZoom = false
+commentZoom = true
 
 motifWidth = 85
 motifHeight = 120
@@ -22,13 +19,14 @@ tileImageDir = 'swfData/web/'
 zoomImageDir = 'swfData/blockimg/'
 tileImageExtension = '.jpg'
 
-minBlockSize = 1
-
 #0番目は適当に
-arrZoomSizeX = [0,4,8,16,32,64,128,256]
-arrZoomSizeY = [0,4,8,16,32,64,128,256]
+arrZoomSizeX = [0,4,8,16,32,64,128,256,256]
+arrZoomSizeY = [0,4,8,16,32,64,128,256,256]
 
 ### 外部設定予定 ここまで ###
+
+minBlockSize = 1
+minZoom = 1
 tlImageWidth = 80
 nowZoom = minZoom
 prevZoom = minZoom
@@ -42,18 +40,21 @@ zoomSize = [
 	[motifWidth * minBlockSize * arrZoomSizeX[4], motifHeight * minBlockSize * arrZoomSizeY[4]],
 	[motifWidth * minBlockSize * arrZoomSizeX[5], motifHeight * minBlockSize * arrZoomSizeY[5]],
 	[motifWidth * minBlockSize * arrZoomSizeX[6], motifHeight * minBlockSize * arrZoomSizeY[6]],
-	[motifWidth * minBlockSize * arrZoomSizeX[7], motifHeight * minBlockSize * arrZoomSizeY[7]]
+	[motifWidth * minBlockSize * arrZoomSizeX[7], motifHeight * minBlockSize * arrZoomSizeY[7]],
+	[motifWidth * minBlockSize * arrZoomSizeX[8], motifHeight * minBlockSize * arrZoomSizeY[8]]
+
 ]
 
 #ピンチイン/アウトのトリガーとなる距離配列を作る
 pinchTriggerArray = []
-i=1
-for z in arrZoomSizeX
-	pinchTriggerArray.push pinchTrigger*i
-	i++
 
 $ ->
 	#処理開始
+	i=1
+	for z in arrZoomSizeX
+		pinchTriggerArray.push pinchTrigger*i
+		i++
+
 	pmviewer = new PhotomosaicViewer
 
 #こっからクラス群
@@ -176,7 +177,8 @@ class SmallMap extends Backbone.View
 		$(@el).css
 			'overflow':'hidden'
 			'background-image':"url('"+_url+"')"
-			'background-size':zoomSize[1][0]/@m
+			'background-repeat':'no-repeat'
+			'background-size':zoomSize[1][0]/@m+' '+zoomSize[1][1]/@m
 
 		$('<div>').
 			attr('id','smallMapCursor').
@@ -392,6 +394,10 @@ class SearchPanel extends Backbone.View
 		@clear()
 		Shadow.show()
 		$(@el).show()
+		$('input[type=tel]').each ->
+			console.log @
+			$(@).focus()
+
 		$('#loadingAnimation').show()
 		$('#loadingAnimation').height 0
 
@@ -571,8 +577,8 @@ class Browser extends Backbone.View
 			Browser.device = 'smartphone'
 			Browser.os = 'android'
 			Browser.version = ''
-			Browser.width = screen.width
-			Browser.height = screen.height
+			Browser.width = 320
+			Browser.height = 500
 
 		#Android Tablet
 		else if navigator.userAgent.match /Android/i and not navigator.userAgent.match /Mobile/i
@@ -897,7 +903,7 @@ class Pyramid extends Backbone.View
 	moveToZoomInPos:->
 		pyramidPos = @convertToGrobalCenterPos $(@el).position().left,$(@el).position().top
 
-		if nowZoom isnt zoomSize.length-1 and commentZoom is true
+		if nowZoom is zoomSize.length-1 and commentZoom is true
 			newPyramidPos = @convertToLocalCenterPos pyramidPos[0],pyramidPos[1]
 		else
 			newPyramidPos = @convertToLocalCenterPos pyramidPos[0]*2,pyramidPos[1]*2
