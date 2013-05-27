@@ -200,8 +200,8 @@
         top: 50
       });
       $(this.el).css({
-        left: Browser.width - (zoomSize[1][0] / this.m) - 5,
-        top: Browser.height - (zoomSize[1][1] / this.m) - 5,
+        left: Browser.width - (zoomSize[1][0] / this.m) - 10,
+        top: Browser.height - (zoomSize[1][1] / this.m) - 10,
         width: zoomSize[1][0] / this.m,
         height: zoomSize[1][1] / this.m
       });
@@ -750,17 +750,17 @@
         Browser.os = 'android';
         Browser.version = '';
         Browser.width = 320;
-        Browser.height = 500;
-      } else if (navigator.userAgent.match(/Android/i && !navigator.userAgent.match(/Mobile/i))) {
+        Browser.height = 455;
+      } else if (navigator.userAgent.match(/Android/i)) {
         Browser.device = 'tablet';
         Browser.os = 'android';
         Browser.version = '';
-        Browser.width = screen.width;
-        Browser.height = screen.height;
+        Browser.width = Math.abs(window.orientation) !== 90 ? 600 : 960;
+        Browser.height = Math.abs(window.orientation) !== 90 ? 780 : 430;
       } else {
         Browser.device = 'pc';
-        Browser.width = screen.width / 2;
-        Browser.height = screen.height / 2;
+        Browser.width = $(window).width();
+        Browser.height = $(window).height();
       }
       $('#Pyramid').width(Browser.width);
       $('#Pyramid').height(Browser.height);
@@ -807,6 +807,14 @@
       };
     })();
 
+    Utility.getDiagonal = function(_x, _y) {
+      if (_x > 0 && _y > 0) {
+        return Math.sqrt(Math.pow(_x, 2) + Math.pow(_y, 2));
+      } else {
+        return false;
+      }
+    };
+
     return Utility;
 
   })();
@@ -841,6 +849,9 @@
         $(this.el).bind('touchstart', this.onMouseDown);
         $(this.el).bind('touchend', this.onMouseUp);
         $(this.el).bind('touchmove', this.onMouseMove);
+        $(this.el).bind('gesturestart', this.onGestureStart);
+        $(this.el).bind('gesturechange', this.onGestureMove);
+        $(this.el).bind('gestureend', this.onGestureEnd);
       } else {
         $(this.el).bind('mousedown', this.onMouseDown);
         $(this.el).bind('mouseup', this.onMouseUp);
@@ -886,14 +897,16 @@
         });
         this.dragStartX = cords[0];
         this.dragStartY = cords[1];
+        this.dragStartLeft = $(this.el).position().left;
+        this.dragStartTop = $(this.el).position().top;
         this.dragStartPyramidX = this.getPyramidPos()[0];
         return this.dragStartPyramidY = this.getPyramidPos()[1];
       } else {
         $(this.el).css({
           'cursor': '-moz-grab'
         });
-        this.dragStartX = cords[0][0];
-        this.dragStartY = cords[0][1];
+        this.dragStartX = cords[0][0] / 2 + cords[1][0] / 2;
+        this.dragStartY = cords[0][1] / 2 + cords[1][1] / 2;
         this.dragStartPyramidX = this.getPyramidPos()[0];
         return this.dragStartPyramidY = this.getPyramidPos()[1];
       }
@@ -909,7 +922,7 @@
     };
 
     Pyramid.prototype.onMouseUp = function(e) {
-      var cords;
+      var cords, cordx, cordy;
 
       cords = Point.getPoint(e);
       e.preventDefault();
@@ -917,11 +930,14 @@
       $(this.el).css({
         'cursor': ''
       });
-      if (this.dragStartX === cords[0] && this.dragStartY === cords[1] && this.isOnTiles([cords[0], cords[1]])) {
+      Utility.type(cords[0]) !== 'array';
+      cordx = Utility.type(cords[0]) !== 'array' ? cords[0] : [0][0];
+      cordy = Utility.type(cords[1]) !== 'array' ? cords[1] : [0][1];
+      if (this.isSingleTap(this.dragStartX, cordx) && this.isSingleTap(this.dragStartY, cordy)) {
         if (!Shadow.isShow() && nowZoom > 3) {
           return this.trigger('openPopupFromPoint', this.getNumFromPoint([cords[0], cords[1]]));
         }
-      } else if (this.dragStartX === cords[0][0] && this.dragStartY === cords[0][1] && this.isOnTiles([cords[0][0], cords[0][1]])) {
+      } else if (this.isSingleTap(this.dragStartX, cordx) && this.isSingleTap(this.dragStartY, cordy) && this.isOnTiles([cords[0][0], cords[0][1]])) {
         if (!Shadow.isShow() && nowZoom > 3) {
           return this.trigger('openPopupFromPoint', this.getNumFromPoint([cords[0][0], cords[0][1]]));
         }
@@ -953,15 +969,30 @@
     };
 
     Pyramid.prototype.onGestureMove = function(e) {
-      if (e.originalEvent.scale > 1) {
-        return this.zoomIn(e.originalEvent.scale);
-      } else {
-        return this.zoomOut(e.originalEvent.scale);
-      }
+      var dx, dy, localX, localY;
+
+      localX = this.dragStartX - this.dragStartLeft;
+      localY = this.dragStartY - this.dragStartTop;
+      dx = (zoomSize[nowZoom][0] - (zoomSize[nowZoom][0] * e.originalEvent.scale)) / 2;
+      dx = (dx / e.originalEvent.scale) + (zoomSize[nowZoom][0] - localX);
+      dy = (zoomSize[nowZoom][1] - (zoomSize[nowZoom][1] * e.originalEvent.scale)) / 2;
+      dy = (dy / e.originalEvent.scale) + (zoomSize[nowZoom][1] - localY);
+      return $(this.el).css({
+        transform: "scale(" + e.originalEvent.scale + ") translate(" + dx + "px," + dy + "px)",
+        left: (zoomSize[nowZoom][0] - localX) * -1 + this.dragStartLeft,
+        top: (zoomSize[nowZoom][1] - localY) * -1 + this.dragStartTop
+      });
     };
 
     Pyramid.prototype.onGestureEnd = function(e) {
-      return console.log(e.originalEvent.scale);
+      console.log("SCALE:", e.originalEvent.scale);
+      this.pinchinStartCenterX = this.dragStartX;
+      this.pinchinStartCenterY = this.dragStartY;
+      return $(this.el).css({
+        left: this.dragStartLeft,
+        top: this.dragStartTop,
+        transform: "scale(1)"
+      });
     };
 
     Pyramid.prototype.zoomIn = function(_z) {
@@ -1001,6 +1032,15 @@
 
     Pyramid.prototype.isOnTiles = function(p) {
       if (p[0] >= this.getPyramidPos()[0] && p[1] >= this.getPyramidPos()[1] && p[0] <= zoomSize[nowZoom][0] + this.getPyramidPos()[0] && p[1] <= parseInt(zoomSize[nowZoom][1]) + this.getPyramidPos()[1]) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    Pyramid.prototype.isSingleTap = function(_a, _b) {
+      console.log(_a, _b);
+      if (_a + 3 > _b && _b > _a - 3) {
         return true;
       } else {
         return false;
@@ -1577,6 +1617,7 @@
     ClickOnlyButton.prototype.initialize = function(_el) {
       _.bindAll(this);
       this.el = _el;
+      $(this.el).unbind();
       if (Browser.device !== 'pc') {
         return $(this.el).bind("touchend", this.onMouseUp);
       } else {
@@ -1725,7 +1766,6 @@
 
     Popup.prototype.closePopup = function(e) {
       if (e !== void 0) {
-        e.stopPropagation();
         e.preventDefault();
       }
       this.clear();
@@ -1755,13 +1795,11 @@
 
       if (Browser.device !== 'pc') {
         return $("#closeButton").bind("touchend", function(e) {
-          e.stopPropagation();
           e.preventDefault();
           return _this.closePopup(e);
         });
       } else {
         return $("#closeButton").bind("mouseup", function(e) {
-          e.stopPropagation();
           e.preventDefault();
           return _this.closePopup(e);
         });

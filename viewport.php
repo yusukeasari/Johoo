@@ -6,7 +6,7 @@ if((strpos($ua,'iPhone')!==false)||(strpos($ua,'iPod')!==false)||(strpos($ua,'iP
 	if((strpos($ua,'Chrome')!==false)||(strpos($ua,'Firefox')!==false)){
 		print "<meta content=\"initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no\" name=\"viewport\" />";
 	}else{
-		print "<meta content=\"target-densitydpi=device-dpi,user-scalable=no\" name=\"viewport\" />";
+		print "<meta content=\"width=device-width,user-scalable=no\" name=\"viewport\" />";
 	}
 }
 ?>

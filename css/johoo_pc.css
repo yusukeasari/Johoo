@@ -103,6 +103,9 @@ body {
 	-webkit-box-shadow: 0 2px 2px #9d1315;
 	text-shadow: 1px 2px 3px #C45C00;
 }
+#SearchPanel #backToMainButton {
+	width:60px;
+}
 #SearchPanel #SearchPanelInnerContents #searchResult {
 	margin-top: 40px;
 }

@@ -187,6 +187,7 @@ class SmallMap extends Backbone.View
 		@setup()
 
 	setup:=>
+		#alert Browser.height
 		@defaultRatio = [@m/zoomSize[1][0],@m/zoomSize[1][1]]
 
 		$(@cursor).css
@@ -199,8 +200,8 @@ class SmallMap extends Backbone.View
 			top:50
 
 		$(@el).css
-			left:Browser.width-(zoomSize[1][0]/@m)-5
-			top:Browser.height-(zoomSize[1][1]/@m)-5
+			left:Browser.width-(zoomSize[1][0]/@m)-10
+			top:Browser.height-(zoomSize[1][1]/@m)-10
 			width:zoomSize[1][0]/@m
 			height:zoomSize[1][1]/@m
 
@@ -284,7 +285,6 @@ class SearchPanel extends Backbone.View
 		$('#searchSubmitButton').bind 'click',@onTapSubmitButton
 
 		#ボタンリスト(MVCは？)
-		
 		deleteValueButtons = []
 		$('span.delig').each (i)->
 			deleteValueButtons.push new DeleteValueButton $(@)
@@ -556,6 +556,7 @@ class Browser extends Backbone.View
 		@setup()
 
 	setup:->
+		#alert navigator.userAgent
 		#iPhone or iPod
 		if navigator.userAgent.match /iPhone/i or navigator.userAgent.match /iPod/i
 			Browser.device = 'smartphone'
@@ -578,22 +579,23 @@ class Browser extends Backbone.View
 			Browser.os = 'android'
 			Browser.version = ''
 			Browser.width = 320
-			Browser.height = 500
+			Browser.height = 455
 
 		#Android Tablet
-		else if navigator.userAgent.match /Android/i and not navigator.userAgent.match /Mobile/i
+		else if navigator.userAgent.match /Android/i
 			Browser.device = 'tablet'
 			Browser.os = 'android'
 			Browser.version = ''
-			Browser.width = screen.width
-			Browser.height = screen.height
+
+			Browser.width = if Math.abs(window.orientation) isnt 90 then 600 else 960
+			Browser.height = if Math.abs(window.orientation) isnt 90 then 780 else 430
 
 		#PC
 		else
 			Browser.device = 'pc'
-			Browser.width = screen.width/2
-			Browser.height = screen.height/2
-		
+			Browser.width = $(window).width()
+			Browser.height = $(window).height()
+
 		#描画範囲を決定
 		$('#Pyramid').width Browser.width
 		$('#Pyramid').height Browser.height
@@ -620,6 +622,13 @@ class Utility
 			strType = Object::toString.call(obj)
 			classToType[strType] or "object"
 
+	#対角線を求める
+	@getDiagonal:(_x,_y)->
+		if _x > 0 and _y > 0
+			return Math.sqrt(Math.pow(_x,2)+Math.pow(_y,2))
+		else
+			return false
+
 ###*
  * Class Pyramidクラス
 ###
@@ -641,9 +650,9 @@ class Pyramid extends Backbone.View
 			$(@el).bind 'touchend',@onMouseUp
 			$(@el).bind 'touchmove',@onMouseMove
 			#一旦コメントアウト
-			#$(@el).bind 'gesturestart',@onGestureStart
-			#$(@el).bind 'gesturechange',@onGestureMove
-			#$(@el).bind 'gestureend',@onGestureEnd
+			$(@el).bind 'gesturestart',@onGestureStart
+			$(@el).bind 'gesturechange',@onGestureMove
+			$(@el).bind 'gestureend',@onGestureEnd
 			
 		else
 			$(@el).bind 'mousedown',@onMouseDown
@@ -693,14 +702,17 @@ class Pyramid extends Backbone.View
 			
 			@dragStartX = cords[0]
 			@dragStartY = cords[1]
+			@dragStartLeft = $(@el).position().left
+			@dragStartTop = $(@el).position().top
 			@dragStartPyramidX = @getPyramidPos()[0]
 
 			@dragStartPyramidY = @getPyramidPos()[1]
 		else
 			$(@el).css {'cursor':'-moz-grab'}
 			
-			@dragStartX = cords[0][0]
-			@dragStartY = cords[0][1]
+			@dragStartX = cords[0][0]/2+cords[1][0]/2
+			@dragStartY = cords[0][1]/2+cords[1][1]/2
+
 			@dragStartPyramidX = @getPyramidPos()[0]
 
 			@dragStartPyramidY = @getPyramidPos()[1]
@@ -716,19 +728,29 @@ class Pyramid extends Backbone.View
 	onMouseUp:(e)->
 		cords = Point.getPoint e
 		e.preventDefault()
+		#e.stopPropagation()
 		@dragging = false
 		$(@el).css {'cursor':''}
 
 		#マウスの位置がdownとupで変わらない＝単純クリックなら拡大表示実行
-		if @dragStartX is cords[0] and @dragStartY is cords[1] and @isOnTiles [cords[0],cords[1]]
+		
+		Utility.type(cords[0]) isnt 'array'
+
+		cordx = if Utility.type(cords[0]) isnt 'array' then cords[0] else [0][0]
+		cordy = if Utility.type(cords[1]) isnt 'array' then cords[1] else [0][1]
+
+		#console.log cordx,cordy
+
+		if @isSingleTap(@dragStartX,cordx) and @isSingleTap(@dragStartY,cordy)
 			#！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
 			if not Shadow.isShow() and nowZoom > 3
 				@trigger 'openPopupFromPoint',@getNumFromPoint [cords[0],cords[1]]
-		else if  @dragStartX is cords[0][0] and @dragStartY is cords[0][1] and @isOnTiles [cords[0][0],cords[0][1]]
+		else if @isSingleTap(@dragStartX,cordx) and @isSingleTap(@dragStartY,cordy) and @isOnTiles [cords[0][0],cords[0][1]]
 			#！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
 			if not Shadow.isShow() and nowZoom > 3
 				@trigger 'openPopupFromPoint',@getNumFromPoint [cords[0][0],cords[0][1]]
 		else
+			#alert 'else'
 			#フォトモザイクを描画
 			@update()
 
@@ -747,13 +769,36 @@ class Pyramid extends Backbone.View
 		console.log e.originalEvent.scale
 
 	onGestureMove:(e)->
-		if e.originalEvent.scale > 1
-			@zoomIn e.originalEvent.scale
-		else
-			@zoomOut e.originalEvent.scale
+		#zoomSize[nowZoom][0] e.originalEvent.scale
+		#zoomSize[nowZoom][1] e.originalEvent.scale
+		#dragStartX dragStartLeft dragStartY dragStartTop
+		localX = @dragStartX-@dragStartLeft
+		localY = @dragStartY-@dragStartTop
+		
+		dx = (zoomSize[nowZoom][0]-(zoomSize[nowZoom][0]*e.originalEvent.scale))/2
+		dx = (dx/e.originalEvent.scale)+(zoomSize[nowZoom][0]-localX)
+
+		dy = (zoomSize[nowZoom][1]-(zoomSize[nowZoom][1]*e.originalEvent.scale))/2
+		dy = (dy/e.originalEvent.scale)+(zoomSize[nowZoom][1]-localY)
+
+
+		$(@el).css
+			transform:"scale(#{e.originalEvent.scale}) translate(#{dx}px,#{dy}px)"
+			left:(zoomSize[nowZoom][0]-localX)*-1+(@dragStartLeft)
+			top:(zoomSize[nowZoom][1]-localY)*-1+(@dragStartTop)
+			#top:dy*y2p
 
 	onGestureEnd:(e)->
-		console.log e.originalEvent.scale
+		console.log "SCALE:",e.originalEvent.scale
+		@pinchinStartCenterX = @dragStartX
+		@pinchinStartCenterY = @dragStartY
+
+		#zoomSize
+
+		$(@el).css
+			left:@dragStartLeft
+			top:@dragStartTop
+			transform:"scale(1)"
 
 	zoomIn:(_z)->
 		rate = Math.floor _z/2
@@ -786,6 +831,10 @@ class Pyramid extends Backbone.View
 	#与えられた座標がフォトモザイク上であるかどうか調べる
 	isOnTiles:(p)->
 		if p[0] >= @getPyramidPos()[0] && p[1]>=@getPyramidPos()[1] && p[0] <=zoomSize[nowZoom][0]+@getPyramidPos()[0] && p[1] <= parseInt(zoomSize[nowZoom][1])+@getPyramidPos()[1] then true else false
+
+	isSingleTap:(_a,_b)->
+		console.log _a,_b
+		if _a+3 > _b and _b > _a-3 then true else false
 
 	getNumFromPoint:(p)->
 		xb = Math.floor (p[0]-@getPyramidPos()[0])/arrZoomSizeX[nowZoom]
@@ -1179,6 +1228,7 @@ class ClickOnlyButton extends Backbone.View
 		_.bindAll @
 
 		@el = _el
+		$(@el).unbind()
 
 		if Browser.device isnt 'pc'
 			$(@el).bind "touchend",@onMouseUp
@@ -1271,7 +1321,6 @@ class Popup extends Backbone.View
 
 	closePopup:(e)->
 		if e isnt undefined
-			e.stopPropagation()
 			e.preventDefault()
 		@clear()
 		@hide()
@@ -1309,12 +1358,10 @@ class Popup extends Backbone.View
 	closeButtonAction:=>
 		if Browser.device isnt 'pc'
 			$("#closeButton").bind "touchend",(e) =>
-				e.stopPropagation()
 				e.preventDefault()
 				@closePopup(e)
 		else
 			$("#closeButton").bind "mouseup",(e) =>
-				e.stopPropagation()
 				e.preventDefault()
 				@closePopup(e)
 

@@ -6,7 +6,7 @@ if(!empty($_GET['id'])){
 	foreach($line as $k=>$v){
 		if($v["id"] == $_GET['id']){
 			$v["result"]="FOUND";
-			echo "[".json_encode($v)."]";
+			echo "[[".json_encode($v)."],".'[{"ERROR":""},{"TOTAL":1}]]';
 			$FOUND = true;
 			break;
 		}
