@@ -1,57 +1,1914 @@
-(function(){var f,H,I,T,U,V,t,W,J,X,Y,Z,u,aa,O,ba,ca,da,P,ea,l,p,c,fa,m,d,ia,ja,ka,la,ma,na,oa,pa,qa,ra,sa,ta,ua,va,wa,xa,ya,za,Aa,Ba,h=function(a,b){return function(){return a.apply(b,arguments)}},Ca={}.hasOwnProperty,k=function(a,b){function c(){this.constructor=a}for(var d in b)Ca.call(b,d)&&(a[d]=b[d]);c.prototype=b.prototype;a.prototype=new c;a.__super__=b.prototype;return a};l=[0,4,8,16,32,64,128,256,256];p=[0,4,8,16,32,64,128,256,256];m=c=1;d=[[],[85*l[1],120*p[1]],[85*l[2],120*p[2]],[85*l[3],
-120*p[3]],[85*l[4],120*p[4]],[85*l[5],120*p[5]],[85*l[6],120*p[6]],[85*l[7],120*p[7]],[85*l[8],120*p[8]]];fa=[];$(function(){var a,b,c;a=1;b=0;for(c=l.length;b<c;b++)fa.push(15*a),a++;return new V});var K=function(){this.setup=h(this.setup,this);this.initialize=h(this.initialize,this);return ia=K.__super__.constructor.apply(this,arguments)};k(K,Backbone.View);K.prototype.initialize=function(){var a;_.bindAll(this);this.uniBrowse=new f;a="css/johoo_"+f.device+".css";$("<link>").attr("href",a).attr("rel",
-"stylesheet").load().appendTo($("head"));return this.setup()};K.prototype.setup=function(){var a=this;this.smodel=new X;this.shadow=new u;this.smallMap=new aa("#SmallMap","swfData/map.jpg");this.pyramid=new J;this.popup=new W;this.searchPanel=new Y;this.controlPanel=new I;this.marker=new U;this.pyramid.bind("openPopupFromPoint",function(b){a.popup.openPopupFromPoint(b);a.marker.setResult(b);return a.marker.render()});this.pyramid.bind("marker",function(){return a.marker.render()});this.searchPanel.bind("startSearch",
-function(){return a.marker.clear()});this.searchPanel.bind("onclicktimeline",function(b){a.searchPanel.hide();a.smallMap.show();J.show();I.show();c=5;m=4;a.marker.setResult(b);return a.pyramid.moveToNum(b)});this.searchPanel.bind("backtomain",function(){a.searchPanel.hide();a.smallMap.show();J.show();return I.show()});this.pyramid.bind("moving",function(b){return a.smallMap.setCoords(b)});this.controlPanel.bind("change",function(b){return a.pyramid.update(b)});this.controlPanel.bind("onclickhomebutton",
-function(){c=1;m=2;a.pyramid.update();a.pyramid.pyramidSetPositionToCenter();return setTimeout(function(){return a.pyramid.update()},100)});return this.controlPanel.bind("showSearchPanel",function(){a.searchPanel.show();a.smallMap.hide();J.hide();return I.hide()})};V=K;var r=function(){this.setCoords=h(this.setCoords,this);this.setup=h(this.setup,this);this.initialize=h(this.initialize,this);return ja=r.__super__.constructor.apply(this,arguments)};k(r,Backbone.View);r.prototype.el="";r.prototype.cursor=
-"#smallMapCursor";r.prototype.image="#smallMapImage";r.prototype.m=4;r.prototype.dm=1;r.prototype.initialize=function(a,b){this.el=a;$(window).bind("orientationchange resize",this.setup);this.dm="smartphone"===f.device?1:2;this.m/=this.dm;$(this.el).css({overflow:"hidden","background-image":"url('"+b+"')","background-repeat":"no-repeat","background-size":d[1][0]/this.m+" "+d[1][1]/this.m});$("<div>").attr("id","smallMapCursor").appendTo($(this.el));return this.setup()};r.prototype.setup=function(){this.defaultRatio=
-[this.m/d[1][0],this.m/d[1][1]];$(this.cursor).css({width:f.width/this.m,position:"relative",height:f.height/this.m,border:"solid 1px #FF0000",zIndex:40,left:20,top:50});$(this.el).css({left:f.width-d[1][0]/this.m-10,top:f.height-d[1][1]/this.m-10,width:d[1][0]/this.m,height:d[1][1]/this.m});return this.setCoords([f.width/2-d[c][0]/2,f.height/2-d[c][1]/2])};r.prototype.setCoords=function(a){return $(this.cursor).css({left:-1*(a[0]/(this.m*(d[c][0]/d[1][0]))),top:-1*(a[1]/(this.m*(d[c][1]/d[1][1]))),
-width:f.width/(this.m*(d[c][0]/d[1][0])),height:f.height/(this.m*(d[c][1]/d[1][1]))})};r.prototype.hide=function(){return $(this.el).hide()};r.prototype.show=function(){return $(this.el).show()};aa=r;var E=function(){this.removeEvent=h(this.removeEvent,this);this.setEvent=h(this.setEvent,this);return ua=E.__super__.constructor.apply(this,arguments)};k(E,Backbone.Model);E.prototype.setEvent=function(a,b){var c=this;return this.bind(b,function(a){return c.cEvent(b,a)})};E.prototype.removeEvent=function(a){return this.unbind(a)};
-E.prototype.cEvent=function(a,b){return this.trigger(""+a+"R",b)};X=E;var j=function(){this.clear=h(this.clear,this);this.hide=h(this.hide,this);this.show=h(this.show,this);this.render=h(this.render,this);this.error=h(this.error,this);this.onTapSubmitButton=h(this.onTapSubmitButton,this);this.loading=h(this.loading,this);this.bottom=h(this.bottom,this);return va=j.__super__.constructor.apply(this,arguments)};k(j,Backbone.View);j.prototype.el="#SearchPanel";j.prototype.searchQuery="";j.prototype.noMoreResult=
-!1;j.timeline="";j.prototype.initialize=function(){var a=this;_.bindAll(this);this.timeline=new da;this.timeline.bind("add",this.appendTimeline);this.timeline.bind("onclicktimeline",this.onclicktimeline);this.searchQuery=new Z;this.execSearched=this.loadingStatus=!1;return $(this.el).load("searchPanel.html",null,function(b,c){if("success"!==c)return alert("ERROR:\u691c\u7d22\u30d1\u30cd\u30eb\u304c\u8aad\u307f\u8fbc\u3081\u307e\u305b\u3093");$(j.el).html(b);$("#backToMainButton").bind("click",a.onBackToMain);
-return a.setup()})};j.prototype.onBackToMain=function(){return this.trigger("backtomain")};j.prototype.onclicktimeline=function(a){this.clear();return this.trigger("onclicktimeline",a)};j.prototype.appendTimeline=function(a){a=new ea({model:a});$("#searchResult").append(a.render().el);$(".tlTitle").css({width:f.width-80-10});return $(".tlMsg").css({width:f.width-80-10})};j.prototype.setup=function(){var a,b=this;$("#searchSubmitButton").bind("click",this.onTapSubmitButton);a=[];$("span.delig").each(function(){return a.push(new T($(this)))});
-$("input[type=text]").each(function(a,c){return $(c).bind("keyup",function(a){if(13===a.keyCode)return b.onTapSubmitButton(),$(c).blur()})});return $(this.el).bind("bottom",this.bottom)};j.prototype.bottom=function(){var a=this;return setTimeout(function(){return a.sendQuery()},1500)};j.prototype.loading=function(a){var b=this;a?($("#loadingAnimation").html(""),$("#loadingAnimation").append('<img src="img/loadingAnimation.gif">'),$("#loadingAnimation").height(48)):($("#loadingAnimation").html(""),
-!0!==this.noMoreResult&&($("#loadingAnimation").append('<span style="font-size:24px;margin:auto;vertical-align: middle;">\u30bf\u30c3\u30d7\u3057\u3066\u7d9a\u304d\u3092\u898b\u308b</span>'),$("#loadingAnimation").height(48),$("#loadingAnimation").bind("click",function(){b.loading(!0);$(b.el).trigger("bottom");return $("#loadingAnimation").unbind()})));return this.loadingStatus=a};j.prototype.onTapSubmitButton=function(){$("#searchResultError").html("");this.noMoreResult=!1;this.execSearched=!0;this.clear();
-this.searchQuery.resetPageCount();this.sendQuery();return this.trigger("startSearch")};j.prototype.sendQuery=function(){var a,b=this;a="";this.searchQuery.unbind();this.searchQuery.bind("return",function(a){return b.render(a)});this.searchQuery.bind("error",function(){return b.error});void 0!==$("#SearchPanelInnerContents #id").val()&&(a+="id="+$("#SearchPanelInnerContents #id").val()+"&");void 0!==$("#SearchPanelInnerContents #b1").val()&&(a+="b1="+$("#SearchPanelInnerContents #b1").val()+"&");void 0!==
-$("#SearchPanelInnerContents #b2").val()&&(a+="b2="+$("#SearchPanelInnerContents #b2").val()+"&");""!==a&&a.slice(0,-1);return this.searchQuery.sendQuery(a)};j.prototype.error=function(a){this.noMoreResult=!0;return $("#searchResultError").html(a)};j.prototype.render=function(a){var b,c,d,e;b=a[1][0].ERROR;c=a[1][1].TOTAL;a=a[0];switch(b){case "TOOMUCHRESULT":this.error("<br />\u691c\u7d22\u7d50\u679c\u304c100\u4ef6\u3092\u8d85\u3048\u307e\u3057\u305f\u3002<br />\u6761\u4ef6\u3092\u6307\u5b9a\u3057\u306a\u304a\u3057\u3066\u304f\u3060\u3055\u3044\u3002");
-break;case "NOTFOUND":this.error("<br />\u691c\u7d22\u306b\u30d2\u30c3\u30c8\u3057\u307e\u305b\u3093\u3067\u3057\u305f\u3002");break;case "NOWORD":this.error("<br />\u691c\u7d22\u6761\u4ef6\u3092\u6307\u5b9a\u3057\u3066\u304f\u3060\u3055\u3044\u3002");break;default:if($("#searchResultError").html(c+"\u4ef6\u30d2\u30c3\u30c8\u3057\u307e\u3057\u305f\u3002"),10>a.length&&(this.noMoreResult=!0),""!==a){d=0;for(e=a.length;d<e;d++)b=a[d],c=new P,c.set({data:b}),this.timeline.add(c)}else alert("\u300c"+
-value+"\u300d\u3067\u306f\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f\u3002")}return this.loading(!1)};j.prototype.show=function(){this.clear();u.show();$(this.el).show();$("input[type=tel]").each(function(){console.log(this);return $(this).focus()});$("#loadingAnimation").show();return $("#loadingAnimation").height(0)};j.prototype.hide=function(){this.loadingStatus=this.execSearched=!1;$("#loadingAnimation").hide();$("#loadingAnimation").html("");$("#loadingAnimation").height(0);
-$("#searchResultError").html("");u.hide();return $(this.el).hide()};j.prototype.clear=function(){this.execSearched=!1;$("#loadingAnimation").html("");return this.timeline.clear()};Y=j;var F=function(){return wa=F.__super__.constructor.apply(this,arguments)};k(F,Backbone.View);F.prototype.el="";F.prototype.button="";F.prototype.initialize=function(a){var b=this;this.el=a;$("<span>").attr("id",this.el.children("input").attr("id")+"DelButton").appendTo(this.el);$("#"+this.el.children("input").attr("id")+
-"DelButton").css({position:"relative",height:"22px",width:"22px",top:"2px",right:"25px","background-image":"url(img/delval.png)",cursor:"pointer",display:"inline-block",backgroundRepeat:"no-repeat",backgroundPosition:"center"});this.el.children("input").bind("keyup",function(){return""===b.el.children("input").val()?$("#"+b.el.children("input").attr("id")+"DelButton").css({opacity:0}):$("#"+b.el.children("input").attr("id")+"DelButton").css({opacity:1})});$("#"+this.el.children("input").attr("id")+
-"DelButton").bind("click",function(){b.el.children("input").val("");$("#"+b.el.children("input").attr("id")+"DelButton").css({opacity:0});return $("#"+b.el.children("input").attr("id")+"DelButton").focus()});return $("#"+this.el.children("input").attr("id")+"DelButton").css({opacity:0})};T=F;var L=function(){return xa=L.__super__.constructor.apply(this,arguments)};k(L,Backbone.Collection);L.prototype.model=P;L.prototype.clear=function(){return this.each(function(a){return a.clear()})};da=L;var G=
-function(){return ya=G.__super__.constructor.apply(this,arguments)};k(G,Backbone.Model);G.prototype.defaults={data:""};G.prototype.initialize=function(){return this.bind("onclicktimeline",this.onclicktimeline)};G.prototype.clear=function(){this.unbind;this.destroy;return this.view.unrender()};P=G;var w=function(){this.onclicks=h(this.onclicks,this);this.unrender=h(this.unrender,this);this.render=h(this.render,this);return za=w.__super__.constructor.apply(this,arguments)};k(w,Backbone.View);w.prototype.tagName=
-"div";w.prototype.data="";w.prototype.events={click:"onclicks"};w.prototype.initialize=function(){_.bindAll(this);return this.model.view=this};w.prototype.render=function(){var a,b;this.data=a=this.model.get("data");b=$(this.el).attr("class","timelineChild").attr("id","timelineChild"+a.id);$("<img />").attr("class","tlImg").attr("width",80).attr("src","swfData/blockimg/"+a.img+".jpg").load().appendTo(b);$("<div>").attr("class","tlTitle").html(a.b1).appendTo(b);$("<br />").appendTo(b);$("<div>").attr("class",
-"tlMsg").html(a.b2+("("+a.id+")")).appendTo(b);$("<br />").attr("class","timelineBR").appendTo(b);return this};w.prototype.unrender=function(){$(this.el).remove();return $(this.el).unbind()};w.prototype.onclicks=function(){return this.model.trigger("onclicktimeline",this.data.num)};ea=w;var y=function(){this.nextPage=h(this.nextPage,this);this.resetPageCount=h(this.resetPageCount,this);this.queryResult=h(this.queryResult,this);this.sendQuery=h(this.sendQuery,this);return Aa=y.__super__.constructor.apply(this,
-arguments)};k(y,Backbone.View);y.prototype.page=1;y.prototype.linePerPage=30;y.prototype.sendQuery=function(a){var b=this;return $.ajax("swfData/search.php",{type:"GET",data:a+(""!==a?"&page="+this.page:"page="+this.page),dataType:"json",error:function(){return b.trigger("error")},success:function(a){b.nextPage();return b.queryResult(a)}})};y.prototype.queryResult=function(a){return this.trigger("return",a)};y.prototype.resetPageCount=function(){return this.page=1};y.prototype.nextPage=function(){return this.page++};
-Z=y;var e=function(){return Ba=e.__super__.constructor.apply(this,arguments)};k(e,Backbone.View);e.device="";e.os="";e.width=0;e.height=0;e.orient=0;e.prototype.initialize=function(){_.bindAll(this);$(window).bind("orientationchange resize",this.setup);return this.setup()};e.prototype.setup=function(){navigator.userAgent.match(/iPhone/i)?(e.device="smartphone",e.os="ios",e.version="",e.width=90!==Math.abs(window.orientation)?screen.width:screen.height,e.height=90!==Math.abs(window.orientation)?screen.height-
-64:screen.width-52):navigator.userAgent.match(/iPad/i)?(e.device="tablet",e.os="ios",e.version="",e.width=90!==Math.abs(window.orientation)?screen.width:screen.height,e.height=90!==Math.abs(window.orientation)?screen.height-96:screen.width-96):navigator.userAgent.match(navigator.userAgent.match(/Mobile/i))?(e.device="smartphone",e.os="android",e.version="",e.width=320,e.height=455):navigator.userAgent.match(/Android/i)?(e.device="tablet",e.os="android",e.version="",e.width=90!==Math.abs(window.orientation)?
-600:960,e.height=90!==Math.abs(window.orientation)?780:430):(e.device="pc",e.width=$(window).width(),e.height=$(window).height());$("#Pyramid").width(e.width);$("#Pyramid").height(e.height);return this.hideAddressBar()};e.prototype.hideAddressBar=function(){if("ios"===e.getOS())return setTimeout(scrollTo,100,0,1);if("android"===e.getOS())return window.scrollTo(0,1)};e.getDevice=function(){return e.device};e.getOS=function(){return e.os};f=e;var B=function(){},Q,R,N,ga,S;Q={};S="Boolean Number String Function Array Date RegExp Undefined Null".split(" ");
-N=0;for(ga=S.length;N<ga;N++)R=S[N],Q["[object "+R+"]"]=R.toLowerCase();B.type=function(a){a=Object.prototype.toString.call(a);return Q[a]||"object"};B.getDiagonal=function(a,b){return 0<a&&0<b?Math.sqrt(Math.pow(a,2)+Math.pow(b,2)):!1};var g=function(){return ka=g.__super__.constructor.apply(this,arguments)};k(g,Backbone.View);g.outerel="#Pyramid";g.prototype.el="#Tiles";g.prototype.searchHit="";g.prototype.initialize=function(){_.bindAll(this);"pc"!==f.device?($(this.el).bind("touchstart",this.onMouseDown),
-$(this.el).bind("touchend",this.onMouseUp),$(this.el).bind("touchmove",this.onMouseMove),$(this.el).bind("gesturestart",this.onGestureStart),$(this.el).bind("gesturechange",this.onGestureMove),$(this.el).bind("gestureend",this.onGestureEnd)):($(this.el).bind("mousedown",this.onMouseDown),$(this.el).bind("mouseup",this.onMouseUp),$(this.el).bind("mousemove",this.onMouseMove));$(this.el).flickable();this.dragging=!1;this.tiles=new ca;this.tiles.bind("add",this.appendTile);$(this.el).css({cursor:"-moz-grab"});
-$(this.el).css({"background-image":"url('swfData/bg.jpg')","background-size":"contain"});this.update();return this.pyramidSetPositionToCenter()};g.show=function(){return $(this.outerel).show()};g.hide=function(){return $(this.outerel).hide()};g.prototype.onMouseDown=function(a){var b;b=t.getPoint(a);t.lock(a);if(!1===t.isLock())return $(this.el).css({transform:"scale(1)"}),a.preventDefault(),this.dragging=!0,"array"!==B.type(b[0])?($(this.el).css({cursor:"-moz-grab"}),this.dragStartX=b[0],this.dragStartY=
-b[1]):($(this.el).css({cursor:"-moz-grab"}),this.dragStartX=b[0][0]/2+b[1][0]/2,this.dragStartY=b[0][1]/2+b[1][1]/2),this.dragStartLeft=$(this.el).position().left,this.dragStartTop=$(this.el).position().top,this.dragStartPyramidX=this.getPyramidPos()[0],this.dragStartPyramidY=this.getPyramidPos()[1]};g.prototype.onMouseUp=function(a){var b,d;b=t.getPoint(a);if(void 0!==b&&!1===t.isLock())if($(this.el).css({transform:"scale(1)"}),a.preventDefault(),this.dragging=!1,$(this.el).css({cursor:""}),a="array"!==
-B.type(b[0])?b[0]:b[0][0],d="array"!==B.type(b[1])?b[1]:b[0][1],this.isSingleTap(this.dragStartX,a)&&this.isSingleTap(this.dragStartY,d)){if(!u.isShow()&&3<c)return this.trigger("openPopupFromPoint",this.getNumFromPoint([b[0],b[1]]))}else if(this.isSingleTap(this.dragStartX,a)&&this.isSingleTap(this.dragStartY,d)&&this.isOnTiles([b[0][0],b[0][1]])){if(!u.isShow()&&3<c)return this.trigger("openPopupFromPoint",this.getNumFromPoint([b[0][0],b[0][1]]))}else return this.update()};g.prototype.onMouseMove=
-function(a){var b;b=t.getPoint(a);if(void 0!==b&&!1===t.isLock()){a.preventDefault();if("number"===B.type(b[0])&&!0===this.dragging)return $(this.el).css({left:this.dragStartPyramidX+(this.getMousePos(a)[0]-this.dragStartX),top:this.dragStartPyramidY+(this.getMousePos(a)[1]-this.dragStartY)}),this.trigger("moving",[this.dragStartPyramidX+(this.getMousePos(a)[0]-this.dragStartX),this.dragStartPyramidY+(this.getMousePos(a)[1]-this.dragStartY)]);B.type(b[0])}};g.prototype.onGestureStart=function(){if(!1===
-t.isLock())return $(this.el).css({transform:"scale(1)"})};g.prototype.onGestureMove=function(a){var b,v,e,f;if(!1===t.isLock())return e=this.dragStartX-this.dragStartLeft,f=this.dragStartY-this.dragStartTop,b=(d[c][0]-d[c][0]*a.originalEvent.scale)/2,b=b/a.originalEvent.scale+(d[c][0]-e),v=(d[c][1]-d[c][1]*a.originalEvent.scale)/2,v=v/a.originalEvent.scale+(d[c][1]-f),$(this.el).css({transform:"scale("+a.originalEvent.scale+") translate("+b+"px,"+v+"px)",left:-1*(d[c][0]-e)+this.dragStartLeft,top:-1*
-(d[c][1]-f)+this.dragStartTop})};g.prototype.onGestureEnd=function(a){var b,v,e,f;if(!1===t.isLock()){$(this.el).css({left:this.dragStartLeft,top:this.dragStartTop,transform:"scale(1)"});b=0;if(1<a.originalEvent.scale){e=0;for(f=d.length;e<f;e++){v=d[e];if(!(d[c][0]*a.originalEvent.scale>v[0]&&""!==v[0])&&void 0!==v[0])break;b++}}else{e=0;for(f=d.length;e<f;e++){v=d[e];if(d[c][0]*a.originalEvent.scale<v[0])break;b++}}console.log("CONSOLE.LOG:",b);if(c!==b&&b<d.length)return m=c,c=b,this.update("pinchZoom");
-if(b>d.length-1)return console.log("CONSOLE.LOG2:",b),m=c,c=d.length-2,this.update("pinchZoom")}};g.prototype.zoomIn=function(a){a=Math.floor(a/2);if(c<d.length-1)return m=c,c+a<d.length-1?c+=a:c=d.length-1};g.prototype.zoomOut=function(a){a=Math.floor(10*(a-1)/2);if(1<c)return m=c,1<c-a?c=1:c+=a};g.prototype.isOnTiles=function(a){return a[0]>=this.getPyramidPos()[0]&&a[1]>=this.getPyramidPos()[1]&&a[0]<=d[c][0]+this.getPyramidPos()[0]&&a[1]<=parseInt(d[c][1])+this.getPyramidPos()[1]?!0:!1};g.prototype.isSingleTap=
-function(a,b){console.log(a,b);return a+3>b&&b>a-3?!0:!1};g.prototype.getNumFromPoint=function(a){var b;b=Math.floor((a[0]-this.getPyramidPos()[0])/l[c]);a=Math.round((a[1]-this.getPyramidPos()[1]+l[c]/2)/p[c]);b++;return 85*(0===a||1===a?0:a-1)+b};g.prototype.checkActiveTile=function(){var a,b,e,g;e=0<this.getPyramidPos()[0]&&0<f.width-Math.abs(this.getPyramidPos()[0])?0:Math.abs(this.getPyramidPos()[0]);g=0<this.getPyramidPos()[1]&&0<f.height-Math.abs(this.getPyramidPos()[1])?0:Math.abs(this.getPyramidPos()[1]);
-a=this.getPyramidPos()[0]+d[c][0]>$("#Pyramid").width()?$("#Pyramid").width()-this.getPyramidPos()[0]:d[c][0];b=this.getPyramidPos()[1]+d[c][1]>$("#Pyramid").height()?$("#Pyramid").height()-this.getPyramidPos()[1]:d[c][1];0>=a&&(a=0);0>=b&&(b=0);return[Math.floor(e/256),Math.floor(g/256),Math.floor(a/256===Math.floor(d[c][0]/256))?Math.floor(a/256)-1:Math.floor(a/256),Math.floor(b/256===Math.floor(d[c][1]/256))?Math.floor(b/256)-1:Math.floor(b/256)]};g.prototype.render=function(a){var b,d,e;d=a[0];
-e=a[1];for(this.tiles.removeAllTiles();e<=a[3];){for(;d<=a[2];)this.tiles.isSameTile(c,d,e)||(b=new O,b.set({x:d,y:e,z:c,display:!0}),this.tiles.add(b)),d++;e++;d=a[0]}return this.trigger("marker")};g.prototype.update=function(a){switch(a){case "zoomIn":this.moveToZoomInPos();break;case "zoomOut":this.moveToZoomOutPos();break;case "pinchZoom":this.moveToPinchZoomPos()}$(this.el).width(d[c][0]);$(this.el).height(d[c][1]);return this.render(this.checkActiveTile())};g.prototype.moveToNum=function(a){var b,
-d=this;b=-1*a%85*l[c];a=-1*Math.floor(a/85)*l[c];$(this.el).css({left:f.width/2+b+l[c]/2,top:f.height/2+a-p[c]/2});setTimeout(function(){return d.update("")},500);return this.trigger("moving",[f.width/2+b+l[c]/2,f.height/2+a-p[c]/2])};g.prototype.moveToPinchZoomPos=function(){console.log("POS:",this.dragStartTop,(this.dragStartY-this.dragStartTop)*(c-m),this.dragStartTop,this.dragStartY-this.dragStartTop,Math.pow(2,c-m));if(void 0!==this.dragStartTop&&void 0!==this.dragStartLeft)return $(this.el).css({left:this.dragStartLeft-
-(this.dragStartX-this.dragStartLeft)*(Math.pow(2,c-m)-1),top:this.dragStartTop-(this.dragStartY-this.dragStartTop)*(Math.pow(2,c-m)-1)}),this.trigger("moving",[$(this.el).position().left,$(this.el).position().top])};g.prototype.moveToZoomInPos=function(){var a;a=this.convertToGrobalCenterPos($(this.el).position().left,$(this.el).position().top);a=c===d.length-1?this.convertToLocalCenterPos(a[0],a[1]):this.convertToLocalCenterPos(2*a[0],2*a[1]);$(this.el).css({left:a[0],top:a[1]});return this.trigger("moving",
-[a[0],a[1]])};g.prototype.moveToZoomOutPos=function(){var a;a=this.convertToGrobalCenterPos($(this.el).position().left,$(this.el).position().top);a=8!==m?this.convertToLocalCenterPos(a[0]/2,a[1]/2):8===m?this.convertToLocalCenterPos(a[0],a[1]):this.convertToLocalCenterPos(a[0]/2,a[1]/2);$(this.el).css({left:a[0],top:a[1]});return this.trigger("moving",[a[0],a[1]])};g.prototype.convertToGrobalCenterPos=function(a,b){return[a+d[m][0]/2-f.width/2,b+d[m][1]/2-f.height/2]};g.prototype.convertToLocalCenterPos=
-function(a,b){return[a-d[c][0]/2+f.width/2,b-d[c][1]/2+f.height/2]};g.prototype.appendTile=function(a){a=new ba({model:a});return $(this.el).append(a.render().el)};g.prototype.pyramidSetPositionToCenter=function(){$(this.el).css({left:f.width/2-d[c][0]/2,top:f.height/2-d[c][1]/2});return this.trigger("moving",[f.width/2-d[c][0]/2,f.height/2-d[c][1]/2])};g.prototype.getMousePos=function(a){a=t.getPoint(a);return[a[0],a[1]]};g.prototype.getPyramidPos=function(){return[$(this.el).position().left,$(this.el).position().top]};
-J=g;var z=function(){return la=z.__super__.constructor.apply(this,arguments)};k(z,Backbone.View);z.prototype.result="";z.prototype.initialize=function(){};z.prototype.clear=function(){this.result="";return $("#Marker").remove()};z.prototype.setResult=function(a){return this.result=a};z.prototype.render=function(){var a,b,d,e=this;if(""!==this.result)return $("#Marker").remove(),a=(this.result%85-1)*l[c],b=Math.floor(this.result/85)*p[c],0>a&&(a=0),$("<div />").attr("id","Marker").appendTo($("#Tiles")),
-d=1>Math.floor(c/2)?1:Math.floor(c/2),$("#Marker").css({zIndex:3E3,width:l[c]-2*d,height:p[c]-2*d,left:a,top:b-2,border:"solid "+d+"px #FF0000"}),setTimeout(function(){return e.swap()},1E3)};z.prototype.swap=function(){return $("#Marker").css({zIndex:3E3})};U=z;var M=function(){return ma=M.__super__.constructor.apply(this,arguments)};k(M,Backbone.Model);M.prototype.defaults={x:0,y:0,z:0,display:!1};M.prototype.clear=function(){this.destroy;return this.view.unrender()};O=M;var C=function(){this.unrender=
-h(this.unrender,this);this.render=h(this.render,this);return na=C.__super__.constructor.apply(this,arguments)};k(C,Backbone.View);C.prototype.tagName="img";C.prototype.initialize=function(){_.bindAll(this);return this.model.view=this};C.prototype.render=function(){var a,b,c,d;b=this.model.get("x");c=this.model.get("y");d=this.model.get("z");a="swfData/web/"+(""+d+"/"+c+"/")+"z"+d+"x"+b+"y"+c+".jpg";$(this.el).attr({id:"z"+d+"x"+b+"y"+c,src:a}).css({position:"absolute",left:256*b,top:256*c}).load();
-return this};C.prototype.unrender=function(){return $(this.el).remove()};ba=C;var x=function(){return oa=x.__super__.constructor.apply(this,arguments)};k(x,Backbone.Collection);x.prototype.model=O;x.prototype.initialize=function(){return _.bindAll(this)};x.prototype.isSameTile=function(a,b,c){var d,e,f,g;d=[];this.each(function(a){return d.push(a)});f=0;for(g=d.length;f<g;f++)e=d[f],e=""+e.get("z")+" "+e.get("x")+" "+e.get("y")===""+a+" "+b+" "+c?!0:!1;return e};x.prototype.getNowVisibleList=function(){var a;
-a=[];this.each(function(b){return a.push(b)});return a};x.prototype.setRemove=function(){var a;a=[];return this.each(function(b){return a.push(b)})};x.prototype.removeCheckedTiles=function(){var a,b,c,d;d=[];b=0;for(c=data.length;b<c;b++)a=data[b],a.get("display"!==!0)?d.push(a.clear()):d.push(void 0);return d};x.prototype.removeAllTiles=function(){return this.each(function(a){return a.clear()})};ca=x;var s=function(){return pa=s.__super__.constructor.apply(this,arguments)};k(s,Backbone.View);s.el=
-"#ControlPanel";s.prototype.initialize=function(){_.bindAll(this);(new H("#ZoomInButton")).bind("change",this.zoomIn);(new H("#ZoomOutButton")).bind("change",this.zoomOut);(new H("#SearchPanelButton")).bind("change",this.showSearchPanel);return(new H("#HomeButton")).bind("change",this.onclickhomebutton)};s.prototype.zoomIn=function(){if(c<d.length-1)return m=c,c++,this.trigger("change","zoomIn")};s.prototype.zoomOut=function(){if(1<c)return m=c,c--,this.trigger("change","zoomOut")};s.prototype.showSearchPanel=
-function(){return this.trigger("showSearchPanel")};s.prototype.onclickhomebutton=function(){return this.trigger("onclickhomebutton")};s.show=function(){return $(s.el).show()};s.hide=function(){return $(s.el).hide()};I=s;var ha=function(){return qa=ha.__super__.constructor.apply(this,arguments)};k(ha,Backbone.Model);var D=function(){return ra=D.__super__.constructor.apply(this,arguments)};k(D,Backbone.View);D.prototype.el="";D.prototype.initialize=function(a){_.bindAll(this);this.el=a;$(this.el).unbind();
-return"pc"!==f.device?$(this.el).bind("touchend",this.onMouseUp):$(this.el).bind("mouseup",this.onMouseUp)};D.prototype.onMouseUp=function(a){a.preventDefault();return this.trigger("change")};D.prototype.destroy=function(){$(this.el).unbind();return $(this.el).remove()};H=D;var A=function(){};A.locked=!1;A.plock=0;A.lock=function(a){this.locked=2<a.originalEvent.touches.length&&3>this.plock?!0:!1;return this.plock=a.originalEvent.touches.length};A.isLock=function(){return this.locked};A.getPoint=
-function(a){var b,c,d,e,f,g,h,j,k;if(A.isTouch()){if(1===a.originalEvent.touches.length)return[a.originalEvent.touches[0].pageX,a.originalEvent.touches[0].pageY];if(1<a.originalEvent.touches.length){b=[];c=!1;k=a.originalEvent.touches;h=0;for(j=k.length;h<j;h++)a=k[h],a.pageX>d&&!0===c?d=a.pageX:!1===c&&(d=a.pageX),a.pageX<f&&!0===c?f=a.pageX:!1===c&&(f=a.pageX),a.pageY>e&&!0===c?e=a.pageY:!1===c&&(e=a.pageY),a.pageY<g&&!0===c?g=a.pageY:!1===c&&(g=a.pageY),c=!0;b.push([d,e]);b.push([f,g]);return b}return[a.originalEvent.changedTouches[0].pageX,
-a.originalEvent.changedTouches[0].pageY]}return[a.pageX,a.pageY]};A.isTouch=function(){return"ontouchstart"in window};t=A;var n=function(){return sa=n.__super__.constructor.apply(this,arguments)};k(n,Backbone.View);n.el="#Shadow";n.prototype.initialize=function(){return $(window).bind("load resize orientationchange",this.resize)};n.show=function(){n.setSize();return $(n.el).show()};n.hide=function(){n.setSize();return $(n.el).hide()};n.prototype.resize=function(){return n.setSize()};n.setSize=function(){$(this.el).width(f.width);
-return $(this.el).height(f.height)};n.isShow=function(){return"none"===$(n.el).css("display")?!1:!0};u=n;var q=function(){this.closeButtonAction=h(this.closeButtonAction,this);this.render=h(this.render,this);return ta=q.__super__.constructor.apply(this,arguments)};k(q,Backbone.View);q.prototype.el="#Popup";q.prototype.initialize=function(){_.bindAll(this);return $(window).bind("resize orientationchange",this.resize)};q.prototype.openPopupFromPoint=function(a){var b=this;this.show();return $.getJSON("swfData/search.php",
-{n:a},function(a,c){return c&&null!==a?b.render(a[0]):b.hide()})};q.prototype.clear=function(){if(""!==$(this.el).html())return $("#closeButton").unbind(),$(this.el).html("")};q.prototype.closePopup=function(a){void 0!==a&&a.preventDefault();this.clear();return this.hide()};q.prototype.render=function(a){var b=this;return $("<img />").css("margin-top",5).attr("src","swfData/blockimg/"+a.img+".jpg").load(function(){$("<div />").attr("id","popupOuterText").appendTo($(b.el));$("#popupOuterText").css({width:"80%",
-margin:"auto"});$("<p>").attr("class","popupB1Style").text(a.b1).appendTo($(b.el));$("<p>").attr("class","popupB2Style").text(a.b2+("("+a.id+")")).appendTo($(b.el));$("<input>").attr("id","closeButton").attr("type","button").attr("value","\u9589\u3058\u308b").appendTo($(b.el));return b.closeButtonAction()}).error(function(){return b.closePopup()}).appendTo($(this.el))};q.prototype.closeButtonAction=function(){var a=this;return"pc"!==f.device?$("#closeButton").bind("touchend",function(b){b.preventDefault();
-return a.closePopup(b)}):$("#closeButton").bind("mouseup",function(b){b.preventDefault();return a.closePopup(b)})};q.prototype.show=function(){u.setSize();$(this.el).show();return u.show()};q.prototype.hide=function(){u.setSize();$(this.el).hide();return u.hide()};q.prototype.resize=function(){return u.setSize()};q.setSize=function(){$(this.el).width(f.width);return $(this.el).height(f.height)};W=q}).call(this);
+// Generated by CoffeeScript 1.6.2
+(function() {
+  var Browser, ClickOnlyButton, ControlPanel, ControlPanelModel, DeleteValueButton, Marker, PhotomosaicViewer, Point, Popup, Pyramid, SEARCH_API, SModel, SearchPanel, SearchResult, Shadow, SmallMap, TIMELINE_API, Tile, TileView, Tiles, Timeline, TimelineChild, TimelineChildView, Utility, arrZoomSizeX, arrZoomSizeY, commentZoom, maxSearchResultNum, minBlockSize, minZoom, motifHeight, motifWidth, nowZoom, pinchTrigger, pinchTriggerArray, prevZoom, tileHeight, tileImageDir, tileImageExtension, tileWidth, tlImageWidth, zoomImageDir, zoomSize, _ref, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref17, _ref18, _ref19, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  tileWidth = 256;
+
+  tileHeight = 256;
+
+  commentZoom = true;
+
+  motifWidth = 85;
+
+  motifHeight = 120;
+
+  pinchTrigger = 15;
+
+  maxSearchResultNum = 50;
+
+  SEARCH_API = 'swfData/search.php';
+
+  TIMELINE_API = 'swfData/search.php';
+
+  tileImageDir = 'swfData/web/';
+
+  zoomImageDir = 'swfData/blockimg/';
+
+  tileImageExtension = '.jpg';
+
+  arrZoomSizeX = [0, 4, 8, 16, 32, 64, 128, 256, 256];
+
+  arrZoomSizeY = [0, 4, 8, 16, 32, 64, 128, 256, 256];
+
+  /* 外部設定予定 ここまで
+  */
+
+
+  minBlockSize = 1;
+
+  minZoom = 1;
+
+  tlImageWidth = 80;
+
+  nowZoom = minZoom;
+
+  prevZoom = minZoom;
+
+  zoomSize = [[], [motifWidth * minBlockSize * arrZoomSizeX[1], motifHeight * minBlockSize * arrZoomSizeY[1]], [motifWidth * minBlockSize * arrZoomSizeX[2], motifHeight * minBlockSize * arrZoomSizeY[2]], [motifWidth * minBlockSize * arrZoomSizeX[3], motifHeight * minBlockSize * arrZoomSizeY[3]], [motifWidth * minBlockSize * arrZoomSizeX[4], motifHeight * minBlockSize * arrZoomSizeY[4]], [motifWidth * minBlockSize * arrZoomSizeX[5], motifHeight * minBlockSize * arrZoomSizeY[5]], [motifWidth * minBlockSize * arrZoomSizeX[6], motifHeight * minBlockSize * arrZoomSizeY[6]], [motifWidth * minBlockSize * arrZoomSizeX[7], motifHeight * minBlockSize * arrZoomSizeY[7]], [motifWidth * minBlockSize * arrZoomSizeX[8], motifHeight * minBlockSize * arrZoomSizeY[8]]];
+
+  pinchTriggerArray = [];
+
+  $(function() {
+    var i, pmviewer, z, _i, _len;
+
+    i = 1;
+    for (_i = 0, _len = arrZoomSizeX.length; _i < _len; _i++) {
+      z = arrZoomSizeX[_i];
+      pinchTriggerArray.push(pinchTrigger * i);
+      i++;
+    }
+    return pmviewer = new PhotomosaicViewer;
+  });
+
+  /**
+   * Class PhotomosaicViewer メインクラス
+   * 表示別にクラスを分けるようにすること
+  */
+
+
+  PhotomosaicViewer = (function(_super) {
+    __extends(PhotomosaicViewer, _super);
+
+    function PhotomosaicViewer() {
+      this.setup = __bind(this.setup, this);
+      this.initialize = __bind(this.initialize, this);      _ref = PhotomosaicViewer.__super__.constructor.apply(this, arguments);
+      return _ref;
+    }
+
+    PhotomosaicViewer.prototype.initialize = function() {
+      var css_href;
+
+      _.bindAll(this);
+      this.uniBrowse = new Browser;
+      css_href = 'css/johoo_' + Browser.device + '.css';
+      $('<link>').attr('href', css_href).attr('rel', 'stylesheet').load().appendTo($('head'));
+      return this.setup();
+    };
+
+    PhotomosaicViewer.prototype.setup = function() {
+      var _this = this;
+
+      this.smodel = new SModel;
+      this.shadow = new Shadow;
+      this.smallMap = new SmallMap('#SmallMap', 'swfData/map.jpg');
+      this.pyramid = new Pyramid;
+      this.popup = new Popup;
+      this.searchPanel = new SearchPanel;
+      this.controlPanel = new ControlPanel;
+      this.marker = new Marker;
+      this.pyramid.bind('openPopupFromPoint', function(p) {
+        _this.popup.openPopupFromPoint(p);
+        _this.marker.setResult(p);
+        return _this.marker.render();
+      });
+      this.pyramid.bind('marker', function() {
+        return _this.marker.render();
+      });
+      this.searchPanel.bind('startSearch', function() {
+        return _this.marker.clear();
+      });
+      this.searchPanel.bind('onclicktimeline', function(d) {
+        _this.searchPanel.hide();
+        _this.smallMap.show();
+        Pyramid.show();
+        ControlPanel.show();
+        nowZoom = 5;
+        prevZoom = 4;
+        _this.marker.setResult(d);
+        return _this.pyramid.moveToNum(d);
+      });
+      this.searchPanel.bind('backtomain', function() {
+        _this.searchPanel.hide();
+        _this.smallMap.show();
+        Pyramid.show();
+        return ControlPanel.show();
+      });
+      this.pyramid.bind('moving', function(c) {
+        return _this.smallMap.setCoords(c);
+      });
+      this.controlPanel.bind('change', function(h) {
+        return _this.pyramid.update(h);
+      });
+      this.controlPanel.bind('onclickhomebutton', function() {
+        nowZoom = 1;
+        prevZoom = 2;
+        _this.pyramid.update();
+        _this.pyramid.pyramidSetPositionToCenter();
+        return setTimeout(function() {
+          return _this.pyramid.update();
+        }, 100);
+      });
+      return this.controlPanel.bind('showSearchPanel', function() {
+        _this.searchPanel.show();
+        _this.smallMap.hide();
+        Pyramid.hide();
+        return ControlPanel.hide();
+      });
+    };
+
+    return PhotomosaicViewer;
+
+  })(Backbone.View);
+
+  SmallMap = (function(_super) {
+    __extends(SmallMap, _super);
+
+    function SmallMap() {
+      this.setCoords = __bind(this.setCoords, this);
+      this.setup = __bind(this.setup, this);
+      this.initialize = __bind(this.initialize, this);      _ref1 = SmallMap.__super__.constructor.apply(this, arguments);
+      return _ref1;
+    }
+
+    SmallMap.prototype.el = '';
+
+    SmallMap.prototype.cursor = '#smallMapCursor';
+
+    SmallMap.prototype.image = '#smallMapImage';
+
+    SmallMap.prototype.m = 4;
+
+    SmallMap.prototype.dm = 1;
+
+    SmallMap.prototype.initialize = function(_el, _url) {
+      this.el = _el;
+      $(window).bind("orientationchange resize", this.setup);
+      this.dm = Browser.device === 'smartphone' ? 1 : 2;
+      this.m = this.m / this.dm;
+      $(this.el).css({
+        'overflow': 'hidden',
+        'background-image': "url('" + _url + "')",
+        'background-repeat': 'no-repeat',
+        'background-size': zoomSize[1][0] / this.m + ' ' + zoomSize[1][1] / this.m
+      });
+      $('<div>').attr('id', 'smallMapCursor').appendTo($(this.el));
+      return this.setup();
+    };
+
+    SmallMap.prototype.setup = function() {
+      this.defaultRatio = [this.m / zoomSize[1][0], this.m / zoomSize[1][1]];
+      $(this.cursor).css({
+        width: Browser.width / this.m,
+        position: 'relative',
+        height: Browser.height / this.m,
+        border: 'solid 1px #FF0000',
+        zIndex: 40,
+        left: 20,
+        top: 50
+      });
+      $(this.el).css({
+        left: Browser.width - (zoomSize[1][0] / this.m) - 10,
+        top: Browser.height - (zoomSize[1][1] / this.m) - 10,
+        width: zoomSize[1][0] / this.m,
+        height: zoomSize[1][1] / this.m
+      });
+      return this.setCoords([Browser.width / 2 - zoomSize[nowZoom][0] / 2, Browser.height / 2 - zoomSize[nowZoom][1] / 2]);
+    };
+
+    SmallMap.prototype.setCoords = function(c) {
+      return $(this.cursor).css({
+        left: (c[0] / (this.m * (zoomSize[nowZoom][0] / zoomSize[1][0]))) * -1,
+        top: (c[1] / (this.m * (zoomSize[nowZoom][1] / zoomSize[1][1]))) * -1,
+        width: Browser.width / (this.m * (zoomSize[nowZoom][0] / zoomSize[1][0])),
+        height: Browser.height / (this.m * (zoomSize[nowZoom][1] / zoomSize[1][1]))
+      });
+    };
+
+    SmallMap.prototype.hide = function() {
+      return $(this.el).hide();
+    };
+
+    SmallMap.prototype.show = function() {
+      return $(this.el).show();
+    };
+
+    return SmallMap;
+
+  })(Backbone.View);
+
+  /**
+   * Class SModel 現在はイベント管理のみ
+   *
+  */
+
+
+  SModel = (function(_super) {
+    __extends(SModel, _super);
+
+    function SModel() {
+      this.removeEvent = __bind(this.removeEvent, this);
+      this.setEvent = __bind(this.setEvent, this);      _ref2 = SModel.__super__.constructor.apply(this, arguments);
+      return _ref2;
+    }
+
+    SModel.prototype.setEvent = function(_target, _eventname) {
+      var _this = this;
+
+      return this.bind(_eventname, function(_data) {
+        return _this.cEvent(_eventname, _data);
+      });
+    };
+
+    SModel.prototype.removeEvent = function(_e) {
+      return this.unbind(_e);
+    };
+
+    SModel.prototype.cEvent = function(_event, _data) {
+      return this.trigger("" + _event + "R", _data);
+    };
+
+    return SModel;
+
+  })(Backbone.Model);
+
+  SearchPanel = (function(_super) {
+    __extends(SearchPanel, _super);
+
+    function SearchPanel() {
+      this.clear = __bind(this.clear, this);
+      this.hide = __bind(this.hide, this);
+      this.show = __bind(this.show, this);
+      this.render = __bind(this.render, this);
+      this.error = __bind(this.error, this);
+      this.onTapSubmitButton = __bind(this.onTapSubmitButton, this);
+      this.loading = __bind(this.loading, this);
+      this.bottom = __bind(this.bottom, this);      _ref3 = SearchPanel.__super__.constructor.apply(this, arguments);
+      return _ref3;
+    }
+
+    SearchPanel.prototype.el = '#SearchPanel';
+
+    SearchPanel.prototype.searchQuery = '';
+
+    SearchPanel.prototype.noMoreResult = false;
+
+    SearchPanel.timeline = '';
+
+    SearchPanel.prototype.initialize = function() {
+      var _this = this;
+
+      _.bindAll(this);
+      this.timeline = new Timeline;
+      this.timeline.bind('add', this.appendTimeline);
+      this.timeline.bind('onclicktimeline', this.onclicktimeline);
+      this.searchQuery = new SearchResult;
+      this.loadingStatus = false;
+      this.execSearched = false;
+      return $(this.el).load("searchPanel.html", null, function(data, status) {
+        if (status !== 'success') {
+          return alert("ERROR:検索パネルが読み込めません");
+        } else {
+          $(SearchPanel.el).html(data);
+          $('#backToMainButton').bind('click', _this.onBackToMain);
+          return _this.setup();
+        }
+      });
+    };
+
+    SearchPanel.prototype.onBackToMain = function() {
+      return this.trigger('backtomain');
+    };
+
+    SearchPanel.prototype.onclicktimeline = function(d) {
+      this.clear();
+      return this.trigger('onclicktimeline', d);
+    };
+
+    SearchPanel.prototype.appendTimeline = function(tile) {
+      var timelineChildView;
+
+      timelineChildView = new TimelineChildView({
+        model: tile
+      });
+      $("#searchResult").append(timelineChildView.render().el);
+      $('.tlTitle').css({
+        width: Browser.width - tlImageWidth - 10
+      });
+      return $('.tlMsg').css({
+        width: Browser.width - tlImageWidth - 10
+      });
+    };
+
+    SearchPanel.prototype.setup = function() {
+      var deleteValueButtons,
+        _this = this;
+
+      $('#searchSubmitButton').bind('click', this.onTapSubmitButton);
+      deleteValueButtons = [];
+      $('span.delig').each(function(i) {
+        return deleteValueButtons.push(new DeleteValueButton($(this)));
+      });
+      $('input[type=text]').each(function(i, o) {
+        return $(o).bind('keyup', function(e) {
+          if (e.keyCode === 13) {
+            _this.onTapSubmitButton();
+            return $(o).blur();
+          }
+        });
+      });
+      return $(this.el).bind('bottom', this.bottom);
+    };
+
+    SearchPanel.prototype.bottom = function() {
+      var _this = this;
+
+      return setTimeout(function() {
+        return _this.sendQuery();
+      }, 1500);
+    };
+
+    SearchPanel.prototype.loading = function(bool) {
+      var _this = this;
+
+      if (bool) {
+        $('#loadingAnimation').html('');
+        $('#loadingAnimation').append('<img src="img/loadingAnimation.gif">');
+        $('#loadingAnimation').height(48);
+        return this.loadingStatus = bool;
+      } else {
+        $('#loadingAnimation').html('');
+        if (this.noMoreResult !== true) {
+          $('#loadingAnimation').append('<span style="font-size:24px;margin:auto;vertical-align: middle;">タップして続きを見る</span>');
+          $('#loadingAnimation').height(48);
+          $('#loadingAnimation').bind('click', function() {
+            _this.loading(true);
+            $(_this.el).trigger('bottom');
+            return $('#loadingAnimation').unbind();
+          });
+        }
+        return this.loadingStatus = bool;
+      }
+    };
+
+    SearchPanel.prototype.onTapSubmitButton = function() {
+      $('#searchResultError').html('');
+      this.noMoreResult = false;
+      this.execSearched = true;
+      this.clear();
+      this.searchQuery.resetPageCount();
+      this.sendQuery();
+      return this.trigger('startSearch');
+    };
+
+    SearchPanel.prototype.sendQuery = function() {
+      var query,
+        _this = this;
+
+      query = '';
+      this.searchQuery.unbind();
+      this.searchQuery.bind('return', function(result) {
+        return _this.render(result);
+      });
+      this.searchQuery.bind('error', function() {
+        return _this.error;
+      });
+      if ($('#SearchPanelInnerContents #id').val() !== void 0) {
+        query += 'id=' + $('#SearchPanelInnerContents #id').val() + '&';
+      }
+      if ($('#SearchPanelInnerContents #b1').val() !== void 0) {
+        query += 'b1=' + $('#SearchPanelInnerContents #b1').val() + '&';
+      }
+      if ($('#SearchPanelInnerContents #b2').val() !== void 0) {
+        query += 'b2=' + $('#SearchPanelInnerContents #b2').val() + '&';
+      }
+      if (query !== '') {
+        query.slice(0, -1);
+      }
+      return this.searchQuery.sendQuery(query);
+    };
+
+    SearchPanel.prototype.error = function(t) {
+      this.noMoreResult = true;
+      return $('#searchResultError').html(t);
+    };
+
+    SearchPanel.prototype.render = function(result) {
+      var ERROR, TOTAL, item, tlChild, _i, _len;
+
+      ERROR = result[1][0].ERROR;
+      TOTAL = result[1][1].TOTAL;
+      result = result[0];
+      switch (ERROR) {
+        case 'TOOMUCHRESULT':
+          this.error('<br />検索結果が100件を超えました。<br />条件を指定しなおしてください。');
+          break;
+        case 'NOTFOUND':
+          this.error('<br />検索にヒットしませんでした。');
+          break;
+        case 'NOWORD':
+          this.error('<br />検索条件を指定してください。');
+          break;
+        default:
+          $('#searchResultError').html(TOTAL + '件ヒットしました。');
+          if (result.length < 10) {
+            this.noMoreResult = true;
+          }
+          if (result !== "") {
+            for (_i = 0, _len = result.length; _i < _len; _i++) {
+              item = result[_i];
+              tlChild = new TimelineChild;
+              tlChild.set({
+                data: item
+              });
+              this.timeline.add(tlChild);
+            }
+          } else {
+            alert("「" + value + "」では見つかりませんでした。");
+          }
+      }
+      return this.loading(false);
+    };
+
+    SearchPanel.prototype.show = function() {
+      this.clear();
+      Shadow.show();
+      $(this.el).show();
+      $('input[type=tel]').each(function() {
+        console.log(this);
+        return $(this).focus();
+      });
+      $('#loadingAnimation').show();
+      return $('#loadingAnimation').height(0);
+    };
+
+    SearchPanel.prototype.hide = function() {
+      this.execSearched = false;
+      this.loadingStatus = false;
+      $('#loadingAnimation').hide();
+      $('#loadingAnimation').html('');
+      $('#loadingAnimation').height(0);
+      $('#searchResultError').html('');
+      Shadow.hide();
+      return $(this.el).hide();
+    };
+
+    SearchPanel.prototype.clear = function() {
+      this.execSearched = false;
+      $('#loadingAnimation').html('');
+      return this.timeline.clear();
+    };
+
+    return SearchPanel;
+
+  })(Backbone.View);
+
+  DeleteValueButton = (function(_super) {
+    __extends(DeleteValueButton, _super);
+
+    function DeleteValueButton() {
+      _ref4 = DeleteValueButton.__super__.constructor.apply(this, arguments);
+      return _ref4;
+    }
+
+    DeleteValueButton.prototype.el = '';
+
+    DeleteValueButton.prototype.button = '';
+
+    DeleteValueButton.prototype.initialize = function(_el) {
+      var _this = this;
+
+      this.el = _el;
+      $('<span>').attr('id', this.el.children('input').attr('id') + 'DelButton').appendTo(this.el);
+      $('#' + this.el.children('input').attr('id') + 'DelButton').css({
+        'position': 'relative',
+        'height': '22px',
+        'width': '22px',
+        'top': '2px',
+        'right': '25px',
+        'background-image': 'url(img/delval.png)',
+        'cursor': 'pointer',
+        'display': 'inline-block',
+        'backgroundRepeat': 'no-repeat',
+        'backgroundPosition': 'center'
+      });
+      this.el.children('input').bind('keyup', function() {
+        if (_this.el.children('input').val() === '') {
+          return $('#' + _this.el.children('input').attr('id') + 'DelButton').css({
+            'opacity': 0
+          });
+        } else {
+          return $('#' + _this.el.children('input').attr('id') + 'DelButton').css({
+            'opacity': 1
+          });
+        }
+      });
+      $('#' + this.el.children('input').attr('id') + 'DelButton').bind('click', function() {
+        _this.el.children('input').val('');
+        $('#' + _this.el.children('input').attr('id') + 'DelButton').css({
+          'opacity': 0
+        });
+        return $('#' + _this.el.children('input').attr('id') + 'DelButton').focus();
+      });
+      return $('#' + this.el.children('input').attr('id') + 'DelButton').css({
+        'opacity': 0
+      });
+    };
+
+    return DeleteValueButton;
+
+  })(Backbone.View);
+
+  Timeline = (function(_super) {
+    __extends(Timeline, _super);
+
+    function Timeline() {
+      _ref5 = Timeline.__super__.constructor.apply(this, arguments);
+      return _ref5;
+    }
+
+    Timeline.prototype.model = TimelineChild;
+
+    Timeline.prototype.clear = function() {
+      return this.each(function(tlChild) {
+        return tlChild.clear();
+      });
+    };
+
+    return Timeline;
+
+  })(Backbone.Collection);
+
+  TimelineChild = (function(_super) {
+    __extends(TimelineChild, _super);
+
+    function TimelineChild() {
+      _ref6 = TimelineChild.__super__.constructor.apply(this, arguments);
+      return _ref6;
+    }
+
+    TimelineChild.prototype.defaults = {
+      data: ''
+    };
+
+    TimelineChild.prototype.initialize = function() {
+      return this.bind('onclicktimeline', this.onclicktimeline);
+    };
+
+    TimelineChild.prototype.clear = function() {
+      this.unbind;
+      this.destroy;
+      return this.view.unrender();
+    };
+
+    return TimelineChild;
+
+  })(Backbone.Model);
+
+  TimelineChildView = (function(_super) {
+    __extends(TimelineChildView, _super);
+
+    function TimelineChildView() {
+      this.onclicks = __bind(this.onclicks, this);
+      this.unrender = __bind(this.unrender, this);
+      this.render = __bind(this.render, this);      _ref7 = TimelineChildView.__super__.constructor.apply(this, arguments);
+      return _ref7;
+    }
+
+    TimelineChildView.prototype.tagName = 'div';
+
+    TimelineChildView.prototype.data = '';
+
+    TimelineChildView.prototype.events = {
+      "click": "onclicks"
+    };
+
+    TimelineChildView.prototype.initialize = function() {
+      _.bindAll(this);
+      return this.model.view = this;
+    };
+
+    TimelineChildView.prototype.render = function() {
+      var item, tl;
+
+      item = this.model.get('data');
+      this.data = item;
+      tl = $(this.el).attr('class', 'timelineChild').attr('id', 'timelineChild' + item.id);
+      $('<img />').attr('class', 'tlImg').attr('width', tlImageWidth).attr('src', 'swfData/blockimg/' + item.img + '.jpg').load().appendTo(tl);
+      $('<div>').attr('class', 'tlTitle').html(item.b1).appendTo(tl);
+      $('<br />').appendTo(tl);
+      $('<div>').attr('class', 'tlMsg').html(item.b2 + ("(" + item.id + ")")).appendTo(tl);
+      $('<br />').attr('class', 'timelineBR').appendTo(tl);
+      return this;
+    };
+
+    TimelineChildView.prototype.unrender = function() {
+      $(this.el).remove();
+      return $(this.el).unbind();
+    };
+
+    TimelineChildView.prototype.onclicks = function() {
+      return this.model.trigger('onclicktimeline', this.data.num);
+    };
+
+    return TimelineChildView;
+
+  })(Backbone.View);
+
+  SearchResult = (function(_super) {
+    __extends(SearchResult, _super);
+
+    function SearchResult() {
+      this.nextPage = __bind(this.nextPage, this);
+      this.resetPageCount = __bind(this.resetPageCount, this);
+      this.queryResult = __bind(this.queryResult, this);
+      this.sendQuery = __bind(this.sendQuery, this);      _ref8 = SearchResult.__super__.constructor.apply(this, arguments);
+      return _ref8;
+    }
+
+    SearchResult.prototype.page = 1;
+
+    SearchResult.prototype.linePerPage = 30;
+
+    SearchResult.prototype.sendQuery = function(query) {
+      var pageQuery,
+        _this = this;
+
+      if (query !== '') {
+        pageQuery = '&page=' + this.page;
+      } else {
+        pageQuery = 'page=' + this.page;
+      }
+      return $.ajax(TIMELINE_API, {
+        type: "GET",
+        data: query + pageQuery,
+        dataType: "json",
+        error: function(jqXHR, textStatus, errorThrown) {
+          return _this.trigger('error');
+        },
+        success: function(data) {
+          _this.nextPage();
+          return _this.queryResult(data);
+        }
+      });
+    };
+
+    SearchResult.prototype.queryResult = function(result) {
+      return this.trigger('return', result);
+    };
+
+    SearchResult.prototype.resetPageCount = function() {
+      return this.page = 1;
+    };
+
+    SearchResult.prototype.nextPage = function() {
+      return this.page++;
+    };
+
+    return SearchResult;
+
+  })(Backbone.View);
+
+  /**
+   * Class Browser 環境設定関連
+   * ブラウザチェック、それにあわせた描画領域の設定、アドレスバーを隠す等
+   * 完成したらちゃんと書く
+  */
+
+
+  Browser = (function(_super) {
+    __extends(Browser, _super);
+
+    function Browser() {
+      _ref9 = Browser.__super__.constructor.apply(this, arguments);
+      return _ref9;
+    }
+
+    Browser.device = '';
+
+    Browser.os = '';
+
+    Browser.width = 0;
+
+    Browser.height = 0;
+
+    Browser.orient = 0;
+
+    Browser.prototype.initialize = function() {
+      _.bindAll(this);
+      $(window).bind("orientationchange resize", this.setup);
+      return this.setup();
+    };
+
+    Browser.prototype.setup = function() {
+      if (navigator.userAgent.match(/iPhone/i || navigator.userAgent.match(/iPod/i))) {
+        Browser.device = 'smartphone';
+        Browser.os = 'ios';
+        Browser.version = '';
+        Browser.width = Math.abs(window.orientation) !== 90 ? screen.width : screen.height;
+        Browser.height = Math.abs(window.orientation) !== 90 ? screen.height - 64 : screen.width - 52;
+      } else if (navigator.userAgent.match(/iPad/i)) {
+        Browser.device = 'tablet';
+        Browser.os = 'ios';
+        Browser.version = '';
+        Browser.width = Math.abs(window.orientation) !== 90 ? screen.width : screen.height;
+        Browser.height = Math.abs(window.orientation) !== 90 ? screen.height - 96 : screen.width - 96;
+      } else if (navigator.userAgent.match(/Android/i && navigator.userAgent.match(/Mobile/i))) {
+        Browser.device = 'smartphone';
+        Browser.os = 'android';
+        Browser.version = '';
+        Browser.width = 320;
+        Browser.height = 455;
+      } else if (navigator.userAgent.match(/Android/i)) {
+        Browser.device = 'tablet';
+        Browser.os = 'android';
+        Browser.version = '';
+        Browser.width = Math.abs(window.orientation) !== 90 ? 600 : 960;
+        Browser.height = Math.abs(window.orientation) !== 90 ? 780 : 430;
+      } else {
+        Browser.device = 'pc';
+        Browser.width = $(window).width();
+        Browser.height = $(window).height();
+      }
+      $('#Pyramid').width(Browser.width);
+      $('#Pyramid').height(Browser.height);
+      return this.hideAddressBar();
+    };
+
+    Browser.prototype.hideAddressBar = function() {
+      if (Browser.getOS() === 'ios') {
+        return setTimeout(scrollTo, 100, 0, 1);
+      } else if (Browser.getOS() === 'android') {
+        return window.scrollTo(0, 1);
+      }
+    };
+
+    Browser.getDevice = function() {
+      return Browser.device;
+    };
+
+    Browser.getOS = function() {
+      return Browser.os;
+    };
+
+    return Browser;
+
+  }).call(this, Backbone.View);
+
+  Utility = (function() {
+    function Utility() {}
+
+    Utility.type = (function() {
+      var classToType, name, _i, _len, _ref10;
+
+      classToType = {};
+      _ref10 = "Boolean Number String Function Array Date RegExp Undefined Null".split(" ");
+      for (_i = 0, _len = _ref10.length; _i < _len; _i++) {
+        name = _ref10[_i];
+        classToType["[object " + name + "]"] = name.toLowerCase();
+      }
+      return function(obj) {
+        var strType;
+
+        strType = Object.prototype.toString.call(obj);
+        return classToType[strType] || "object";
+      };
+    })();
+
+    Utility.getDiagonal = function(_x, _y) {
+      if (_x > 0 && _y > 0) {
+        return Math.sqrt(Math.pow(_x, 2) + Math.pow(_y, 2));
+      } else {
+        return false;
+      }
+    };
+
+    return Utility;
+
+  })();
+
+  /**
+   * Class Pyramidクラス
+  */
+
+
+  Pyramid = (function(_super) {
+    __extends(Pyramid, _super);
+
+    function Pyramid() {
+      _ref10 = Pyramid.__super__.constructor.apply(this, arguments);
+      return _ref10;
+    }
+
+    Pyramid.outerel = '#Pyramid';
+
+    Pyramid.prototype.el = "#Tiles";
+
+    Pyramid.prototype.searchHit = '';
+
+    /*
+    	初期化メソッド
+    */
+
+
+    Pyramid.prototype.initialize = function() {
+      _.bindAll(this);
+      if (Browser.device !== 'pc') {
+        $(this.el).bind('touchstart', this.onMouseDown);
+        $(this.el).bind('touchend', this.onMouseUp);
+        $(this.el).bind('touchmove', this.onMouseMove);
+        $(this.el).bind('gesturestart', this.onGestureStart);
+        $(this.el).bind('gesturechange', this.onGestureMove);
+        $(this.el).bind('gestureend', this.onGestureEnd);
+      } else {
+        $(this.el).bind('mousedown', this.onMouseDown);
+        $(this.el).bind('mouseup', this.onMouseUp);
+        $(this.el).bind('mousemove', this.onMouseMove);
+      }
+      $(this.el).flickable();
+      this.dragging = false;
+      this.tiles = new Tiles;
+      this.tiles.bind('add', this.appendTile);
+      $(this.el).css({
+        'cursor': '-moz-grab'
+      });
+      $(this.el).css({
+        'background-image': "url('swfData/bg.jpg')",
+        'background-size': 'contain'
+      });
+      this.update();
+      return this.pyramidSetPositionToCenter();
+    };
+
+    Pyramid.show = function() {
+      return $(this.outerel).show();
+    };
+
+    Pyramid.hide = function() {
+      return $(this.outerel).hide();
+    };
+
+    /*
+    	マウスイベント関連メソッド群
+    */
+
+
+    Pyramid.prototype.onMouseDown = function(e) {
+      var cords;
+
+      cords = Point.getPoint(e);
+      Point.lock(e);
+      if (Point.isLock() === false) {
+        $(this.el).css({
+          transform: "scale(1)"
+        });
+        e.preventDefault();
+        this.dragging = true;
+        if (Utility.type(cords[0]) !== 'array') {
+          $(this.el).css({
+            'cursor': '-moz-grab'
+          });
+          this.dragStartX = cords[0];
+          this.dragStartY = cords[1];
+          this.dragStartLeft = $(this.el).position().left;
+          this.dragStartTop = $(this.el).position().top;
+          this.dragStartPyramidX = this.getPyramidPos()[0];
+          return this.dragStartPyramidY = this.getPyramidPos()[1];
+        } else {
+          $(this.el).css({
+            'cursor': '-moz-grab'
+          });
+          this.dragStartX = cords[0][0] / 2 + cords[1][0] / 2;
+          this.dragStartY = cords[0][1] / 2 + cords[1][1] / 2;
+          this.dragStartLeft = $(this.el).position().left;
+          this.dragStartTop = $(this.el).position().top;
+          this.dragStartPyramidX = this.getPyramidPos()[0];
+          return this.dragStartPyramidY = this.getPyramidPos()[1];
+        }
+      }
+      /*
+      		else if Utility.type(cords[0]) is 'array'
+      			$(@el).css {'cursor':'-moz-grab'}
+      			@pinchinStartCenterX = (cords[0][0] + cords[1][0])/2
+      			@pinchinStartCenterY = (cords[0][1] + cords[1][1])/2
+      
+      			@pinchinStart = cords
+      */
+
+    };
+
+    Pyramid.prototype.onMouseUp = function(e) {
+      var cords, cordx, cordy;
+
+      cords = Point.getPoint(e);
+      if (cords !== void 0 && Point.isLock() === false) {
+        $(this.el).css({
+          transform: "scale(1)"
+        });
+        e.preventDefault();
+        this.dragging = false;
+        $(this.el).css({
+          'cursor': ''
+        });
+        cordx = Utility.type(cords[0]) !== 'array' ? cords[0] : cords[0][0];
+        cordy = Utility.type(cords[1]) !== 'array' ? cords[1] : cords[0][1];
+        if (this.isSingleTap(this.dragStartX, cordx) && this.isSingleTap(this.dragStartY, cordy)) {
+          if (!Shadow.isShow() && nowZoom > 3) {
+            return this.trigger('openPopupFromPoint', this.getNumFromPoint([cords[0], cords[1]]));
+          }
+        } else if (this.isSingleTap(this.dragStartX, cordx) && this.isSingleTap(this.dragStartY, cordy) && this.isOnTiles([cords[0][0], cords[0][1]])) {
+          if (!Shadow.isShow() && nowZoom > 3) {
+            return this.trigger('openPopupFromPoint', this.getNumFromPoint([cords[0][0], cords[0][1]]));
+          }
+        } else {
+          return this.update();
+        }
+      }
+    };
+
+    Pyramid.prototype.onMouseMove = function(e) {
+      var cords;
+
+      cords = Point.getPoint(e);
+      if (cords !== void 0 && Point.isLock() === false) {
+        e.preventDefault();
+        if (Utility.type(cords[0]) === "number" && this.dragging === true) {
+          $(this.el).css({
+            'left': this.dragStartPyramidX + (this.getMousePos(e)[0] - this.dragStartX),
+            'top': this.dragStartPyramidY + (this.getMousePos(e)[1] - this.dragStartY)
+          });
+          return this.trigger('moving', [this.dragStartPyramidX + (this.getMousePos(e)[0] - this.dragStartX), this.dragStartPyramidY + (this.getMousePos(e)[1] - this.dragStartY)]);
+        } else if (Utility.type(cords[0]) === "array" && this.dragging === true) {
+
+        } else {
+
+        }
+      }
+    };
+
+    Pyramid.prototype.onGestureStart = function(e) {
+      if (Point.isLock() === false) {
+        return $(this.el).css({
+          transform: "scale(1)"
+        });
+      }
+    };
+
+    Pyramid.prototype.onGestureMove = function(e) {
+      var dx, dy, localX, localY;
+
+      if (Point.isLock() === false) {
+        localX = this.dragStartX - this.dragStartLeft;
+        localY = this.dragStartY - this.dragStartTop;
+        dx = (zoomSize[nowZoom][0] - (zoomSize[nowZoom][0] * e.originalEvent.scale)) / 2;
+        dx = (dx / e.originalEvent.scale) + (zoomSize[nowZoom][0] - localX);
+        dy = (zoomSize[nowZoom][1] - (zoomSize[nowZoom][1] * e.originalEvent.scale)) / 2;
+        dy = (dy / e.originalEvent.scale) + (zoomSize[nowZoom][1] - localY);
+        return $(this.el).css({
+          transform: "scale(" + e.originalEvent.scale + ") translate(" + dx + "px," + dy + "px)",
+          left: (zoomSize[nowZoom][0] - localX) * -1 + this.dragStartLeft,
+          top: (zoomSize[nowZoom][1] - localY) * -1 + this.dragStartTop
+        });
+      }
+    };
+
+    Pyramid.prototype.onGestureEnd = function(e) {
+      var cnt, item, _i, _j, _len, _len1;
+
+      if (Point.isLock() === false) {
+        $(this.el).css({
+          left: this.dragStartLeft,
+          top: this.dragStartTop,
+          transform: "scale(1)"
+        });
+        cnt = 0;
+        if (e.originalEvent.scale > 1) {
+          for (_i = 0, _len = zoomSize.length; _i < _len; _i++) {
+            item = zoomSize[_i];
+            if (zoomSize[nowZoom][0] * e.originalEvent.scale > item[0] && item[0] !== "") {
+
+            } else if (item[0] !== void 0) {
+              break;
+            }
+            cnt++;
+          }
+        } else {
+          for (_j = 0, _len1 = zoomSize.length; _j < _len1; _j++) {
+            item = zoomSize[_j];
+            if (zoomSize[nowZoom][0] * e.originalEvent.scale < item[0]) {
+              break;
+            }
+            cnt++;
+          }
+        }
+        console.log("CONSOLE.LOG:", cnt);
+        if (nowZoom !== cnt && cnt < zoomSize.length) {
+          prevZoom = nowZoom;
+          nowZoom = cnt;
+          return this.update('pinchZoom');
+        } else if (cnt > zoomSize.length - 1) {
+          console.log("CONSOLE.LOG2:", cnt);
+          prevZoom = nowZoom;
+          nowZoom = zoomSize.length - 2;
+          return this.update('pinchZoom');
+        }
+      }
+    };
+
+    Pyramid.prototype.zoomIn = function(_z) {
+      var rate;
+
+      rate = Math.floor(_z / 2);
+      if (nowZoom < zoomSize.length - 1) {
+        prevZoom = nowZoom;
+        if (nowZoom + rate < zoomSize.length - 1) {
+          return nowZoom = nowZoom + rate;
+        } else {
+          return nowZoom = zoomSize.length - 1;
+        }
+      }
+    };
+
+    Pyramid.prototype.zoomOut = function(_z) {
+      var rate;
+
+      _z = (_z - 1) * 10;
+      rate = Math.floor(_z / 2);
+      if (nowZoom > minZoom) {
+        prevZoom = nowZoom;
+        if (nowZoom - rate > minZoom) {
+          return nowZoom = minZoom;
+        } else {
+          return nowZoom = nowZoom + rate;
+        }
+      }
+    };
+
+    Pyramid.prototype.isOnTiles = function(p) {
+      if (p[0] >= this.getPyramidPos()[0] && p[1] >= this.getPyramidPos()[1] && p[0] <= zoomSize[nowZoom][0] + this.getPyramidPos()[0] && p[1] <= parseInt(zoomSize[nowZoom][1]) + this.getPyramidPos()[1]) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    Pyramid.prototype.isSingleTap = function(_a, _b) {
+      console.log(_a, _b);
+      if (_a + 3 > _b && _b > _a - 3) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    Pyramid.prototype.getNumFromPoint = function(p) {
+      var xb, yb;
+
+      xb = Math.floor((p[0] - this.getPyramidPos()[0]) / arrZoomSizeX[nowZoom]);
+      yb = Math.round((p[1] - this.getPyramidPos()[1] + (arrZoomSizeX[nowZoom] / 2)) / arrZoomSizeY[nowZoom]);
+      yb = yb === 0 || yb === 1 ? 0 : yb - 1;
+      xb++;
+      return motifWidth * yb + xb;
+    };
+
+    /**
+    	 * 描画範囲調査メソッド
+    	 * もっとスマートに出来たらなぁといつも思う
+    */
+
+
+    Pyramid.prototype.checkActiveTile = function() {
+      var displayAreaEndX, displayAreaEndY, displayAreaStartX, displayAreaStartY, loadEndX, loadEndY, loadStartX, loadStartY;
+
+      displayAreaStartX = this.getPyramidPos()[0] > 0 && Browser.width - Math.abs(this.getPyramidPos()[0]) > 0 ? 0 : Math.abs(this.getPyramidPos()[0]);
+      displayAreaStartY = this.getPyramidPos()[1] > 0 && Browser.height - Math.abs(this.getPyramidPos()[1]) > 0 ? 0 : Math.abs(this.getPyramidPos()[1]);
+      displayAreaEndX = this.getPyramidPos()[0] + zoomSize[nowZoom][0] > $('#Pyramid').width() ? $('#Pyramid').width() - this.getPyramidPos()[0] : zoomSize[nowZoom][0];
+      displayAreaEndY = this.getPyramidPos()[1] + zoomSize[nowZoom][1] > $('#Pyramid').height() ? $('#Pyramid').height() - this.getPyramidPos()[1] : zoomSize[nowZoom][1];
+      if (displayAreaEndX <= 0) {
+        displayAreaEndX = 0;
+      }
+      if (displayAreaEndY <= 0) {
+        displayAreaEndY = 0;
+      }
+      loadStartX = Math.floor(displayAreaStartX / tileWidth);
+      loadStartY = Math.floor(displayAreaStartY / tileHeight);
+      loadEndX = Math.floor(displayAreaEndX / tileWidth === Math.floor(zoomSize[nowZoom][0] / tileWidth)) ? Math.floor(displayAreaEndX / tileWidth) - 1 : Math.floor(displayAreaEndX / tileWidth);
+      loadEndY = Math.floor(displayAreaEndY / tileHeight === Math.floor(zoomSize[nowZoom][1] / tileHeight)) ? Math.floor(displayAreaEndY / tileHeight) - 1 : Math.floor(displayAreaEndY / tileHeight);
+      return [loadStartX, loadStartY, loadEndX, loadEndY];
+    };
+
+    /**
+    	 * 描画メソッド
+    	 * @param {startX} Number
+    	 * @param {startY} Number
+    	 * @param {endX} Number
+    	 * @param {endY} Number
+    */
+
+
+    Pyramid.prototype.render = function(t) {
+      var tile, x, x2, y, y2;
+
+      x = t[0];
+      y = t[1];
+      x2 = t[2];
+      y2 = t[3];
+      this.tiles.removeAllTiles();
+      while (y <= t[3]) {
+        while (x <= t[2]) {
+          if (!this.tiles.isSameTile(nowZoom, x, y)) {
+            tile = new Tile;
+            tile.set({
+              x: x,
+              y: y,
+              z: nowZoom,
+              display: true
+            });
+            this.tiles.add(tile);
+          }
+          x++;
+        }
+        y++;
+        x = t[0];
+      }
+      y = t[1];
+      return this.trigger('marker');
+    };
+
+    /**
+    	 * イベントコールバック用
+    */
+
+
+    Pyramid.prototype.update = function(h) {
+      switch (h) {
+        case 'zoomIn':
+          this.moveToZoomInPos();
+          break;
+        case 'zoomOut':
+          this.moveToZoomOutPos();
+          break;
+        case 'pinchZoom':
+          this.moveToPinchZoomPos();
+          break;
+      }
+      $(this.el).width(zoomSize[nowZoom][0]);
+      $(this.el).height(zoomSize[nowZoom][1]);
+      return this.render(this.checkActiveTile());
+    };
+
+    /**
+    	 * Pyramidを指定numにあわせて移動させるメソッド
+    */
+
+
+    Pyramid.prototype.moveToNum = function(d) {
+      var tx, ty,
+        _this = this;
+
+      tx = d % motifWidth * arrZoomSizeX[nowZoom] * -1;
+      ty = Math.floor(d / motifWidth) * arrZoomSizeX[nowZoom] * -1;
+      $(this.el).css({
+        left: (Browser.width / 2) + tx + arrZoomSizeX[nowZoom] / 2,
+        top: (Browser.height / 2) + ty - arrZoomSizeY[nowZoom] / 2
+      });
+      setTimeout(function() {
+        return _this.update('');
+      }, 500);
+      return this.trigger('moving', [(Browser.width / 2) + tx + arrZoomSizeX[nowZoom] / 2, (Browser.height / 2) + ty - arrZoomSizeY[nowZoom] / 2]);
+    };
+
+    Pyramid.prototype.moveToPinchZoomPos = function() {
+      console.log("POS:", this.dragStartTop, (this.dragStartY - this.dragStartTop) * (nowZoom - prevZoom), this.dragStartTop, this.dragStartY - this.dragStartTop, Math.pow(2, nowZoom - prevZoom));
+      if (this.dragStartTop !== void 0 && this.dragStartLeft !== void 0) {
+        $(this.el).css({
+          left: this.dragStartLeft - ((this.dragStartX - this.dragStartLeft) * (Math.pow(2, nowZoom - prevZoom) - 1)),
+          top: this.dragStartTop - ((this.dragStartY - this.dragStartTop) * (Math.pow(2, nowZoom - prevZoom) - 1))
+        });
+        return this.trigger('moving', [$(this.el).position().left, $(this.el).position().top]);
+      }
+    };
+
+    Pyramid.prototype.moveToZoomInPos = function() {
+      var newPyramidPos, pyramidPos;
+
+      pyramidPos = this.convertToGrobalCenterPos($(this.el).position().left, $(this.el).position().top);
+      if (nowZoom === zoomSize.length - 1 && commentZoom === true) {
+        newPyramidPos = this.convertToLocalCenterPos(pyramidPos[0], pyramidPos[1]);
+      } else {
+        newPyramidPos = this.convertToLocalCenterPos(pyramidPos[0] * 2, pyramidPos[1] * 2);
+      }
+      $(this.el).css({
+        left: newPyramidPos[0],
+        top: newPyramidPos[1]
+      });
+      return this.trigger('moving', [newPyramidPos[0], newPyramidPos[1]]);
+    };
+
+    Pyramid.prototype.moveToZoomOutPos = function() {
+      var newPyramidPos, pyramidPos;
+
+      pyramidPos = this.convertToGrobalCenterPos($(this.el).position().left, $(this.el).position().top);
+      if (prevZoom !== 8) {
+        newPyramidPos = this.convertToLocalCenterPos(pyramidPos[0] / 2, pyramidPos[1] / 2);
+      } else if (prevZoom === 8) {
+        newPyramidPos = this.convertToLocalCenterPos(pyramidPos[0], pyramidPos[1]);
+      } else {
+        newPyramidPos = this.convertToLocalCenterPos(pyramidPos[0] / 2, pyramidPos[1] / 2);
+      }
+      $(this.el).css({
+        left: newPyramidPos[0],
+        top: newPyramidPos[1]
+      });
+      return this.trigger('moving', [newPyramidPos[0], newPyramidPos[1]]);
+    };
+
+    /**
+    	 * 座標コンバーター
+    */
+
+
+    Pyramid.prototype.convertToGrobalCenterPos = function(_x, _y) {
+      var prevPyramidHeight, prevPyramidWidth, x, y;
+
+      if (nowZoom !== 1 || prevZoom === zoomSize.length - 1) {
+        prevPyramidWidth = zoomSize[prevZoom][0];
+        prevPyramidHeight = zoomSize[prevZoom][1];
+      } else {
+        prevPyramidWidth = zoomSize[prevZoom][0];
+        prevPyramidHeight = zoomSize[prevZoom][1];
+      }
+      x = (_x + prevPyramidWidth / 2) - Browser.width / 2;
+      y = (_y + prevPyramidHeight / 2) - Browser.height / 2;
+      return [x, y];
+    };
+
+    /**
+    	 * 座標コンバーター2
+    */
+
+
+    Pyramid.prototype.convertToLocalCenterPos = function(_x, _y) {
+      var nowPyramidHeight, nowPyramidWidth, x, y;
+
+      nowPyramidWidth = zoomSize[nowZoom][0];
+      nowPyramidHeight = zoomSize[nowZoom][1];
+      x = _x - nowPyramidWidth / 2 + Browser.width / 2;
+      y = _y - nowPyramidHeight / 2 + Browser.height / 2;
+      return [x, y];
+    };
+
+    /*
+    	 * addイベントのコールバックメソッド
+    	 * 原則としてcollectionへbindする事
+    	 * @param {tile} Tile
+    */
+
+
+    Pyramid.prototype.appendTile = function(tile) {
+      var tileView;
+
+      tileView = new TileView({
+        model: tile
+      });
+      return $(this.el).append(tileView.render().el);
+    };
+
+    /*
+    	Pyramid位置操作メソッド群
+    */
+
+
+    Pyramid.prototype.pyramidSetPositionToCenter = function() {
+      $(this.el).css({
+        left: Browser.width / 2 - zoomSize[nowZoom][0] / 2,
+        top: Browser.height / 2 - zoomSize[nowZoom][1] / 2
+      });
+      return this.trigger('moving', [Browser.width / 2 - zoomSize[nowZoom][0] / 2, Browser.height / 2 - zoomSize[nowZoom][1] / 2]);
+    };
+
+    /*
+    	 * 位置取得メソッド群
+    	 * 基本はreturnする簡単なお仕事
+    	 * @param {e} Event
+    */
+
+
+    Pyramid.prototype.getMousePos = function(e) {
+      var cords;
+
+      cords = Point.getPoint(e);
+      return [cords[0], cords[1]];
+    };
+
+    Pyramid.prototype.getPyramidPos = function() {
+      return [$(this.el).position().left, $(this.el).position().top];
+    };
+
+    return Pyramid;
+
+  })(Backbone.View);
+
+  Marker = (function(_super) {
+    __extends(Marker, _super);
+
+    function Marker() {
+      _ref11 = Marker.__super__.constructor.apply(this, arguments);
+      return _ref11;
+    }
+
+    Marker.prototype.result = '';
+
+    Marker.prototype.initialize = function() {};
+
+    Marker.prototype.clear = function() {
+      this.result = '';
+      return $('#Marker').remove();
+    };
+
+    Marker.prototype.setResult = function(num) {
+      return this.result = num;
+    };
+
+    Marker.prototype.render = function() {
+      var tx, ty, weight,
+        _this = this;
+
+      if (this.result !== '') {
+        $('#Marker').remove();
+        tx = (this.result % motifWidth - 1) * arrZoomSizeX[nowZoom];
+        ty = Math.floor(this.result / motifWidth) * arrZoomSizeY[nowZoom];
+        if (tx < 0) {
+          tx = 0;
+        }
+        $('<div />').attr('id', 'Marker').appendTo($('#Tiles'));
+        weight = Math.floor(nowZoom / 2) < 1 ? 1 : Math.floor(nowZoom / 2);
+        $('#Marker').css({
+          zIndex: 3000,
+          width: arrZoomSizeX[nowZoom] - (2 * weight),
+          height: arrZoomSizeY[nowZoom] - (2 * weight),
+          left: tx,
+          top: ty - 2,
+          border: 'solid ' + weight + 'px #FF0000'
+        });
+        return setTimeout(function() {
+          return _this.swap();
+        }, 1000);
+      }
+    };
+
+    Marker.prototype.swap = function() {
+      return $('#Marker').css({
+        'zIndex': 3000
+      });
+    };
+
+    return Marker;
+
+  })(Backbone.View);
+
+  /**
+   * Tileクラス
+   * Tile画像に必要な情報のみ保持するModelクラス
+   * @param {x} Number
+   * @param {y} Number
+   * @param {z} Number
+   * @param {display} Boolean
+  */
+
+
+  Tile = (function(_super) {
+    __extends(Tile, _super);
+
+    function Tile() {
+      _ref12 = Tile.__super__.constructor.apply(this, arguments);
+      return _ref12;
+    }
+
+    Tile.prototype.defaults = {
+      x: 0,
+      y: 0,
+      z: 0,
+      display: false
+    };
+
+    Tile.prototype.clear = function() {
+      this.destroy;
+      return this.view.unrender();
+    };
+
+    return Tile;
+
+  })(Backbone.Model);
+
+  /**
+   * Class TileViewクラス Tile画像を描画したり削除する役割のみ
+  */
+
+
+  TileView = (function(_super) {
+    __extends(TileView, _super);
+
+    function TileView() {
+      this.unrender = __bind(this.unrender, this);
+      this.render = __bind(this.render, this);      _ref13 = TileView.__super__.constructor.apply(this, arguments);
+      return _ref13;
+    }
+
+    TileView.prototype.tagName = 'img';
+
+    TileView.prototype.initialize = function() {
+      _.bindAll(this);
+      return this.model.view = this;
+    };
+
+    TileView.prototype.render = function() {
+      var url, x, y, z;
+
+      x = this.model.get('x');
+      y = this.model.get('y');
+      z = this.model.get('z');
+      url = tileImageDir + ("" + z + "/" + y + "/") + 'z' + z + 'x' + x + 'y' + y + tileImageExtension;
+      $(this.el).attr({
+        id: 'z' + z + 'x' + x + 'y' + y,
+        src: url
+      }).css({
+        'position': 'absolute',
+        'left': x * tileWidth,
+        'top': y * tileWidth
+      }).load();
+      return this;
+    };
+
+    TileView.prototype.unrender = function() {
+      return $(this.el).remove();
+    };
+
+    return TileView;
+
+  })(Backbone.View);
+
+  /**
+   * Class Tiles Tileクラスを管理する役割。描画に関してのイベント管理とか。イベントの割り当ては原則、Pyramidクラスで行う
+  */
+
+
+  Tiles = (function(_super) {
+    __extends(Tiles, _super);
+
+    function Tiles() {
+      _ref14 = Tiles.__super__.constructor.apply(this, arguments);
+      return _ref14;
+    }
+
+    Tiles.prototype.model = Tile;
+
+    Tiles.prototype.initialize = function() {
+      return _.bindAll(this);
+    };
+
+    Tiles.prototype.isSameTile = function(_z, _x, _y) {
+      var data, item, res, _i, _len;
+
+      data = [];
+      this.each(function(tile) {
+        return data.push(tile);
+      });
+      for (_i = 0, _len = data.length; _i < _len; _i++) {
+        item = data[_i];
+        if (("" + (item.get('z')) + " " + (item.get('x')) + " " + (item.get('y'))) === ("" + _z + " " + _x + " " + _y)) {
+          res = true;
+        } else {
+          res = false;
+        }
+      }
+      return res;
+    };
+
+    Tiles.prototype.getNowVisibleList = function() {
+      var data;
+
+      data = [];
+      this.each(function(tile) {
+        return data.push(tile);
+      });
+      return data;
+    };
+
+    Tiles.prototype.setRemove = function() {
+      var data;
+
+      data = [];
+      return this.each(function(tile) {
+        return data.push(tile);
+      });
+    };
+
+    Tiles.prototype.removeCheckedTiles = function() {
+      var tile, _i, _len, _results;
+
+      _results = [];
+      for (_i = 0, _len = data.length; _i < _len; _i++) {
+        tile = data[_i];
+        if (tile.get('display' !== true)) {
+          _results.push(tile.clear());
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    Tiles.prototype.removeAllTiles = function() {
+      return this.each(function(tile) {
+        return tile.clear();
+      });
+    };
+
+    return Tiles;
+
+  })(Backbone.Collection);
+
+  /**
+   * Class ControlPanel コンパネに表示するボタンとか管理
+  */
+
+
+  ControlPanel = (function(_super) {
+    __extends(ControlPanel, _super);
+
+    function ControlPanel() {
+      _ref15 = ControlPanel.__super__.constructor.apply(this, arguments);
+      return _ref15;
+    }
+
+    ControlPanel.el = '#ControlPanel';
+
+    ControlPanel.prototype.initialize = function() {
+      var showHomeButton, showSearchPanelButton, zoomInButton, zoomOutButton;
+
+      _.bindAll(this);
+      zoomInButton = new ClickOnlyButton('#ZoomInButton');
+      zoomInButton.bind('change', this.zoomIn);
+      zoomOutButton = new ClickOnlyButton('#ZoomOutButton');
+      zoomOutButton.bind('change', this.zoomOut);
+      showSearchPanelButton = new ClickOnlyButton('#SearchPanelButton');
+      showSearchPanelButton.bind('change', this.showSearchPanel);
+      showHomeButton = new ClickOnlyButton('#HomeButton');
+      return showHomeButton.bind('change', this.onclickhomebutton);
+    };
+
+    ControlPanel.prototype.zoomIn = function() {
+      if (nowZoom < zoomSize.length - 1) {
+        prevZoom = nowZoom;
+        nowZoom++;
+        return this.trigger('change', 'zoomIn');
+      }
+    };
+
+    ControlPanel.prototype.zoomOut = function() {
+      if (nowZoom > minZoom) {
+        prevZoom = nowZoom;
+        nowZoom--;
+        return this.trigger('change', 'zoomOut');
+      }
+    };
+
+    ControlPanel.prototype.showSearchPanel = function() {
+      return this.trigger('showSearchPanel');
+    };
+
+    ControlPanel.prototype.onclickhomebutton = function() {
+      return this.trigger('onclickhomebutton');
+    };
+
+    ControlPanel.show = function() {
+      return $(ControlPanel.el).show();
+    };
+
+    ControlPanel.hide = function() {
+      return $(ControlPanel.el).hide();
+    };
+
+    return ControlPanel;
+
+  }).call(this, Backbone.View);
+
+  ControlPanelModel = (function(_super) {
+    __extends(ControlPanelModel, _super);
+
+    function ControlPanelModel() {
+      _ref16 = ControlPanelModel.__super__.constructor.apply(this, arguments);
+      return _ref16;
+    }
+
+    return ControlPanelModel;
+
+  })(Backbone.Model);
+
+  /**
+   * Class ClickOnlyButton 汎用ボタンクラス。クラス名はちょっと考えたい。
+   * @param div 描画用DOM
+  */
+
+
+  ClickOnlyButton = (function(_super) {
+    __extends(ClickOnlyButton, _super);
+
+    function ClickOnlyButton() {
+      _ref17 = ClickOnlyButton.__super__.constructor.apply(this, arguments);
+      return _ref17;
+    }
+
+    ClickOnlyButton.prototype.el = '';
+
+    ClickOnlyButton.prototype.initialize = function(_el) {
+      _.bindAll(this);
+      this.el = _el;
+      $(this.el).unbind();
+      if (Browser.device !== 'pc') {
+        return $(this.el).bind("touchend", this.onMouseUp);
+      } else {
+        return $(this.el).bind("mouseup", this.onMouseUp);
+      }
+    };
+
+    ClickOnlyButton.prototype.onMouseUp = function(e) {
+      e.preventDefault();
+      return this.trigger('change');
+    };
+
+    ClickOnlyButton.prototype.destroy = function() {
+      $(this.el).unbind();
+      return $(this.el).remove();
+    };
+
+    return ClickOnlyButton;
+
+  })(Backbone.View);
+
+  /**
+   * Class Point イベントオブジェクトを受け取って座標を返すクラス。デバイス・ブラウザ問わずが基本思想
+   * @param event マウスイベントオブジェクト
+  */
+
+
+  Point = (function() {
+    function Point() {}
+
+    Point.locked = false;
+
+    Point.plock = 0;
+
+    Point.lock = function(e) {
+      if (e.originalEvent.touches.length > 2 && this.plock < 3) {
+        this.locked = true;
+      } else {
+        this.locked = false;
+      }
+      return this.plock = e.originalEvent.touches.length;
+    };
+
+    Point.isLock = function() {
+      return this.locked;
+    };
+
+    Point.getPoint = function(e) {
+      var cords, ftime, hx, hy, item, lx, ly, _i, _len, _ref18;
+
+      if (Point.isTouch()) {
+        if (e.originalEvent.touches.length === 1) {
+          return [e.originalEvent.touches[0].pageX, e.originalEvent.touches[0].pageY];
+        } else if (e.originalEvent.touches.length > 1) {
+          cords = [];
+          ftime = false;
+          _ref18 = e.originalEvent.touches;
+          for (_i = 0, _len = _ref18.length; _i < _len; _i++) {
+            item = _ref18[_i];
+            if (item.pageX > hx && ftime === true) {
+              hx = item.pageX;
+            } else if (ftime === false) {
+              hx = item.pageX;
+            }
+            if (item.pageX < lx && ftime === true) {
+              lx = item.pageX;
+            } else if (ftime === false) {
+              lx = item.pageX;
+            }
+            if (item.pageY > hy && ftime === true) {
+              hy = item.pageY;
+            } else if (ftime === false) {
+              hy = item.pageY;
+            }
+            if (item.pageY < ly && ftime === true) {
+              ly = item.pageY;
+            } else if (ftime === false) {
+              ly = item.pageY;
+            }
+            ftime = true;
+          }
+          cords.push([hx, hy]);
+          cords.push([lx, ly]);
+          return cords;
+        } else {
+          return [e.originalEvent.changedTouches[0].pageX, e.originalEvent.changedTouches[0].pageY];
+        }
+      } else {
+        return [e.pageX, e.pageY];
+      }
+    };
+
+    Point.isTouch = function() {
+      return 'ontouchstart' in window;
+    };
+
+    return Point;
+
+  })();
+
+  Shadow = (function(_super) {
+    __extends(Shadow, _super);
+
+    function Shadow() {
+      _ref18 = Shadow.__super__.constructor.apply(this, arguments);
+      return _ref18;
+    }
+
+    Shadow.el = '#Shadow';
+
+    Shadow.prototype.initialize = function() {
+      return $(window).bind("load resize orientationchange", this.resize);
+    };
+
+    Shadow.show = function() {
+      Shadow.setSize();
+      return $(Shadow.el).show();
+    };
+
+    Shadow.hide = function() {
+      Shadow.setSize();
+      return $(Shadow.el).hide();
+    };
+
+    Shadow.prototype.resize = function() {
+      return Shadow.setSize();
+    };
+
+    Shadow.setSize = function() {
+      $(this.el).width(Browser.width);
+      return $(this.el).height(Browser.height);
+    };
+
+    Shadow.isShow = function() {
+      var res;
+
+      res = $(Shadow.el).css('display');
+      if (res === 'none') {
+        return false;
+      } else {
+        return true;
+      }
+    };
+
+    return Shadow;
+
+  }).call(this, Backbone.View);
+
+  Popup = (function(_super) {
+    __extends(Popup, _super);
+
+    function Popup() {
+      this.closeButtonAction = __bind(this.closeButtonAction, this);
+      this.render = __bind(this.render, this);      _ref19 = Popup.__super__.constructor.apply(this, arguments);
+      return _ref19;
+    }
+
+    Popup.prototype.el = '#Popup';
+
+    Popup.prototype.initialize = function() {
+      _.bindAll(this);
+      return $(window).bind("resize orientationchange", this.resize);
+    };
+
+    Popup.prototype.openPopupFromPoint = function(p) {
+      var _this = this;
+
+      this.show();
+      return $.getJSON(SEARCH_API, {
+        'n': p
+      }, function(data, status) {
+        if (status && data !== null) {
+          return _this.render(data[0]);
+        } else {
+          return _this.hide();
+        }
+      });
+    };
+
+    Popup.prototype.clear = function() {
+      if ($(this.el).html() !== '') {
+        $("#closeButton").unbind();
+        return $(this.el).html('');
+      }
+    };
+
+    Popup.prototype.closePopup = function(e) {
+      if (e !== void 0) {
+        e.preventDefault();
+      }
+      this.clear();
+      return this.hide();
+    };
+
+    Popup.prototype.render = function(data) {
+      var _this = this;
+
+      return $('<img />').css('margin-top', 5).attr('src', zoomImageDir + data.img + '.jpg').load(function() {
+        $('<div />').attr('id', 'popupOuterText').appendTo($(_this.el));
+        $("#popupOuterText").css({
+          'width': '80%',
+          'margin': 'auto'
+        });
+        $('<p>').attr('class', 'popupB1Style').text(data.b1).appendTo($(_this.el));
+        $('<p>').attr('class', 'popupB2Style').text(data.b2 + ("(" + data.id + ")")).appendTo($(_this.el));
+        $('<input>').attr('id', 'closeButton').attr('type', 'button').attr('value', '閉じる').appendTo($(_this.el));
+        return _this.closeButtonAction();
+      }).error(function() {
+        return _this.closePopup();
+      }).appendTo($(this.el));
+    };
+
+    Popup.prototype.closeButtonAction = function() {
+      var _this = this;
+
+      if (Browser.device !== 'pc') {
+        return $("#closeButton").bind("touchend", function(e) {
+          e.preventDefault();
+          return _this.closePopup(e);
+        });
+      } else {
+        return $("#closeButton").bind("mouseup", function(e) {
+          e.preventDefault();
+          return _this.closePopup(e);
+        });
+      }
+    };
+
+    Popup.prototype.show = function() {
+      Shadow.setSize();
+      $(this.el).show();
+      return Shadow.show();
+    };
+
+    Popup.prototype.hide = function() {
+      Shadow.setSize();
+      $(this.el).hide();
+      return Shadow.hide();
+    };
+
+    Popup.prototype.resize = function() {
+      return Shadow.setSize();
+    };
+
+    Popup.setSize = function() {
+      $(this.el).width(Browser.width);
+      return $(this.el).height(Browser.height);
+    };
+
+    return Popup;
+
+  })(Backbone.View);
+
+}).call(this);
