@@ -104,6 +104,7 @@ body {
 }
 #SearchPanel #backToMainButton {
 	width:60px;
+
 }
 
 #SearchPanel #SearchPanelInnerContents #searchResult {
@@ -120,8 +121,8 @@ body {
 	width:60px;
 	height:60px;
 
-	left:0px;
-
+	left:260px;
+	top:230px;
 	z-index: 11;
 }
 #ControlPanel #ZoomOutButton {
@@ -130,7 +131,8 @@ body {
 	width:60px;
 	height:60px;
 
-	left:65px;
+	left:260px;
+	top:300px;
 
 	z-index: 12;
 }
@@ -140,7 +142,10 @@ body {
 	width:60px;
 	height:60px;
 
-	left:130px;
+
+	left:260px;
+	top:80px;
+
 
 	z-index: 13;
 }
@@ -150,7 +155,8 @@ body {
 	width:60px;
 	height:60px;
 
-	left:195px;
+	left:260px;
+	top:10px;
 
 	z-index: 14;
 }

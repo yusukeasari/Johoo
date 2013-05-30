@@ -694,28 +694,36 @@ class Pyramid extends Backbone.View
 	###
 	onMouseDown:(e)->
 		cords = Point.getPoint(e)
-		e.preventDefault()
-		@dragging = true
+		Point.lock(e)
 
-		if Utility.type(cords[0]) isnt 'array'
-			$(@el).css {'cursor':'-moz-grab'}
-			
-			@dragStartX = cords[0]
-			@dragStartY = cords[1]
-			@dragStartLeft = $(@el).position().left
-			@dragStartTop = $(@el).position().top
-			@dragStartPyramidX = @getPyramidPos()[0]
+		if Point.isLock() is false
+			$(@el).css
+				transform:"scale(1)"
+			e.preventDefault()
 
-			@dragStartPyramidY = @getPyramidPos()[1]
-		else
-			$(@el).css {'cursor':'-moz-grab'}
-			
-			@dragStartX = cords[0][0]/2+cords[1][0]/2
-			@dragStartY = cords[0][1]/2+cords[1][1]/2
+			@dragging = true
 
-			@dragStartPyramidX = @getPyramidPos()[0]
+			if Utility.type(cords[0]) isnt 'array'
+				$(@el).css {'cursor':'-moz-grab'}
+				
+				@dragStartX = cords[0]
+				@dragStartY = cords[1]
+				@dragStartLeft = $(@el).position().left
+				@dragStartTop = $(@el).position().top
+				@dragStartPyramidX = @getPyramidPos()[0]
 
-			@dragStartPyramidY = @getPyramidPos()[1]
+				@dragStartPyramidY = @getPyramidPos()[1]
+			else
+				$(@el).css {'cursor':'-moz-grab'}
+				
+				@dragStartX = cords[0][0]/2+cords[1][0]/2
+				@dragStartY = cords[0][1]/2+cords[1][1]/2
+				@dragStartLeft = $(@el).position().left
+				@dragStartTop = $(@el).position().top
+
+				@dragStartPyramidX = @getPyramidPos()[0]
+
+				@dragStartPyramidY = @getPyramidPos()[1]
 
 		###
 		else if Utility.type(cords[0]) is 'array'
@@ -727,78 +735,102 @@ class Pyramid extends Backbone.View
 		###
 	onMouseUp:(e)->
 		cords = Point.getPoint e
-		e.preventDefault()
-		#e.stopPropagation()
-		@dragging = false
-		$(@el).css {'cursor':''}
 
-		#マウスの位置がdownとupで変わらない＝単純クリックなら拡大表示実行
-		
-		Utility.type(cords[0]) isnt 'array'
+		if cords isnt undefined and Point.isLock() is false
+			$(@el).css
+				transform:"scale(1)"
+			e.preventDefault()
+			#e.stopPropagation()
+			@dragging = false
+			$(@el).css {'cursor':''}
 
-		cordx = if Utility.type(cords[0]) isnt 'array' then cords[0] else [0][0]
-		cordy = if Utility.type(cords[1]) isnt 'array' then cords[1] else [0][1]
+			#マウスの位置がdownとupで変わらない＝単純クリックなら拡大表示実行
+			
+			cordx = if Utility.type(cords[0]) isnt 'array' then cords[0] else cords[0][0]
+			cordy = if Utility.type(cords[1]) isnt 'array' then cords[1] else cords[0][1]
 
-		#console.log cordx,cordy
+			#console.log cordx,cordy
 
-		if @isSingleTap(@dragStartX,cordx) and @isSingleTap(@dragStartY,cordy)
-			#！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
-			if not Shadow.isShow() and nowZoom > 3
-				@trigger 'openPopupFromPoint',@getNumFromPoint [cords[0],cords[1]]
-		else if @isSingleTap(@dragStartX,cordx) and @isSingleTap(@dragStartY,cordy) and @isOnTiles [cords[0][0],cords[0][1]]
-			#！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
-			if not Shadow.isShow() and nowZoom > 3
-				@trigger 'openPopupFromPoint',@getNumFromPoint [cords[0][0],cords[0][1]]
-		else
-			#alert 'else'
-			#フォトモザイクを描画
-			@update()
+			if @isSingleTap(@dragStartX,cordx) and @isSingleTap(@dragStartY,cordy)
+				#！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
+				if not Shadow.isShow() and nowZoom > 3
+					@trigger 'openPopupFromPoint',@getNumFromPoint [cords[0],cords[1]]
+			else if @isSingleTap(@dragStartX,cordx) and @isSingleTap(@dragStartY,cordy) and @isOnTiles [cords[0][0],cords[0][1]]
+				#！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
+				if not Shadow.isShow() and nowZoom > 3
+					@trigger 'openPopupFromPoint',@getNumFromPoint [cords[0][0],cords[0][1]]
+			else
+				#alert 'else'
+				#フォトモザイクを描画
+				@update()
 
 	onMouseMove:(e)->
 		cords = Point.getPoint e
-		e.preventDefault()
-		if Utility.type(cords[0]) is "number" and @dragging is true
-			$(@el).css {'left':@dragStartPyramidX+(@getMousePos(e)[0]-@dragStartX),'top':@dragStartPyramidY+(@getMousePos(e)[1]-@dragStartY)}
-			@trigger 'moving',[@dragStartPyramidX+(@getMousePos(e)[0]-@dragStartX),@dragStartPyramidY+(@getMousePos(e)[1]-@dragStartY)]
-		else if Utility.type(cords[0]) is "array" and @dragging is true
-			#dx = @pinchinStartCenterX*2 - (cords[0][0]+cords[1][0])
-			#dy = @pinchinStartCenterY*2 - (cords[0][1]+cords[1][1])
-		else
+		#Point.lock(e)
+
+		if cords isnt undefined and Point.isLock() is false
+			e.preventDefault()
+			if Utility.type(cords[0]) is "number" and @dragging is true
+				$(@el).css {'left':@dragStartPyramidX+(@getMousePos(e)[0]-@dragStartX),'top':@dragStartPyramidY+(@getMousePos(e)[1]-@dragStartY)}
+				@trigger 'moving',[@dragStartPyramidX+(@getMousePos(e)[0]-@dragStartX),@dragStartPyramidY+(@getMousePos(e)[1]-@dragStartY)]
+			else if Utility.type(cords[0]) is "array" and @dragging is true
+				#dx = @pinchinStartCenterX*2 - (cords[0][0]+cords[1][0])
+				#dy = @pinchinStartCenterY*2 - (cords[0][1]+cords[1][1])
+			else
 
 	onGestureStart:(e)->
-		console.log e.originalEvent.scale
+		if Point.isLock() is false
+			$(@el).css
+				transform:"scale(1)"
 
 	onGestureMove:(e)->
-		#zoomSize[nowZoom][0] e.originalEvent.scale
-		#zoomSize[nowZoom][1] e.originalEvent.scale
-		#dragStartX dragStartLeft dragStartY dragStartTop
-		localX = @dragStartX-@dragStartLeft
-		localY = @dragStartY-@dragStartTop
-		
-		dx = (zoomSize[nowZoom][0]-(zoomSize[nowZoom][0]*e.originalEvent.scale))/2
-		dx = (dx/e.originalEvent.scale)+(zoomSize[nowZoom][0]-localX)
+		if Point.isLock() is false
+			localX = @dragStartX-@dragStartLeft
+			localY = @dragStartY-@dragStartTop
+			
+			dx = (zoomSize[nowZoom][0]-(zoomSize[nowZoom][0]*e.originalEvent.scale))/2
+			dx = (dx/e.originalEvent.scale)+(zoomSize[nowZoom][0]-localX)
 
-		dy = (zoomSize[nowZoom][1]-(zoomSize[nowZoom][1]*e.originalEvent.scale))/2
-		dy = (dy/e.originalEvent.scale)+(zoomSize[nowZoom][1]-localY)
+			dy = (zoomSize[nowZoom][1]-(zoomSize[nowZoom][1]*e.originalEvent.scale))/2
+			dy = (dy/e.originalEvent.scale)+(zoomSize[nowZoom][1]-localY)
 
 
-		$(@el).css
-			transform:"scale(#{e.originalEvent.scale}) translate(#{dx}px,#{dy}px)"
-			left:(zoomSize[nowZoom][0]-localX)*-1+(@dragStartLeft)
-			top:(zoomSize[nowZoom][1]-localY)*-1+(@dragStartTop)
-			#top:dy*y2p
+			$(@el).css
+				transform:"scale(#{e.originalEvent.scale}) translate(#{dx}px,#{dy}px)"
+				left:(zoomSize[nowZoom][0]-localX)*-1+(@dragStartLeft)
+				top:(zoomSize[nowZoom][1]-localY)*-1+(@dragStartTop)
 
 	onGestureEnd:(e)->
-		console.log "SCALE:",e.originalEvent.scale
-		@pinchinStartCenterX = @dragStartX
-		@pinchinStartCenterY = @dragStartY
+		if Point.isLock() is false
+			$(@el).css
+				left:@dragStartLeft
+				top:@dragStartTop
+				transform:"scale(1)"
+			#zoomSize
+			cnt = 0
+			if e.originalEvent.scale > 1
+				for item in zoomSize
+					if zoomSize[nowZoom][0]*e.originalEvent.scale > item[0] and item[0] isnt ""
+					else if item[0] isnt undefined
+						break
+					cnt++
+			else
+				for item in zoomSize
+					if zoomSize[nowZoom][0]*e.originalEvent.scale < item[0]
+						break
+					cnt++
+			console.log "CONSOLE.LOG:",cnt
 
-		#zoomSize
+			if nowZoom isnt cnt and cnt < zoomSize.length
+				prevZoom = nowZoom
+				nowZoom = cnt
+				@update 'pinchZoom'
+			else if cnt > zoomSize.length-1
+				console.log "CONSOLE.LOG2:",cnt
 
-		$(@el).css
-			left:@dragStartLeft
-			top:@dragStartTop
-			transform:"scale(1)"
+				prevZoom = nowZoom
+				nowZoom = zoomSize.length-2
+				@update 'pinchZoom'
 
 	zoomIn:(_z)->
 		rate = Math.floor _z/2
@@ -808,9 +840,6 @@ class Pyramid extends Backbone.View
 				nowZoom = nowZoom+rate
 			else
 				nowZoom = zoomSize.length-1
-				
-			if nowZoom isnt prevZoom
-				@update 'pinchZoomIn'
 
 	#ズームアウトボタンが押下された
 	zoomOut:(_z)->
@@ -824,9 +853,6 @@ class Pyramid extends Backbone.View
 				nowZoom = minZoom
 			else
 				nowZoom = nowZoom+rate
-
-			if nowZoom isnt prevZoom
-				@update 'pinchZoomOut'
 				
 	#与えられた座標がフォトモザイク上であるかどうか調べる
 	isOnTiles:(p)->
@@ -912,10 +938,8 @@ class Pyramid extends Backbone.View
 				@moveToZoomInPos()
 			when 'zoomOut'
 				@moveToZoomOutPos()
-			when 'pinchZoomIn'
-				@moveToPinchZoomInPos()
-			when 'pinchZoomOut'
-				@moveToPinchZoomOutPos()
+			when 'pinchZoom'
+				@moveToPinchZoomPos()
 			else
 
 		$(@el).width zoomSize[nowZoom][0];
@@ -939,15 +963,14 @@ class Pyramid extends Backbone.View
 
 		@trigger 'moving',[(Browser.width/2)+tx+arrZoomSizeX[nowZoom]/2,(Browser.height/2)+ty-arrZoomSizeY[nowZoom]/2]
 
-	moveToPinchZoomInPos:->
-		$(@el).css
-			left:$(@el).position().left + @pinchinStartCenterX*-1
-			top:$(@el).position().top + @pinchinStartCenterY*-1
+	moveToPinchZoomPos:->
+		console.log "POS:",@dragStartTop,((@dragStartY-@dragStartTop)*(nowZoom-prevZoom)),@dragStartTop,(@dragStartY-@dragStartTop),Math.pow(2,nowZoom-prevZoom)
+		if @dragStartTop isnt undefined and @dragStartLeft isnt undefined
+			$(@el).css
+				left:@dragStartLeft-((@dragStartX-@dragStartLeft)*(Math.pow(2,nowZoom-prevZoom)-1))
+				top:@dragStartTop-((@dragStartY-@dragStartTop)*(Math.pow(2,nowZoom-prevZoom)-1))
 
-	moveToPinchZoomOutPos:->
-		$(@el).css
-			left:$(@el).position().left + @pinchinStartCenterX/2
-			top:$(@el).position().top + @pinchinStartCenterY/2
+			@trigger 'moving',[$(@el).position().left,$(@el).position().top]
 
 	moveToZoomInPos:->
 		pyramidPos = @convertToGrobalCenterPos $(@el).position().left,$(@el).position().top
@@ -1248,6 +1271,17 @@ class ClickOnlyButton extends Backbone.View
  * @param event マウスイベントオブジェクト
 ###
 class Point
+	@locked: false
+	@plock:0
+
+	@lock:(e)->
+		if e.originalEvent.touches.length > 2 and @plock < 3
+			@locked = true
+		else
+			@locked = false
+		@plock = e.originalEvent.touches.length
+	@isLock:->
+		@locked
 	#座標を取得
 	@getPoint:(e)->
 		if Point.isTouch()
@@ -1260,9 +1294,29 @@ class Point
 			#for Multi Touch
 			else if e.originalEvent.touches.length > 1
 				cords = []
+				ftime = false
 				for item in e.originalEvent.touches
-					cords.push [item.pageX,item.pageY]
+					if item.pageX > hx and ftime is true
+						hx = item.pageX
+					else if ftime is false
+						hx = item.pageX
+					if item.pageX < lx and ftime is true
+						lx = item.pageX
+					else if ftime is false
+						lx = item.pageX
+					if item.pageY > hy and ftime is true
+						hy = item.pageY
+					else if ftime is false
+						hy = item.pageY
+					if item.pageY < ly and ftime is true
+						ly = item.pageY
+					else if ftime is false
+						ly = item.pageY
+
+					ftime = true
 				#座標をかえす
+				cords.push [hx,hy]
+				cords.push [lx,ly]
 				cords
 			else
 				[e.originalEvent.changedTouches[0].pageX,e.originalEvent.changedTouches[0].pageY]
