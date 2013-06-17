@@ -8,10 +8,6 @@ commentZoom = true
 motifWidth = 85
 motifHeight = 120
 
-pinchTrigger = 15
-
-maxSearchResultNum = 50
-
 SEARCH_API = 'swfData/search.php'
 TIMELINE_API = 'swfData/search.php'
 
@@ -24,7 +20,7 @@ arrZoomSizeX = [0,4,8,16,32,64,128,256,256]
 arrZoomSizeY = [0,4,8,16,32,64,128,256,256]
 
 ### 外部設定予定 ここまで ###
-
+pinchTrigger = 15
 minBlockSize = 1
 minZoom = 1
 tlImageWidth = 80
@@ -64,6 +60,8 @@ $ ->
  * 表示別にクラスを分けるようにすること
 ###
 class PhotomosaicViewer extends Backbone.View
+	el: '#Johoo'
+
 	initialize:=>
 		_.bindAll @
 
@@ -78,7 +76,11 @@ class PhotomosaicViewer extends Backbone.View
 			load().
 			appendTo $('head')
 		@setup()
-		
+	onOrient:=>
+		Shadow.setSize()
+		@smallMap.setup()
+		@popup.resize()
+		$(@el).show()
 	setup:=>
 		#基底モデル
 		@smodel = new SModel
@@ -102,6 +104,16 @@ class PhotomosaicViewer extends Backbone.View
 
 		#検索位置を示すマーカー
 		@marker = new Marker
+
+		$(window).bind "orientationchange", =>
+			$(@el).hide()
+			
+			setTimeout =>
+				#alert $(document).width()+"/"+$(@el)+"/"+$(document).height()
+				Browser.setup()
+				@onOrient()
+			,1000
+
 
 		#フォトモザイク部分がクリックされ、かつ有効な座標であった場合、拡大表示を実行
 		@pyramid.bind 'openPopupFromPoint',(p) =>
@@ -160,6 +172,10 @@ class PhotomosaicViewer extends Backbone.View
 			Pyramid.hide()
 			ControlPanel.hide()
 
+		Browser.setup()
+		@onOrient()
+		@controlPanel.trigger 'onclickhomebutton'
+
 class SmallMap extends Backbone.View
 	el: ''
 	cursor: '#smallMapCursor'
@@ -169,7 +185,6 @@ class SmallMap extends Backbone.View
 
 	initialize:(_el,_url)=>
 		@el = _el
-		$(window).bind "orientationchange resize",@setup
 
 		@dm = if Browser.device is 'smartphone' then 1 else 2
 		@m = @m/@dm
@@ -200,7 +215,7 @@ class SmallMap extends Backbone.View
 			top:50
 
 		$(@el).css
-			left:Browser.width-(zoomSize[1][0]/@m)-10
+			#left:Browser.width-(zoomSize[1][0]/@m)-10
 			top:Browser.height-(zoomSize[1][1]/@m)-10
 			width:zoomSize[1][0]/@m
 			height:zoomSize[1][1]/@m
@@ -552,10 +567,9 @@ class Browser extends Backbone.View
 	initialize:->
 		_.bindAll @
 		#デバイスをチェック 縦横サイズ
-		$(window).bind "orientationchange resize",@setup
-		@setup()
+		Browser.setup()
 
-	setup:->
+	@setup:->
 		#alert navigator.userAgent
 		#iPhone or iPod
 		if navigator.userAgent.match /iPhone/i or navigator.userAgent.match /iPod/i
@@ -578,8 +592,10 @@ class Browser extends Backbone.View
 			Browser.device = 'smartphone'
 			Browser.os = 'android'
 			Browser.version = ''
-			Browser.width = 320
-			Browser.height = 455
+			Browser.width = $(document).width()
+			Browser.height = $(document).height()
+			#Browser.width = 320
+			#Browser.height = 455
 
 		#Android Tablet
 		else if navigator.userAgent.match /Android/i
@@ -587,8 +603,8 @@ class Browser extends Backbone.View
 			Browser.os = 'android'
 			Browser.version = ''
 
-			Browser.width = if Math.abs(window.orientation) isnt 90 then 600 else 960
-			Browser.height = if Math.abs(window.orientation) isnt 90 then 780 else 430
+			Browser.width = $(document).width()
+			Browser.height = $(document).height()
 
 		#PC
 		else
@@ -601,14 +617,12 @@ class Browser extends Backbone.View
 		$('#Pyramid').height Browser.height
 
 		#アドレスバーを隠す
-		@hideAddressBar()
+		Browser.hideAddressBar()
 
 	#PC以外ならアドレスバーを隠す処理をおこなう
-	hideAddressBar:->
+	@hideAddressBar:->
 		if Browser.getOS() is 'ios'
 			setTimeout scrollTo,100,0,1
-		else if Browser.getOS() is 'android'
-			window.scrollTo 0,1
 
 	@getDevice:=> @device
 	@getOS:=> @os
@@ -667,7 +681,6 @@ class Pyramid extends Backbone.View
 		@tiles = new Tiles
 		@tiles.bind 'add', @appendTile
 		
-
 		$(@el).css {'cursor':'-moz-grab'}
 
 		#背景を設定
@@ -1064,7 +1077,6 @@ class Pyramid extends Backbone.View
 class Marker extends Backbone.View
 	result: ''
 
-	initialize:->
 	clear:->
 		@result = ''
 		$('#Marker').remove()
@@ -1332,9 +1344,6 @@ class Point
 class Shadow extends Backbone.View
 	@el: '#Shadow'
 
-	initialize:->
-		$(window).bind "load resize orientationchange",@resize
-
 	@show:=>
 		Shadow.setSize()
 		$(@el).show()
@@ -1358,7 +1367,6 @@ class Popup extends Backbone.View
 
 	initialize:->
 		_.bindAll @
-		$(window).bind "resize orientationchange",@resize
 
 	openPopupFromPoint:(p)->
 		@show()

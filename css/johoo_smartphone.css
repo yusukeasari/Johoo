@@ -5,7 +5,7 @@ body {
 	/*background-color: #CCCCCC;*/
 	width: 1000px;
 	height: 600px;
-	position:relative;
+	position: relative;
 	overflow: hidden;
 	border: 1px solid black;
 	z-index: 1;
@@ -115,14 +115,39 @@ body {
 	width: 100%;
 	z-index: 10;
 }
+#ControlPanel #HomeButton {
+	position: absolute;
+	background-image: url(../assets/buttons/home.png);
+	width:60px;
+	height:60px;
+
+	right:5px;
+	top:5px;
+
+	z-index: 14;
+}
+
+#ControlPanel #SearchPanelButton {
+	position: absolute;
+	background-image: url(../assets/buttons/searchOn.png);
+	width:60px;
+	height:60px;
+
+
+	right:5px;
+	top:65px;
+
+
+	z-index: 13;
+}
 #ControlPanel #ZoomInButton {
 	position: absolute;
 	background-image: url(../assets/buttons/plus.png);
 	width:60px;
 	height:60px;
 
-	left:260px;
-	top:230px;
+	right:5px;
+	top:125px;
 	z-index: 11;
 }
 #ControlPanel #ZoomOutButton {
@@ -131,39 +156,16 @@ body {
 	width:60px;
 	height:60px;
 
-	left:260px;
-	top:300px;
+	right:5px;
+	top:185px;
 
 	z-index: 12;
-}
-#ControlPanel #SearchPanelButton {
-	position: absolute;
-	background-image: url(../assets/buttons/searchOn.png);
-	width:60px;
-	height:60px;
-
-
-	left:260px;
-	top:80px;
-
-
-	z-index: 13;
-}
-#ControlPanel #HomeButton {
-	position: absolute;
-	background-image: url(../assets/buttons/home.png);
-	width:60px;
-	height:60px;
-
-	left:260px;
-	top:10px;
-
-	z-index: 14;
 }
 #SmallMap {
 	position: absolute;
 	border:solid 1px #000;
 	z-index: 30;
+	left:10px;
 }
 #SmallMap #smallMapImage {
 	z-index: 31;

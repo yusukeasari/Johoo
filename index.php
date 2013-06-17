@@ -10,26 +10,26 @@
 <script type="text/javascript" src="lib/backbone.js"></script>
 <script type="text/javascript" src="lib/jquery.flickable-1.0b3.js"></script>
 <script type="text/javascript" src="lib/jquery.bottom-1.0.js"></script>
-
 </head>
-<body>
-<div id="Shadow"></div>
-<div id="Popup"></div>
-<div id="Timeline"></div>
-<div id="SearchPanel"></div>
-<div id="ControlPanel">
-	<div id="ZoomInButton"></div>
-	<div id="ZoomOutButton"></div>
-	<div id="SearchPanelButton"></div>
-	<div id="HomeButton"></div>
-</div>
-<div id="SmallMap">
-</div>
-<div id="Pyramid">
-	
-	<div id="Tiles"></div>
-</div>
 
+<body>
+<div id="Johoo">
+	<div id="Shadow"></div>
+	<div id="Popup"></div>
+	<div id="Timeline"></div>
+	<div id="SearchPanel"></div>
+	<div id="ControlPanel">
+		<div id="ZoomInButton"></div>
+		<div id="ZoomOutButton"></div>
+		<div id="SearchPanelButton"></div>
+		<div id="HomeButton"></div>
+	</div>
+	<div id="SmallMap">
+	</div>
+	<div id="Pyramid">
+		<div id="Tiles"></div>
+	</div>
+</div>
 
 <script src="app/johoo.js"></script>
 </body>
