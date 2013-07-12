@@ -1,17 +1,17 @@
-#外部設定予定
+### 外部設定予定 ここから ###
 tileWidth = 256
 tileHeight = 256
 
 #ズームアウト未実装
 commentZoom = true
 
-motifWidth = 85
-motifHeight = 120
+motifWidth = 105
+motifHeight = 79
 
 SEARCH_API = 'swfData/search.php'
 TIMELINE_API = 'swfData/search.php'
 
-tileImageDir = 'swfData/web/'
+tileImageDir = 'http://lunch.pitcom.jp/splitedge/blockimg/pituser/lunch/oriweb/'
 zoomImageDir = 'swfData/blockimg/'
 tileImageExtension = '.jpg'
 
@@ -20,6 +20,9 @@ arrZoomSizeX = [0,4,8,16,32,64,128,256,256]
 arrZoomSizeY = [0,4,8,16,32,64,128,256,256]
 
 ### 外部設定予定 ここまで ###
+### 以下原則変更不要 ###
+
+
 pinchTrigger = 15
 minBlockSize = 1
 minZoom = 1
@@ -27,22 +30,13 @@ tlImageWidth = 80
 nowZoom = minZoom
 prevZoom = minZoom
 
-#0番目は適当に
-zoomSize = [
-	[],
-	[motifWidth * minBlockSize * arrZoomSizeX[1], motifHeight * minBlockSize * arrZoomSizeY[1]],
-	[motifWidth * minBlockSize * arrZoomSizeX[2], motifHeight * minBlockSize * arrZoomSizeY[2]],
-	[motifWidth * minBlockSize * arrZoomSizeX[3], motifHeight * minBlockSize * arrZoomSizeY[3]],
-	[motifWidth * minBlockSize * arrZoomSizeX[4], motifHeight * minBlockSize * arrZoomSizeY[4]],
-	[motifWidth * minBlockSize * arrZoomSizeX[5], motifHeight * minBlockSize * arrZoomSizeY[5]],
-	[motifWidth * minBlockSize * arrZoomSizeX[6], motifHeight * minBlockSize * arrZoomSizeY[6]],
-	[motifWidth * minBlockSize * arrZoomSizeX[7], motifHeight * minBlockSize * arrZoomSizeY[7]],
-	[motifWidth * minBlockSize * arrZoomSizeX[8], motifHeight * minBlockSize * arrZoomSizeY[8]]
-
-]
-
 #ピンチイン/アウトのトリガーとなる距離配列を作る
 pinchTriggerArray = []
+zoomSize = []
+i=0
+for x in arrZoomSizeX
+	zoomSize.push [motifWidth*minBlockSize*arrZoomSizeX[i],motifHeight*minBlockSize*arrZoomSizeY[i]]
+	i++
 
 $ ->
 	#処理開始
@@ -78,7 +72,7 @@ class PhotomosaicViewer extends Backbone.View
 		@setup()
 	onOrient:=>
 		Shadow.setSize()
-		@smallMap.setup()
+		#@smallMap.setup()
 		@popup.resize()
 		$(@el).show()
 	setup:=>
@@ -88,7 +82,7 @@ class PhotomosaicViewer extends Backbone.View
 		#半透明黒背景クラス
 		@shadow = new Shadow
 
-		@smallMap = new SmallMap '#SmallMap','swfData/map.jpg'
+		#@smallMap = new SmallMap '#SmallMap','swfData/map.jpg'
 
 		#フォトモザイク部分
 		@pyramid = new Pyramid
@@ -98,6 +92,9 @@ class PhotomosaicViewer extends Backbone.View
 
 		#検索パネルクラス
 		@searchPanel = new SearchPanel
+
+		#検索パネルクラス
+		@postPanel = new PostPanel
 
 		#コンパネ ズームボタン、検索ウィンドウ表示ボタン、ヘルプ表示ボタンとか
 		@controlPanel = new ControlPanel
@@ -132,7 +129,7 @@ class PhotomosaicViewer extends Backbone.View
 		#タイムラインクリック時のイベント
 		@searchPanel.bind 'onclicktimeline',(d) =>
 			@searchPanel.hide()
-			@smallMap.show()
+			#@smallMap.show()
 			Pyramid.show()
 			ControlPanel.show()
 
@@ -145,12 +142,12 @@ class PhotomosaicViewer extends Backbone.View
 		#メイン画面へ戻る
 		@searchPanel.bind 'backtomain', =>
 			@searchPanel.hide()
-			@smallMap.show()
+			#@smallMap.show()
 			Pyramid.show()
 			ControlPanel.show()
 
 		@pyramid.bind 'moving',(c) =>
-			@smallMap.setCoords c
+			#@smallMap.setCoords c
 		#コンパネイベント
 		@controlPanel.bind 'change',(h) =>
 			@pyramid.update h
@@ -168,7 +165,15 @@ class PhotomosaicViewer extends Backbone.View
 		#検索パネル表示イベント
 		@controlPanel.bind 'showSearchPanel', =>
 			@searchPanel.show()
-			@smallMap.hide()
+			#@smallMap.hide()
+			Pyramid.hide()
+			ControlPanel.hide()
+
+		#検索パネル表示イベント
+		@controlPanel.bind 'showPostPanel', =>
+			@searchPanel.hide()
+			@postPanel.show()
+			#@smallMap.hide()
 			Pyramid.hide()
 			ControlPanel.hide()
 
@@ -252,6 +257,28 @@ class SModel extends Backbone.Model
 
 	cEvent:(_event,_data)->
 		@trigger "#{_event}R",_data
+
+class PostPanel extends Backbone.View
+	el: '#PostPanel'
+
+	initialize:->
+		console.log 'PPP'
+		_.bindAll @
+
+	show:->
+		console.log 'showPost'
+		$('<iframe>').
+			attr('id','postLoadArea').
+			attr('src','post.html').
+			attr('width',300).
+			attr('height',340).
+			appendTo @el
+		$(@el).show()
+
+	hide:->
+		$(@el).html('')
+		$(@el).hide()
+
 
 class SearchPanel extends Backbone.View
 	el: '#SearchPanel'
@@ -1156,6 +1183,9 @@ class TileView extends Backbone.View
 			load()
 		@
 
+	loadTile: =>
+
+
 	unrender:=>
 		$(@el).remove()
 
@@ -1224,6 +1254,10 @@ class ControlPanel extends Backbone.View
 		showHomeButton = new ClickOnlyButton '#HomeButton'
 		showHomeButton.bind 'change',@onclickhomebutton
 
+		#投稿パネル表示ボタン
+		showPostButton = new ClickOnlyButton '#PostPanelButton'
+		showPostButton.bind 'change',@showPostPanel
+
 	#ズームインボタンが押下された
 	zoomIn:->
 		if nowZoom < zoomSize.length-1
@@ -1245,6 +1279,10 @@ class ControlPanel extends Backbone.View
 	#タイムラインパネル表示ボタンが押下された
 	onclickhomebutton:->
 		@trigger 'onclickhomebutton'
+
+	#タイムラインパネル表示ボタンが押下された
+	showPostPanel:->
+		@trigger 'showPostPanel'
 
 	@show:=> $(@el).show()
 	@hide:=> $(@el).hide()
