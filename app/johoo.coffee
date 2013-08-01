@@ -991,8 +991,15 @@ class Pyramid extends Backbone.View
 	###
 	moveToNum:(d)->
 
-		tx = d%motifWidth * arrZoomSizeX[nowZoom]*-1
-		ty = Math.floor(d/motifWidth)*arrZoomSizeX[nowZoom]*-1
+		#tx = d%motifWidth * arrZoomSizeX[nowZoom]*-1
+		#ty = Math.floor(d/motifWidth)*arrZoomSizeX[nowZoom]*-1
+
+		if　d % motifWidth is 0
+			tx = motifWidth * arrZoomSizeX[nowZoom] * -1
+			ty = Math.floor((d / motifWidth)-1) * arrZoomSizeX[nowZoom] * -1
+		else
+			tx = d % motifWidth * arrZoomSizeX[nowZoom] * -1
+			ty = Math.floor(d / motifWidth) * arrZoomSizeY[nowZoom] * -1
 
 		$(@el).css
 			left:(Browser.width/2)+tx+arrZoomSizeX[nowZoom]/2
@@ -1117,6 +1124,14 @@ class Marker extends Backbone.View
 
 			tx = (@result%motifWidth-1) * arrZoomSizeX[nowZoom]
 			ty = Math.floor(@result/motifWidth)*arrZoomSizeY[nowZoom]
+
+			if this.result % motifWidth is 0
+				tx = (motifWidth-1) * arrZoomSizeX[nowZoom]
+				ty = Math.floor((this.result / motifWidth)-1) * arrZoomSizeX[nowZoom]
+			else
+				tx = (this.result % motifWidth - 1) * arrZoomSizeY[nowZoom]
+				ty = Math.floor(this.result / motifWidth) * arrZoomSizeY[nowZoom]
+
 			if tx < 0
 				tx = 0
 
@@ -1437,6 +1452,10 @@ class Popup extends Backbone.View
 				$('<p>').
 					attr('class','popupB1Style').
 					text(data.b1).
+					appendTo $(@el)
+				$('<p>').
+					attr('class','popupB3Style').
+					text(data.b3).
 					appendTo $(@el)
 				$('<p>').
 					attr('class','popupB2Style').
