@@ -31,6 +31,6 @@
 	</div>
 </div>
 
-<script src="app/johoo.js"></script>
+<script type="text/javascript" src="/min/f=app/johoo.js"></script>
 </body>
 </html>
