@@ -11,7 +11,7 @@ motifHeight = 79
 SEARCH_API = 'swfData/search.php'
 TIMELINE_API = 'swfData/search.php'
 
-tileImageDir = 'http://lunch.pitcom.jp/splitedge/blockimg/pituser/lunch/oriweb/'
+tileImageDir = 'swfData/web/'
 zoomImageDir = 'swfData/blockimg/'
 tileImageExtension = '.jpg'
 
@@ -1116,14 +1116,6 @@ class Marker extends Backbone.View
 
 			tx = (@result%motifWidth-1) * arrZoomSizeX[nowZoom]
 			ty = Math.floor(@result/motifWidth)*arrZoomSizeY[nowZoom]
-
-			if this.result % motifWidth is 0
-				tx = (motifWidth-1) * arrZoomSizeX[nowZoom]
-				ty = Math.floor((this.result / motifWidth)-1) * arrZoomSizeX[nowZoom]
-			else
-				tx = (this.result % motifWidth - 1) * arrZoomSizeY[nowZoom]
-				ty = Math.floor(this.result / motifWidth) * arrZoomSizeY[nowZoom]
-
 			if tx < 0
 				tx = 0
 
