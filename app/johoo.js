@@ -1427,6 +1427,13 @@
         $('#Marker').remove();
         tx = (this.result % motifWidth - 1) * arrZoomSizeX[nowZoom];
         ty = Math.floor(this.result / motifWidth) * arrZoomSizeY[nowZoom];
+        if (this.result % motifWidth === 0) {
+          tx = (motifWidth - 1) * arrZoomSizeX[nowZoom];
+          ty = Math.floor((this.result / motifWidth) - 1) * arrZoomSizeX[nowZoom];
+        } else {
+          tx = (this.result % motifWidth - 1) * arrZoomSizeY[nowZoom];
+          ty = Math.floor(this.result / motifWidth) * arrZoomSizeY[nowZoom];
+        }
         if (tx < 0) {
           tx = 0;
         }
@@ -1923,6 +1930,7 @@
           'margin': 'auto'
         });
         $('<p>').attr('class', 'popupB1Style').text(data.b1).appendTo($(_this.el));
+        $('<p>').attr('class', 'popupB3Style').text(data.b3).appendTo($(_this.el));
         $('<p>').attr('class', 'popupB2Style').text(data.b2 + ("(" + data.id + ")")).appendTo($(_this.el));
         $('<input>').attr('id', 'closeButton').attr('type', 'button').attr('value', '閉じる').appendTo($(_this.el));
         return _this.closeButtonAction();
