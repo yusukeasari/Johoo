@@ -5,8 +5,8 @@ tileHeight = 256
 #ズームアウト未実装
 commentZoom = true
 
-motifWidth = 105
-motifHeight = 79
+motifWidth = 36
+motifHeight = 56
 
 SEARCH_API = 'swfData/search.php'
 TIMELINE_API = 'swfData/search.php'
@@ -16,8 +16,8 @@ zoomImageDir = 'swfData/blockimg/'
 tileImageExtension = '.jpg'
 
 #0番目は適当に
-arrZoomSizeX = [0,4,8,16,32,64,128,256,256]
-arrZoomSizeY = [0,4,8,16,32,64,128,256,256]
+arrZoomSizeX = [0,8,16,32,64,128,256,256]
+arrZoomSizeY = [0,8,16,32,64,128,256,256]
 
 ### 外部設定予定 ここまで ###
 ### 以下原則変更不要 ###
@@ -990,8 +990,12 @@ class Pyramid extends Backbone.View
 	 * Pyramidを指定numにあわせて移動させるメソッド
 	###
 	moveToNum:(d)->
-		tx = d%motifWidth * arrZoomSizeX[nowZoom]*-1
-		ty = Math.floor(d/motifWidth)*arrZoomSizeX[nowZoom]*-1
+		if d % motifWidth is 0
+			tx = motifWidth * arrZoomSizeX[nowZoom] * -1
+			ty = Math.floor((d / motifWidth)-1) * arrZoomSizeX[nowZoom] * -1
+		else
+			tx = d % motifWidth * arrZoomSizeX[nowZoom] * -1
+			ty = Math.floor(d / motifWidth) * arrZoomSizeY[nowZoom] * -1
 
 		$(@el).css
 			left:(Browser.width/2)+tx+arrZoomSizeX[nowZoom]/2
@@ -1116,8 +1120,17 @@ class Marker extends Backbone.View
 
 			tx = (@result%motifWidth-1) * arrZoomSizeX[nowZoom]
 			ty = Math.floor(@result/motifWidth)*arrZoomSizeY[nowZoom]
+
+			if this.result % motifWidth is 0
+				tx = (motifWidth-1) * arrZoomSizeX[nowZoom]
+				ty = Math.floor((this.result / motifWidth)-1) * arrZoomSizeX[nowZoom]
+			else
+				tx = (this.result % motifWidth - 1) * arrZoomSizeY[nowZoom]
+				ty = Math.floor(this.result / motifWidth) * arrZoomSizeY[nowZoom]
+
 			if tx < 0
 				tx = 0
+		
 
 			$('<div />').
 				attr('id','Marker').

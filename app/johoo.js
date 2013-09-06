@@ -15,9 +15,9 @@
 
   commentZoom = true;
 
-  motifWidth = 105;
+  motifWidth = 36;
 
-  motifHeight = 79;
+  motifHeight = 56;
 
   SEARCH_API = 'swfData/search.php';
 
@@ -29,9 +29,9 @@
 
   tileImageExtension = '.jpg';
 
-  arrZoomSizeX = [0, 4, 8, 16, 32, 64, 128, 256, 256];
+  arrZoomSizeX = [0, 8, 16, 32, 64, 128, 256, 256];
 
-  arrZoomSizeY = [0, 4, 8, 16, 32, 64, 128, 256, 256];
+  arrZoomSizeY = [0, 8, 16, 32, 64, 128, 256, 256];
 
   /* 外部設定予定 ここまで
   */
@@ -1257,8 +1257,13 @@
       var tx, ty,
         _this = this;
 
-      tx = d % motifWidth * arrZoomSizeX[nowZoom] * -1;
-      ty = Math.floor(d / motifWidth) * arrZoomSizeX[nowZoom] * -1;
+      if (d % motifWidth === 0) {
+        tx = motifWidth * arrZoomSizeX[nowZoom] * -1;
+        ty = Math.floor((d / motifWidth) - 1) * arrZoomSizeX[nowZoom] * -1;
+      } else {
+        tx = d % motifWidth * arrZoomSizeX[nowZoom] * -1;
+        ty = Math.floor(d / motifWidth) * arrZoomSizeY[nowZoom] * -1;
+      }
       $(this.el).css({
         left: (Browser.width / 2) + tx + arrZoomSizeX[nowZoom] / 2,
         top: (Browser.height / 2) + ty - arrZoomSizeY[nowZoom] / 2
@@ -1427,6 +1432,13 @@
         $('#Marker').remove();
         tx = (this.result % motifWidth - 1) * arrZoomSizeX[nowZoom];
         ty = Math.floor(this.result / motifWidth) * arrZoomSizeY[nowZoom];
+        if (this.result % motifWidth === 0) {
+          tx = (motifWidth - 1) * arrZoomSizeX[nowZoom];
+          ty = Math.floor((this.result / motifWidth) - 1) * arrZoomSizeX[nowZoom];
+        } else {
+          tx = (this.result % motifWidth - 1) * arrZoomSizeY[nowZoom];
+          ty = Math.floor(this.result / motifWidth) * arrZoomSizeY[nowZoom];
+        }
         if (tx < 0) {
           tx = 0;
         }
