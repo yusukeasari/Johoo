@@ -5,19 +5,19 @@ tileHeight = 256
 #ズームアウト未実装
 commentZoom = true
 
-motifWidth = 36
-motifHeight = 56
+motifWidth = 86
+motifHeight = 58
 
-SEARCH_API = 'swfData/search.php'
-TIMELINE_API = 'swfData/search.php'
+SEARCH_API = 'swfData/search_sp.php'
+TIMELINE_API = 'swfData/search_sp.php'
 
-tileImageDir = 'swfData/web/'
+tileImageDir = 'http://akkinya.pitcom.jp/splitedge/blockimg/pituser/akkinya/web/'
 zoomImageDir = 'swfData/blockimg/'
 tileImageExtension = '.jpg'
 
 #0番目は適当に
-arrZoomSizeX = [0,8,16,32,64,128,256,256]
-arrZoomSizeY = [0,8,16,32,64,128,256,256]
+arrZoomSizeX = [0,4,8,16,32,64,128,256,256]
+arrZoomSizeY = [0,4,8,16,32,64,128,256,256]
 
 ### 外部設定予定 ここまで ###
 ### 以下原則変更不要 ###
@@ -1407,6 +1407,17 @@ class Shadow extends Backbone.View
 	@setSize:-> 
 		$(@el).width Browser.width
 		$(@el).height Browser.height
+		console.log "setSize"
+
+	@setFullSize:(_h)-> 
+		$(@el).width Browser.width
+		if Browser.height >_h+20
+			$(@el).height Browser.height
+		else
+			$(@el).height $(@el).height _h+20
+			
+		console.log "setFullSize"+Browser.height+"/"+$(@el).height() _h+20
+
 
 	@isShow:=>
 		res = $(@el).css 'display'
@@ -1419,7 +1430,7 @@ class Popup extends Backbone.View
 		_.bindAll @
 
 	openPopupFromPoint:(p)->
-		@show()
+		#@show()
 		$.getJSON SEARCH_API,{'n':p},(data,status)=>
 			#タップ拡大時に特殊なフラグによって条件分岐するならココ
 			##and "#{data.img}" isnt 'undefined' 
@@ -1465,6 +1476,8 @@ class Popup extends Backbone.View
 					appendTo $(@el)
 				@closeButtonAction()
 
+				@show()
+
 			).
 			error( =>
 				@closePopup()
@@ -1482,9 +1495,9 @@ class Popup extends Backbone.View
 				@closePopup(e)
 
 	show:->
-		Shadow.setSize()
 		$(@el).show()
 		Shadow.show()
+		Shadow.setFullSize($(@el).height())
 
 	hide:->
 		Shadow.setSize()

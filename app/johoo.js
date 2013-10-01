@@ -15,23 +15,23 @@
 
   commentZoom = true;
 
-  motifWidth = 36;
+  motifWidth = 86;
 
-  motifHeight = 56;
+  motifHeight = 58;
 
-  SEARCH_API = 'swfData/search.php';
+  SEARCH_API = 'swfData/search_sp.php';
 
-  TIMELINE_API = 'swfData/search.php';
+  TIMELINE_API = 'swfData/search_sp.php';
 
-  tileImageDir = 'swfData/web/';
+  tileImageDir = 'http://akkinya.pitcom.jp/splitedge/blockimg/pituser/akkinya/web/';
 
   zoomImageDir = 'swfData/blockimg/';
 
   tileImageExtension = '.jpg';
 
-  arrZoomSizeX = [0, 8, 16, 32, 64, 128, 256, 256];
+  arrZoomSizeX = [0, 4, 8, 16, 32, 64, 128, 256, 256];
 
-  arrZoomSizeY = [0, 8, 16, 32, 64, 128, 256, 256];
+  arrZoomSizeY = [0, 4, 8, 16, 32, 64, 128, 256, 256];
 
   /* 外部設定予定 ここまで
   */
@@ -1862,7 +1862,18 @@
 
     Shadow.setSize = function() {
       $(this.el).width(Browser.width);
-      return $(this.el).height(Browser.height);
+      $(this.el).height(Browser.height);
+      return console.log("setSize");
+    };
+
+    Shadow.setFullSize = function(_h) {
+      $(this.el).width(Browser.width);
+      if (Browser.height > _h + 20) {
+        $(this.el).height(Browser.height);
+      } else {
+        $(this.el).height($(this.el).height(_h + 20));
+      }
+      return console.log("setFullSize" + Browser.height + "/" + $(this.el).height()(_h + 20));
     };
 
     Shadow.isShow = function() {
@@ -1898,7 +1909,6 @@
     Popup.prototype.openPopupFromPoint = function(p) {
       var _this = this;
 
-      this.show();
       return $.getJSON(SEARCH_API, {
         'n': p
       }, function(data, status) {
@@ -1938,7 +1948,8 @@
         $('<p>').attr('class', 'popupB3Style').text(data.b3).appendTo($(_this.el));
         $('<p>').attr('class', 'popupB2Style').text(data.b2 + ("(" + data.id + ")")).appendTo($(_this.el));
         $('<input>').attr('id', 'closeButton').attr('type', 'button').attr('value', '閉じる').appendTo($(_this.el));
-        return _this.closeButtonAction();
+        _this.closeButtonAction();
+        return _this.show();
       }).error(function() {
         return _this.closePopup();
       }).appendTo($(this.el));
@@ -1961,9 +1972,9 @@
     };
 
     Popup.prototype.show = function() {
-      Shadow.setSize();
       $(this.el).show();
-      return Shadow.show();
+      Shadow.show();
+      return Shadow.setFullSize($(this.el).height());
     };
 
     Popup.prototype.hide = function() {
