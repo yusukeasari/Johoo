@@ -177,6 +177,9 @@ class PhotomosaicViewer extends Backbone.View
 			Pyramid.hide()
 			ControlPanel.hide()
 
+		@popup.bind 'closePopup', =>
+			@pyramid.closePopup()
+
 		Browser.setup()
 		@onOrient()
 		@controlPanel.trigger 'onclickhomebutton'
@@ -794,10 +797,12 @@ class Pyramid extends Backbone.View
 			if @isSingleTap(@dragStartX,cordx) and @isSingleTap(@dragStartY,cordy)
 				#！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
 				if not Shadow.isShow() and nowZoom > 3
+					$(@el).unbind 'touchend',@onMouseUp
 					@trigger 'openPopupFromPoint',@getNumFromPoint [cords[0],cords[1]]
 			else if @isSingleTap(@dragStartX,cordx) and @isSingleTap(@dragStartY,cordy) and @isOnTiles [cords[0][0],cords[0][1]]
 				#！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
 				if not Shadow.isShow() and nowZoom > 3
+					$(@el).unbind 'touchend',@onMouseUp
 					@trigger 'openPopupFromPoint',@getNumFromPoint [cords[0][0],cords[0][1]]
 			else
 				#alert 'else'

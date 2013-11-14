@@ -178,6 +178,9 @@
         Pyramid.hide();
         return ControlPanel.hide();
       });
+      this.popup.bind('closePopup', function() {
+        return _this.pyramid.closePopup();
+      });
       Browser.setup();
       this.onOrient();
       return this.controlPanel.trigger('onclickhomebutton');
@@ -1005,10 +1008,12 @@
         cordy = Utility.type(cords[1]) !== 'array' ? cords[1] : cords[0][1];
         if (this.isSingleTap(this.dragStartX, cordx) && this.isSingleTap(this.dragStartY, cordy)) {
           if (!Shadow.isShow() && nowZoom > 3) {
+            $(this.el).unbind('touchend', this.onMouseUp);
             return this.trigger('openPopupFromPoint', this.getNumFromPoint([cords[0], cords[1]]));
           }
         } else if (this.isSingleTap(this.dragStartX, cordx) && this.isSingleTap(this.dragStartY, cordy) && this.isOnTiles([cords[0][0], cords[0][1]])) {
           if (!Shadow.isShow() && nowZoom > 3) {
+            $(this.el).unbind('touchend', this.onMouseUp);
             return this.trigger('openPopupFromPoint', this.getNumFromPoint([cords[0][0], cords[0][1]]));
           }
         } else {
