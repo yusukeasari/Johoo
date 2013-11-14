@@ -1453,6 +1453,7 @@ class Popup extends Backbone.View
 	closePopup:(e)->
 		if e isnt undefined
 			e.preventDefault()
+		@trigger "closePopup"
 		@clear()
 		@hide()
 
