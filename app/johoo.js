@@ -1901,6 +1901,7 @@
 
     function Popup() {
       this.closeButtonAction = __bind(this.closeButtonAction, this);
+      this.snsButtonAction = __bind(this.snsButtonAction, this);
       this.render = __bind(this.render, this);      _ref20 = Popup.__super__.constructor.apply(this, arguments);
       return _ref20;
     }
@@ -1952,12 +1953,23 @@
         $('<p>').attr('class', 'popupB1Style').text(data.b1).appendTo($(_this.el));
         $('<p>').attr('class', 'popupB3Style').text(data.b3).appendTo($(_this.el));
         $('<p>').attr('class', 'popupB2Style').text(data.b2 + ("(" + data.id + ")")).appendTo($(_this.el));
+        $('<p>').attr('class', 'popupSnsStyle').html('<a href="https://www.facebook.com/sharer.php?u=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr" target="_blank" class="snsFacebookButton"><img src="assets/buttons/snsFacebookIcon.png"></a> <a href="https://twitter.com/?status=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr" target="_blank" class="snsTwitterButton"><img src="assets/buttons/snsTwitterIcon.png"></a><a href="http://line.naver.jp/R/msg/text/?http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr" target="_blank" class="snsLineButton"><img src="assets/buttons/snsLineIcon.png"></a>').appendTo($(_this.el));
         $('<input>').attr('id', 'closeButton').attr('type', 'button').attr('value', '閉じる').appendTo($(_this.el));
+        _this.snsButtonAction();
         _this.closeButtonAction();
         return _this.show();
       }).error(function() {
         return _this.closePopup();
       }).appendTo($(this.el));
+    };
+
+    Popup.prototype.snsButtonAction = function() {
+      var _this = this;
+
+      return $("#snsFacebookButton").bind("touchend", function(e) {
+        _gaq.push(['_trackPageview', '/photomosaic/sp/fb/']);
+        return $("#snsFacebookButton").unbind();
+      });
     };
 
     Popup.prototype.closeButtonAction = function() {
@@ -1966,12 +1978,14 @@
       if (Browser.device !== 'pc') {
         return $("#closeButton").bind("touchend", function(e) {
           e.preventDefault();
-          return _this.closePopup(e);
+          _this.closePopup(e);
+          return $("#closeButton").unbind();
         });
       } else {
         return $("#closeButton").bind("mouseup", function(e) {
           e.preventDefault();
-          return _this.closePopup(e);
+          _this.closePopup(e);
+          return $("#closeButton").unbind();
         });
       }
     };

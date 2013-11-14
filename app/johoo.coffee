@@ -1108,6 +1108,9 @@ class Pyramid extends Backbone.View
 
 	getPyramidPos:->
 		[$(@el).position().left,$(@el).position().top]
+	closePopup:->
+		console.log "COLLLLLOOOOSSSEEE"
+		$(@el).bind 'touchend',@onMouseUp
 
 class Marker extends Backbone.View
 	result: ''
@@ -1474,11 +1477,16 @@ class Popup extends Backbone.View
 					attr('class','popupB2Style').
 					text(data.b2+"(#{data.id})").
 					appendTo $(@el)
+				$('<p>').
+					attr('class','popupSnsStyle').
+					html('<a href="https://www.facebook.com/sharer.php?u=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr" target="_blank" class="snsFacebookButton"><img src="assets/buttons/snsFacebookIcon.png"></a> <a href="https://twitter.com/?status=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr" target="_blank" class="snsTwitterButton"><img src="assets/buttons/snsTwitterIcon.png"></a><a href="http://line.naver.jp/R/msg/text/?http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr" target="_blank" class="snsLineButton"><img src="assets/buttons/snsLineIcon.png"></a>').
+					appendTo $(@el)
 				$('<input>').
 					attr('id','closeButton').
 					attr('type','button').
 					attr('value','閉じる').
 					appendTo $(@el)
+				@snsButtonAction()
 				@closeButtonAction()
 
 				@show()
@@ -1488,16 +1496,22 @@ class Popup extends Backbone.View
 				@closePopup()
 			).
 			appendTo $(@el)
+	snsButtonAction:=>
+		$("#snsFacebookButton").bind "touchend",(e) =>
+			_gaq.push(['_trackPageview', '/photomosaic/sp/fb/']);
+			$("#snsFacebookButton").unbind()
 
 	closeButtonAction:=>
 		if Browser.device isnt 'pc'
 			$("#closeButton").bind "touchend",(e) =>
 				e.preventDefault()
 				@closePopup(e)
+				$("#closeButton").unbind()
 		else
 			$("#closeButton").bind "mouseup",(e) =>
 				e.preventDefault()
 				@closePopup(e)
+				$("#closeButton").unbind()
 
 	show:->
 		$(@el).show()
