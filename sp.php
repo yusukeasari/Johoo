@@ -1,7 +1,7 @@
 <html>
 <head>
 <?php require_once 'viewport.php'; ?>
-<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta name="apple-mobile-web-app-capable" content="yes">
 <!-- <link href="css/johoo.css" rel="stylesheet"> -->
 <!--<link href="css/import.css" rel="stylesheet">-->
 

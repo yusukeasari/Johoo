@@ -593,6 +593,7 @@ class Browser extends Backbone.View
 	@width: 0
 	@height: 0
 	@orient: 0
+	@displayFix: 0
 
 	initialize:->
 		_.bindAll @
@@ -608,6 +609,7 @@ class Browser extends Backbone.View
 			Browser.version = ''
 			Browser.width = if Math.abs(window.orientation) isnt 90 then screen.width else screen.height
 			Browser.height = if Math.abs(window.orientation) isnt 90 then screen.height-64 else screen.width-52
+			Browser.displayFix = -2;
 
 		#iPad
 		else if navigator.userAgent.match /iPad/i
@@ -616,6 +618,7 @@ class Browser extends Backbone.View
 			Browser.version = ''
 			Browser.width = if Math.abs(window.orientation) isnt 90 then screen.width else screen.height
 			Browser.height = if Math.abs(window.orientation) isnt 90 then screen.height-96 else screen.width-96
+			Browser.displayFix = -2;
 
 		#Android Phone
 		else if navigator.userAgent.match /Android/i and navigator.userAgent.match /Mobile/i
@@ -643,8 +646,8 @@ class Browser extends Backbone.View
 			Browser.height = $(window).height()
 
 		#描画範囲を決定
-		$('#Pyramid').width Browser.width
-		$('#Pyramid').height Browser.height
+		$('#Pyramid').width Browser.width+Browser.displayFix
+		$('#Pyramid').height Browser.height+Browser.displayFix
 
 		#アドレスバーを隠す
 		Browser.hideAddressBar()
@@ -1423,9 +1426,6 @@ class Shadow extends Backbone.View
 			$(@el).height Browser.height
 		else
 			$(@el).height $(@el).height _h+20
-			
-		console.log "setFullSize"+Browser.height+"/"+$(@el).height() _h+20
-
 
 	@isShow:=>
 		res = $(@el).css 'display'
@@ -1443,6 +1443,8 @@ class Popup extends Backbone.View
 			#タップ拡大時に特殊なフラグによって条件分岐するならココ
 			##and "#{data.img}" isnt 'undefined' 
 			if status and data isnt null then @render data[0] else @hide()
+		.fail =>
+			@hide()
 
 	clear:->
 		#
@@ -1453,7 +1455,6 @@ class Popup extends Backbone.View
 	closePopup:(e)->
 		if e isnt undefined
 			e.preventDefault()
-		@trigger "closePopup"
 		@clear()
 		@hide()
 
@@ -1487,7 +1488,7 @@ class Popup extends Backbone.View
 					attr('type','button').
 					attr('value','閉じる').
 					appendTo $(@el)
-				@snsButtonAction()
+				@snsButtonAction(data.id)
 				@closeButtonAction()
 
 				@show()
@@ -1497,10 +1498,24 @@ class Popup extends Backbone.View
 				@closePopup()
 			).
 			appendTo $(@el)
-	snsButtonAction:=>
-		$("#snsFacebookButton").bind "touchend",(e) =>
-			_gaq.push(['_trackPageview', '/photomosaic/sp/fb/']);
-			$("#snsFacebookButton").unbind()
+	snsButtonAction:(_id)=>
+		$(".snsFacebookButton").bind "touchend",(e) =>
+			window.open('https://www.facebook.com/sharer.php?u=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr')
+			_gaq.push(['_trackPageview', '/photomosaic/sp/fb/'+_id]);
+			console.log _gaq
+			$(".snsFacebookButton").unbind()
+
+		$(".snsTwitterButton").bind "touchend",(e) =>
+			window.open('https://twitter.com/?status=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr')
+			_gaq.push(['_trackPageview', '/photomosaic/sp/tw/'+_id]);
+			console.log _gaq
+			$(".snsTwitterButton").unbind()
+
+		$(".snsLineButton").bind "touchend",(e) =>
+			window.open('https://line.naver.jp/R/msg/text/?http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr')
+			_gaq.push(['_trackPageview', '/photomosaic/sp/line/'+_id]);
+			console.log _gaq
+			$(".snsLineButton").unbind()
 
 	closeButtonAction:=>
 		if Browser.device isnt 'pc'
@@ -1520,6 +1535,7 @@ class Popup extends Backbone.View
 		Shadow.setFullSize($(@el).height())
 
 	hide:->
+		@trigger "closePopup"
 		Shadow.setSize()
 		$(@el).hide()
 		Shadow.hide()
