@@ -1,4 +1,6 @@
 ### 外部設定予定 ここから ###
+CAMPAIGN = 'IMQ'
+
 tileWidth = 256
 tileHeight = 256
 
@@ -14,6 +16,8 @@ TIMELINE_API = 'swfData/search_sp.php'
 tileImageDir = 'http://akkinya.pitcom.jp/splitedge/blockimg/pituser/akkinya/web/'
 zoomImageDir = 'swfData/blockimg/'
 tileImageExtension = '.jpg'
+
+INIT_FILE = 'init.json'
 
 #0番目は適当に
 arrZoomSizeX = [0,4,8,16,32,64,128,256,256]
@@ -37,6 +41,25 @@ i=0
 for x in arrZoomSizeX
 	zoomSize.push [motifWidth*minBlockSize*arrZoomSizeX[i],motifHeight*minBlockSize*arrZoomSizeY[i]]
 	i++
+getUrlVars = (id)->
+	vars = {}
+	params = location.search.substring(1).split('&')
+	console.log params
+
+	for item in params
+		#エスケープ要注意
+		keySearch = item.search(/\=/)
+		key = ''
+		if keySearch isnt -1
+			key = item.slice 0,keySearch
+		val = item.slice(item.indexOf('=',0)+1)
+		if key isnt ''
+			vars[key] = decodeURI val
+	vars[id]
+
+UID = getUrlVars 'uid'
+tileImageDir = 'swfData/mosaic/' + UID + '/web/'
+zoomImageDir = '/instantmosaiq/c/data/orig_images_220/'
 
 $ ->
 	#処理開始
@@ -62,6 +85,8 @@ class PhotomosaicViewer extends Backbone.View
 		#環境設定とか
 		@uniBrowse = new Browser
 
+
+
 		css_href = 'css/johoo_'+Browser.device+'.css'
 
 		$('<link>').
@@ -69,13 +94,24 @@ class PhotomosaicViewer extends Backbone.View
 			attr('rel','stylesheet').
 			load().
 			appendTo $('head')
-		@setup()
+
+		$.ajax INIT_FILE,
+			type:"GET"
+			data:'campaign='+CAMPAIGN
+			dataType:"json"
+			error: (jqXHR, textStatus, errorThrown) =>
+				#@trigger 'error'
+				console.log '設定ファイルエラー'+textStatus
+			success:(data) =>
+				@setup(data)
+		#@setup()
 	onOrient:=>
 		Shadow.setSize()
 		#@smallMap.setup()
 		@popup.resize()
 		$(@el).show()
-	setup:=>
+	setup:(_init)=>
+		alert _init
 		#基底モデル
 		@smodel = new SModel
 
@@ -102,14 +138,24 @@ class PhotomosaicViewer extends Backbone.View
 		#検索位置を示すマーカー
 		@marker = new Marker
 
-		$(window).bind "orientationchange", =>
-			$(@el).hide()
-			
-			setTimeout =>
-				#alert $(document).width()+"/"+$(@el)+"/"+$(document).height()
-				Browser.setup()
-				@onOrient()
-			,1000
+		if Browser.device isnt 'pc'
+			$(window).bind "orientationchange", =>
+				$(@el).hide()
+				
+				setTimeout =>
+					#alert $(document).width()+"/"+$(@el)+"/"+$(document).height()
+					Browser.setup()
+					@onOrient()
+				,1000
+		else
+			$(window).bind "resize", =>
+				$(@el).hide()
+				
+				setTimeout =>
+					#alert $(document).width()+"/"+$(@el)+"/"+$(document).height()
+					Browser.setup()
+					@onOrient()
+				,1000
 
 
 		#フォトモザイク部分がクリックされ、かつ有効な座標であった場合、拡大表示を実行
@@ -282,7 +328,6 @@ class PostPanel extends Backbone.View
 		$(@el).html('')
 		$(@el).hide()
 
-
 class SearchPanel extends Backbone.View
 	el: '#SearchPanel'
 	searchQuery: ''
@@ -383,7 +428,7 @@ class SearchPanel extends Backbone.View
 		@trigger 'startSearch'
 
 	sendQuery:->
-		query = ''
+		query = 'uid='+UID+'&'
 		@searchQuery.unbind()
 		@searchQuery.bind 'return',(result) => @render result
 		@searchQuery.bind 'error', => @error
@@ -527,7 +572,7 @@ class TimelineChildView extends Backbone.View
 		$('<img />').
 		  attr('class','tlImg').
 		  attr('width',tlImageWidth).
-		  attr('src','swfData/blockimg/'+item.img+'.jpg').
+		  attr('src',zoomImageDir+item.img+tileImageExtension).
 		  load().
 		  appendTo tl
 		$('<div>').
@@ -538,7 +583,8 @@ class TimelineChildView extends Backbone.View
 		  appendTo tl
 		$('<div>').
 		  attr('class','tlMsg').
-		  html(item.b2+"(#{item.id})").
+		  #html(item.b2+"(#{item.id})").
+		  html(item.b2).
 		  appendTo tl
 		$('<br />').
 		  attr('class','timelineBR').
@@ -605,21 +651,24 @@ class Browser extends Backbone.View
 		#iPhone or iPod
 		if navigator.userAgent.match /iPhone/i or navigator.userAgent.match /iPod/i
 			Browser.device = 'smartphone'
-			Browser.os = 'ios'
+			Browser.os = if navigator.userAgent.match /OS 7_/i then 'ios7' else 'ios'
 			Browser.version = ''
 			Browser.width = if Math.abs(window.orientation) isnt 90 then screen.width else screen.height
-			Browser.height = if Math.abs(window.orientation) isnt 90 then screen.height-64 else screen.width-52
-			Browser.displayFix = -2;
+			if Browser.os is 'ios7'
+				Browser.height = if Math.abs(window.orientation) isnt 90 then screen.height-108 else screen.width-52
+			else
+				Browser.height = if Math.abs(window.orientation) isnt 90 then screen.height-64 else screen.width-52
+
+			#alert Browser.os
 
 		#iPad
 		else if navigator.userAgent.match /iPad/i
 			Browser.device = 'tablet'
-			Browser.os = 'ios'
+			Browser.os = if navigator.userAgent.match /OS 7_/i then 'ios7' else 'ios'
 			Browser.version = ''
 			Browser.width = if Math.abs(window.orientation) isnt 90 then screen.width else screen.height
 			Browser.height = if Math.abs(window.orientation) isnt 90 then screen.height-96 else screen.width-96
-			Browser.displayFix = -2;
-
+			
 		#Android Phone
 		else if navigator.userAgent.match /Android/i and navigator.userAgent.match /Mobile/i
 			Browser.device = 'smartphone'
@@ -642,12 +691,12 @@ class Browser extends Backbone.View
 		#PC
 		else
 			Browser.device = 'pc'
-			Browser.width = $(window).width()
-			Browser.height = $(window).height()
+			Browser.width = $(window).width()-2
+			Browser.height = $(window).height()-5
 
 		#描画範囲を決定
-		$('#Pyramid').width Browser.width+Browser.displayFix
-		$('#Pyramid').height Browser.height+Browser.displayFix
+		$('#Pyramid').width Browser.width
+		$('#Pyramid').height Browser.height
 
 		#アドレスバーを隠す
 		Browser.hideAddressBar()
@@ -1348,11 +1397,16 @@ class Point
 	@plock:0
 
 	@lock:(e)->
-		if e.originalEvent.touches.length > 2 and @plock < 3
-			@locked = true
+		console.log e
+		if e.originalEvent.touches isnt undefined
+			if e.originalEvent.touches.length > 2 and @plock < 3
+				@locked = true
+			else
+				@locked = false
+			@plock = e.originalEvent.touches.length
 		else
 			@locked = false
-		@plock = e.originalEvent.touches.length
+			@plock = 1
 	@isLock:->
 		@locked
 	#座標を取得
@@ -1439,7 +1493,7 @@ class Popup extends Backbone.View
 
 	openPopupFromPoint:(p)->
 		#@show()
-		$.getJSON SEARCH_API,{'n':p},(data,status)=>
+		$.getJSON SEARCH_API,{'n':p,'uid':UID},(data,status)=>
 			#タップ拡大時に特殊なフラグによって条件分岐するならココ
 			##and "#{data.img}" isnt 'undefined' 
 			if status and data isnt null then @render data[0] else @hide()
@@ -1461,7 +1515,7 @@ class Popup extends Backbone.View
 	render:(data)=>
 		$('<img />').
 			css('margin-top',5).
-			attr('src',zoomImageDir+data.img+'.jpg').
+			attr('src',zoomImageDir+data.img+tileImageExtension).
 			load( =>
 				$('<div />').
 					attr('id','popupOuterText').

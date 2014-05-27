@@ -4,10 +4,12 @@
 
 
 (function() {
-  var Browser, ClickOnlyButton, ControlPanel, ControlPanelModel, DeleteValueButton, Marker, PhotomosaicViewer, Point, Popup, PostPanel, Pyramid, SEARCH_API, SModel, SearchPanel, SearchResult, Shadow, SmallMap, TIMELINE_API, Tile, TileView, Tiles, Timeline, TimelineChild, TimelineChildView, Utility, arrZoomSizeX, arrZoomSizeY, commentZoom, i, minBlockSize, minZoom, motifHeight, motifWidth, nowZoom, pinchTrigger, pinchTriggerArray, prevZoom, tileHeight, tileImageDir, tileImageExtension, tileWidth, tlImageWidth, x, zoomImageDir, zoomSize, _i, _len, _ref, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref17, _ref18, _ref19, _ref2, _ref20, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9,
+  var Browser, CAMPAIGN, ClickOnlyButton, ControlPanel, ControlPanelModel, DeleteValueButton, INIT_FILE, Marker, PhotomosaicViewer, Point, Popup, PostPanel, Pyramid, SEARCH_API, SModel, SearchPanel, SearchResult, Shadow, SmallMap, TIMELINE_API, Tile, TileView, Tiles, Timeline, TimelineChild, TimelineChildView, UID, Utility, arrZoomSizeX, arrZoomSizeY, commentZoom, getUrlVars, i, minBlockSize, minZoom, motifHeight, motifWidth, nowZoom, pinchTrigger, pinchTriggerArray, prevZoom, tileHeight, tileImageDir, tileImageExtension, tileWidth, tlImageWidth, x, zoomImageDir, zoomSize, _i, _len, _ref, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref17, _ref18, _ref19, _ref2, _ref20, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  CAMPAIGN = 'IMQ';
 
   tileWidth = 256;
 
@@ -28,6 +30,8 @@
   zoomImageDir = 'swfData/blockimg/';
 
   tileImageExtension = '.jpg';
+
+  INIT_FILE = 'init.json';
 
   arrZoomSizeX = [0, 4, 8, 16, 32, 64, 128, 256, 256];
 
@@ -65,6 +69,33 @@
     i++;
   }
 
+  getUrlVars = function(id) {
+    var item, key, keySearch, params, val, vars, _j, _len1;
+
+    vars = {};
+    params = location.search.substring(1).split('&');
+    console.log(params);
+    for (_j = 0, _len1 = params.length; _j < _len1; _j++) {
+      item = params[_j];
+      keySearch = item.search(/\=/);
+      key = '';
+      if (keySearch !== -1) {
+        key = item.slice(0, keySearch);
+      }
+      val = item.slice(item.indexOf('=', 0) + 1);
+      if (key !== '') {
+        vars[key] = decodeURI(val);
+      }
+    }
+    return vars[id];
+  };
+
+  UID = getUrlVars('uid');
+
+  tileImageDir = 'swfData/mosaic/' + UID + '/web/';
+
+  zoomImageDir = '/instantmosaiq/c/data/orig_images_220/';
+
   $(function() {
     var pmviewer, z, _j, _len1;
 
@@ -96,13 +127,24 @@
     PhotomosaicViewer.prototype.el = '#Johoo';
 
     PhotomosaicViewer.prototype.initialize = function() {
-      var css_href;
+      var css_href,
+        _this = this;
 
       _.bindAll(this);
       this.uniBrowse = new Browser;
       css_href = 'css/johoo_' + Browser.device + '.css';
       $('<link>').attr('href', css_href).attr('rel', 'stylesheet').load().appendTo($('head'));
-      return this.setup();
+      return $.ajax(INIT_FILE, {
+        type: "GET",
+        data: 'campaign=' + CAMPAIGN,
+        dataType: "json",
+        error: function(jqXHR, textStatus, errorThrown) {
+          return console.log('設定ファイルエラー' + textStatus);
+        },
+        success: function(data) {
+          return _this.setup(data);
+        }
+      });
     };
 
     PhotomosaicViewer.prototype.onOrient = function() {
@@ -111,9 +153,10 @@
       return $(this.el).show();
     };
 
-    PhotomosaicViewer.prototype.setup = function() {
+    PhotomosaicViewer.prototype.setup = function(_init) {
       var _this = this;
 
+      alert(_init);
       this.smodel = new SModel;
       this.shadow = new Shadow;
       this.pyramid = new Pyramid;
@@ -122,13 +165,23 @@
       this.postPanel = new PostPanel;
       this.controlPanel = new ControlPanel;
       this.marker = new Marker;
-      $(window).bind("orientationchange", function() {
-        $(_this.el).hide();
-        return setTimeout(function() {
-          Browser.setup();
-          return _this.onOrient();
-        }, 1000);
-      });
+      if (Browser.device !== 'pc') {
+        $(window).bind("orientationchange", function() {
+          $(_this.el).hide();
+          return setTimeout(function() {
+            Browser.setup();
+            return _this.onOrient();
+          }, 1000);
+        });
+      } else {
+        $(window).bind("resize", function() {
+          $(_this.el).hide();
+          return setTimeout(function() {
+            Browser.setup();
+            return _this.onOrient();
+          }, 1000);
+        });
+      }
       this.pyramid.bind('openPopupFromPoint', function(p) {
         _this.popup.openPopupFromPoint(p);
         _this.marker.setResult(p);
@@ -462,7 +515,7 @@
       var query,
         _this = this;
 
-      query = '';
+      query = 'uid=' + UID + '&';
       this.searchQuery.unbind();
       this.searchQuery.bind('return', function(result) {
         return _this.render(result);
@@ -691,10 +744,10 @@
       item = this.model.get('data');
       this.data = item;
       tl = $(this.el).attr('class', 'timelineChild').attr('id', 'timelineChild' + item.id);
-      $('<img />').attr('class', 'tlImg').attr('width', tlImageWidth).attr('src', 'swfData/blockimg/' + item.img + '.jpg').load().appendTo(tl);
+      $('<img />').attr('class', 'tlImg').attr('width', tlImageWidth).attr('src', zoomImageDir + item.img + tileImageExtension).load().appendTo(tl);
       $('<div>').attr('class', 'tlTitle').html(item.b1).appendTo(tl);
       $('<br />').appendTo(tl);
-      $('<div>').attr('class', 'tlMsg').html(item.b2 + ("(" + item.id + ")")).appendTo(tl);
+      $('<div>').attr('class', 'tlMsg').html(item.b2).appendTo(tl);
       $('<br />').attr('class', 'timelineBR').appendTo(tl);
       return this;
     };
@@ -791,6 +844,8 @@
 
     Browser.orient = 0;
 
+    Browser.displayFix = 0;
+
     Browser.prototype.initialize = function() {
       _.bindAll(this);
       return Browser.setup();
@@ -799,13 +854,17 @@
     Browser.setup = function() {
       if (navigator.userAgent.match(/iPhone/i || navigator.userAgent.match(/iPod/i))) {
         Browser.device = 'smartphone';
-        Browser.os = 'ios';
+        Browser.os = navigator.userAgent.match(/OS 7_/i) ? 'ios7' : 'ios';
         Browser.version = '';
         Browser.width = Math.abs(window.orientation) !== 90 ? screen.width : screen.height;
-        Browser.height = Math.abs(window.orientation) !== 90 ? screen.height - 64 : screen.width - 52;
+        if (Browser.os === 'ios7') {
+          Browser.height = Math.abs(window.orientation) !== 90 ? screen.height - 108 : screen.width - 52;
+        } else {
+          Browser.height = Math.abs(window.orientation) !== 90 ? screen.height - 64 : screen.width - 52;
+        }
       } else if (navigator.userAgent.match(/iPad/i)) {
         Browser.device = 'tablet';
-        Browser.os = 'ios';
+        Browser.os = navigator.userAgent.match(/OS 7_/i) ? 'ios7' : 'ios';
         Browser.version = '';
         Browser.width = Math.abs(window.orientation) !== 90 ? screen.width : screen.height;
         Browser.height = Math.abs(window.orientation) !== 90 ? screen.height - 96 : screen.width - 96;
@@ -823,8 +882,8 @@
         Browser.height = $(document).height();
       } else {
         Browser.device = 'pc';
-        Browser.width = $(window).width();
-        Browser.height = $(window).height();
+        Browser.width = $(window).width() - 2;
+        Browser.height = $(window).height() - 5;
       }
       $('#Pyramid').width(Browser.width);
       $('#Pyramid').height(Browser.height);
@@ -1406,6 +1465,11 @@
       return [$(this.el).position().left, $(this.el).position().top];
     };
 
+    Pyramid.prototype.closePopup = function() {
+      console.log("COLLLLLOOOOSSSEEE");
+      return $(this.el).bind('touchend', this.onMouseUp);
+    };
+
     return Pyramid;
 
   })(Backbone.View);
@@ -1776,12 +1840,18 @@
     Point.plock = 0;
 
     Point.lock = function(e) {
-      if (e.originalEvent.touches.length > 2 && this.plock < 3) {
-        this.locked = true;
+      console.log(e);
+      if (e.originalEvent.touches !== void 0) {
+        if (e.originalEvent.touches.length > 2 && this.plock < 3) {
+          this.locked = true;
+        } else {
+          this.locked = false;
+        }
+        return this.plock = e.originalEvent.touches.length;
       } else {
         this.locked = false;
+        return this.plock = 1;
       }
-      return this.plock = e.originalEvent.touches.length;
     };
 
     Point.isLock = function() {
@@ -1874,11 +1944,10 @@
     Shadow.setFullSize = function(_h) {
       $(this.el).width(Browser.width);
       if (Browser.height > _h + 20) {
-        $(this.el).height(Browser.height);
+        return $(this.el).height(Browser.height);
       } else {
-        $(this.el).height($(this.el).height(_h + 20));
+        return $(this.el).height($(this.el).height(_h + 20));
       }
-      return console.log("setFullSize" + Browser.height + "/" + $(this.el).height()(_h + 20));
     };
 
     Shadow.isShow = function() {
@@ -1916,13 +1985,16 @@
       var _this = this;
 
       return $.getJSON(SEARCH_API, {
-        'n': p
+        'n': p,
+        'uid': UID
       }, function(data, status) {
         if (status && data !== null) {
           return _this.render(data[0]);
         } else {
           return _this.hide();
         }
+      }).fail(function() {
+        return _this.hide();
       });
     };
 
@@ -1944,7 +2016,7 @@
     Popup.prototype.render = function(data) {
       var _this = this;
 
-      return $('<img />').css('margin-top', 5).attr('src', zoomImageDir + data.img + '.jpg').load(function() {
+      return $('<img />').css('margin-top', 5).attr('src', zoomImageDir + data.img + tileImageExtension).load(function() {
         $('<div />').attr('id', 'popupOuterText').appendTo($(_this.el));
         $("#popupOuterText").css({
           'width': '80%',
@@ -1955,7 +2027,7 @@
         $('<p>').attr('class', 'popupB2Style').text(data.b2 + ("(" + data.id + ")")).appendTo($(_this.el));
         $('<p>').attr('class', 'popupSnsStyle').html('<a href="https://www.facebook.com/sharer.php?u=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr" target="_blank" class="snsFacebookButton"><img src="assets/buttons/snsFacebookIcon.png"></a> <a href="https://twitter.com/?status=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr" target="_blank" class="snsTwitterButton"><img src="assets/buttons/snsTwitterIcon.png"></a><a href="http://line.naver.jp/R/msg/text/?http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr" target="_blank" class="snsLineButton"><img src="assets/buttons/snsLineIcon.png"></a>').appendTo($(_this.el));
         $('<input>').attr('id', 'closeButton').attr('type', 'button').attr('value', '閉じる').appendTo($(_this.el));
-        _this.snsButtonAction();
+        _this.snsButtonAction(data.id);
         _this.closeButtonAction();
         return _this.show();
       }).error(function() {
@@ -1963,12 +2035,26 @@
       }).appendTo($(this.el));
     };
 
-    Popup.prototype.snsButtonAction = function() {
+    Popup.prototype.snsButtonAction = function(_id) {
       var _this = this;
 
-      return $("#snsFacebookButton").bind("touchend", function(e) {
-        _gaq.push(['_trackPageview', '/photomosaic/sp/fb/']);
-        return $("#snsFacebookButton").unbind();
+      $(".snsFacebookButton").bind("touchend", function(e) {
+        window.open('https://www.facebook.com/sharer.php?u=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr');
+        _gaq.push(['_trackPageview', '/photomosaic/sp/fb/' + _id]);
+        console.log(_gaq);
+        return $(".snsFacebookButton").unbind();
+      });
+      $(".snsTwitterButton").bind("touchend", function(e) {
+        window.open('https://twitter.com/?status=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr');
+        _gaq.push(['_trackPageview', '/photomosaic/sp/tw/' + _id]);
+        console.log(_gaq);
+        return $(".snsTwitterButton").unbind();
+      });
+      return $(".snsLineButton").bind("touchend", function(e) {
+        window.open('https://line.naver.jp/R/msg/text/?http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr');
+        _gaq.push(['_trackPageview', '/photomosaic/sp/line/' + _id]);
+        console.log(_gaq);
+        return $(".snsLineButton").unbind();
       });
     };
 
@@ -1997,6 +2083,7 @@
     };
 
     Popup.prototype.hide = function() {
+      this.trigger("closePopup");
       Shadow.setSize();
       $(this.el).hide();
       return Shadow.hide();
