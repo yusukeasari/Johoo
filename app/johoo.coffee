@@ -5,19 +5,20 @@ tileWidth = 256
 tileHeight = 256
 
 #ズームアウト未実装
-commentZoom = true
+commentZoom = false
 
-motifWidth = 86
-motifHeight = 58
+motifWidth = 115
+motifHeight = 92
 
-SEARCH_API = 'swfData/search_sp.php'
-TIMELINE_API = 'swfData/search_sp.php'
+SEARCH_API = 'swfData/search.php'
+TIMELINE_API = 'swfData/search.php'
 
-tileImageDir = 'http://akkinya.pitcom.jp/splitedge/blockimg/pituser/akkinya/web/'
-zoomImageDir = 'swfData/blockimg/'
+tileImageDir = 'swfData_expo/web/'
+zoomImageDir = 'swfData_expo/blockimg/'
+
 tileImageExtension = '.jpg'
 
-INIT_FILE = 'init.json'
+INIT_FILE = 'init.php'
 
 #0番目は適当に
 arrZoomSizeX = [0,4,8,16,32,64,128,256,256]
@@ -34,17 +35,9 @@ tlImageWidth = 80
 nowZoom = minZoom
 prevZoom = minZoom
 
-#ピンチイン/アウトのトリガーとなる距離配列を作る
-pinchTriggerArray = []
-zoomSize = []
-i=0
-for x in arrZoomSizeX
-	zoomSize.push [motifWidth*minBlockSize*arrZoomSizeX[i],motifHeight*minBlockSize*arrZoomSizeY[i]]
-	i++
-getUrlVars = (id)->
+getUrlVars = (_id)->
 	vars = {}
 	params = location.search.substring(1).split('&')
-	console.log params
 
 	for item in params
 		#エスケープ要注意
@@ -55,12 +48,19 @@ getUrlVars = (id)->
 		val = item.slice(item.indexOf('=',0)+1)
 		if key isnt ''
 			vars[key] = decodeURI val
-	vars[id]
+	vars[_id]
 
 UID = getUrlVars 'uid'
-tileImageDir = 'swfData/mosaic/' + UID + '/web/'
-zoomImageDir = '/instantmosaiq/c/data/orig_images_220/'
 
+
+#ピンチイン/アウトのトリガーとなる距離配列を作る
+pinchTriggerArray = []
+zoomSize = []
+
+i=0
+for x in arrZoomSizeX
+	zoomSize.push [motifWidth*minBlockSize*arrZoomSizeX[i],motifHeight*minBlockSize*arrZoomSizeY[i]]
+	i++
 $ ->
 	#処理開始
 	i=1
@@ -95,15 +95,8 @@ class PhotomosaicViewer extends Backbone.View
 			load().
 			appendTo $('head')
 
-		$.ajax INIT_FILE,
-			type:"GET"
-			data:'campaign='+CAMPAIGN
-			dataType:"json"
-			error: (jqXHR, textStatus, errorThrown) =>
-				#@trigger 'error'
-				console.log '設定ファイルエラー'+textStatus
-			success:(data) =>
-				@setup(data)
+
+		@setup("")
 		#@setup()
 	onOrient:=>
 		Shadow.setSize()
@@ -111,7 +104,6 @@ class PhotomosaicViewer extends Backbone.View
 		@popup.resize()
 		$(@el).show()
 	setup:(_init)=>
-		alert _init
 		#基底モデル
 		@smodel = new SModel
 
@@ -1517,25 +1509,30 @@ class Popup extends Backbone.View
 			css('margin-top',5).
 			attr('src',zoomImageDir+data.img+tileImageExtension).
 			load( =>
+				v = encodeURIComponent 'http://instantmosaiq.com/sp/sp.php?uid='+UID+'&dt='+DT
 				$('<div />').
 					attr('id','popupOuterText').
 					appendTo $(@el)
 				$("#popupOuterText").css {'width':'80%','margin':'auto'}
 				$('<p>').
 					attr('class','popupB1Style').
-					text(data.b1).
+					html(data.b1).
 					appendTo $(@el)
 				$('<p>').
 					attr('class','popupB3Style').
-					text(data.b3).
+					html(data.b3).
+					appendTo $(@el)
+				$('<p>').
+					attr('class','popupB4Style').
+					html(data.b4).
 					appendTo $(@el)
 				$('<p>').
 					attr('class','popupB2Style').
-					text(data.b2+"(#{data.id})").
+					html(data.b2+"(#{data.id})").
 					appendTo $(@el)
 				$('<p>').
 					attr('class','popupSnsStyle').
-					html('<a href="https://www.facebook.com/sharer.php?u=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr" target="_blank" class="snsFacebookButton"><img src="assets/buttons/snsFacebookIcon.png"></a> <a href="https://twitter.com/?status=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr" target="_blank" class="snsTwitterButton"><img src="assets/buttons/snsTwitterIcon.png"></a><a href="http://line.naver.jp/R/msg/text/?http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr" target="_blank" class="snsLineButton"><img src="assets/buttons/snsLineIcon.png"></a>').
+					html('<a href="https://www.facebook.com/sharer.php?u='+v+'" target="_blank" class="snsFacebookButton"><img src="assets/buttons/snsFacebookIcon.png"></a> <a href="https://twitter.com/?status='+v+'" target="_blank" class="snsTwitterButton"><img src="assets/buttons/snsTwitterIcon.png"></a>').
 					appendTo $(@el)
 				$('<input>').
 					attr('id','closeButton').
@@ -1554,19 +1551,19 @@ class Popup extends Backbone.View
 			appendTo $(@el)
 	snsButtonAction:(_id)=>
 		$(".snsFacebookButton").bind "touchend",(e) =>
-			window.open('https://www.facebook.com/sharer.php?u=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr')
+			#window.open('https://www.facebook.com/sharer.php?u=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr')
 			_gaq.push(['_trackPageview', '/photomosaic/sp/fb/'+_id]);
 			console.log _gaq
 			$(".snsFacebookButton").unbind()
 
 		$(".snsTwitterButton").bind "touchend",(e) =>
-			window.open('https://twitter.com/?status=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr')
+			#window.open('https://twitter.com/?status=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr')
 			_gaq.push(['_trackPageview', '/photomosaic/sp/tw/'+_id]);
 			console.log _gaq
 			$(".snsTwitterButton").unbind()
 
 		$(".snsLineButton").bind "touchend",(e) =>
-			window.open('https://line.naver.jp/R/msg/text/?http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr')
+			#window.open('https://line.naver.jp/R/msg/text/?http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr')
 			_gaq.push(['_trackPageview', '/photomosaic/sp/line/'+_id]);
 			console.log _gaq
 			$(".snsLineButton").unbind()

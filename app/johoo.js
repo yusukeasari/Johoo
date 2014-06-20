@@ -15,23 +15,23 @@
 
   tileHeight = 256;
 
-  commentZoom = true;
+  commentZoom = false;
 
-  motifWidth = 86;
+  motifWidth = 115;
 
-  motifHeight = 58;
+  motifHeight = 92;
 
-  SEARCH_API = 'swfData/search_sp.php';
+  SEARCH_API = 'swfData/search.php';
 
-  TIMELINE_API = 'swfData/search_sp.php';
+  TIMELINE_API = 'swfData/search.php';
 
-  tileImageDir = 'http://akkinya.pitcom.jp/splitedge/blockimg/pituser/akkinya/web/';
+  tileImageDir = 'swfData_expo/web/';
 
-  zoomImageDir = 'swfData/blockimg/';
+  zoomImageDir = 'swfData_expo/blockimg/';
 
   tileImageExtension = '.jpg';
 
-  INIT_FILE = 'init.json';
+  INIT_FILE = 'init.php';
 
   arrZoomSizeX = [0, 4, 8, 16, 32, 64, 128, 256, 256];
 
@@ -57,6 +57,28 @@
 
   prevZoom = minZoom;
 
+  getUrlVars = function(_id) {
+    var item, key, keySearch, params, val, vars, _i, _len;
+
+    vars = {};
+    params = location.search.substring(1).split('&');
+    for (_i = 0, _len = params.length; _i < _len; _i++) {
+      item = params[_i];
+      keySearch = item.search(/\=/);
+      key = '';
+      if (keySearch !== -1) {
+        key = item.slice(0, keySearch);
+      }
+      val = item.slice(item.indexOf('=', 0) + 1);
+      if (key !== '') {
+        vars[key] = decodeURI(val);
+      }
+    }
+    return vars[_id];
+  };
+
+  UID = getUrlVars('uid');
+
   pinchTriggerArray = [];
 
   zoomSize = [];
@@ -68,33 +90,6 @@
     zoomSize.push([motifWidth * minBlockSize * arrZoomSizeX[i], motifHeight * minBlockSize * arrZoomSizeY[i]]);
     i++;
   }
-
-  getUrlVars = function(id) {
-    var item, key, keySearch, params, val, vars, _j, _len1;
-
-    vars = {};
-    params = location.search.substring(1).split('&');
-    console.log(params);
-    for (_j = 0, _len1 = params.length; _j < _len1; _j++) {
-      item = params[_j];
-      keySearch = item.search(/\=/);
-      key = '';
-      if (keySearch !== -1) {
-        key = item.slice(0, keySearch);
-      }
-      val = item.slice(item.indexOf('=', 0) + 1);
-      if (key !== '') {
-        vars[key] = decodeURI(val);
-      }
-    }
-    return vars[id];
-  };
-
-  UID = getUrlVars('uid');
-
-  tileImageDir = 'swfData/mosaic/' + UID + '/web/';
-
-  zoomImageDir = '/instantmosaiq/c/data/orig_images_220/';
 
   $(function() {
     var pmviewer, z, _j, _len1;
@@ -127,24 +122,13 @@
     PhotomosaicViewer.prototype.el = '#Johoo';
 
     PhotomosaicViewer.prototype.initialize = function() {
-      var css_href,
-        _this = this;
+      var css_href;
 
       _.bindAll(this);
       this.uniBrowse = new Browser;
       css_href = 'css/johoo_' + Browser.device + '.css';
       $('<link>').attr('href', css_href).attr('rel', 'stylesheet').load().appendTo($('head'));
-      return $.ajax(INIT_FILE, {
-        type: "GET",
-        data: 'campaign=' + CAMPAIGN,
-        dataType: "json",
-        error: function(jqXHR, textStatus, errorThrown) {
-          return console.log('設定ファイルエラー' + textStatus);
-        },
-        success: function(data) {
-          return _this.setup(data);
-        }
-      });
+      return this.setup("");
     };
 
     PhotomosaicViewer.prototype.onOrient = function() {
@@ -156,7 +140,6 @@
     PhotomosaicViewer.prototype.setup = function(_init) {
       var _this = this;
 
-      alert(_init);
       this.smodel = new SModel;
       this.shadow = new Shadow;
       this.pyramid = new Pyramid;
@@ -2017,15 +2000,19 @@
       var _this = this;
 
       return $('<img />').css('margin-top', 5).attr('src', zoomImageDir + data.img + tileImageExtension).load(function() {
+        var v;
+
+        v = encodeURIComponent('http://instantmosaiq.com/sp/sp.php?uid=' + UID + '&dt=' + DT);
         $('<div />').attr('id', 'popupOuterText').appendTo($(_this.el));
         $("#popupOuterText").css({
           'width': '80%',
           'margin': 'auto'
         });
-        $('<p>').attr('class', 'popupB1Style').text(data.b1).appendTo($(_this.el));
-        $('<p>').attr('class', 'popupB3Style').text(data.b3).appendTo($(_this.el));
-        $('<p>').attr('class', 'popupB2Style').text(data.b2 + ("(" + data.id + ")")).appendTo($(_this.el));
-        $('<p>').attr('class', 'popupSnsStyle').html('<a href="https://www.facebook.com/sharer.php?u=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr" target="_blank" class="snsFacebookButton"><img src="assets/buttons/snsFacebookIcon.png"></a> <a href="https://twitter.com/?status=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr" target="_blank" class="snsTwitterButton"><img src="assets/buttons/snsTwitterIcon.png"></a><a href="http://line.naver.jp/R/msg/text/?http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr" target="_blank" class="snsLineButton"><img src="assets/buttons/snsLineIcon.png"></a>').appendTo($(_this.el));
+        $('<p>').attr('class', 'popupB1Style').html(data.b1).appendTo($(_this.el));
+        $('<p>').attr('class', 'popupB3Style').html(data.b3).appendTo($(_this.el));
+        $('<p>').attr('class', 'popupB4Style').html(data.b4).appendTo($(_this.el));
+        $('<p>').attr('class', 'popupB2Style').html(data.b2 + ("(" + data.id + ")")).appendTo($(_this.el));
+        $('<p>').attr('class', 'popupSnsStyle').html('<a href="https://www.facebook.com/sharer.php?u=' + v + '" target="_blank" class="snsFacebookButton"><img src="assets/buttons/snsFacebookIcon.png"></a> <a href="https://twitter.com/?status=' + v + '" target="_blank" class="snsTwitterButton"><img src="assets/buttons/snsTwitterIcon.png"></a>').appendTo($(_this.el));
         $('<input>').attr('id', 'closeButton').attr('type', 'button').attr('value', '閉じる').appendTo($(_this.el));
         _this.snsButtonAction(data.id);
         _this.closeButtonAction();
@@ -2039,19 +2026,16 @@
       var _this = this;
 
       $(".snsFacebookButton").bind("touchend", function(e) {
-        window.open('https://www.facebook.com/sharer.php?u=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr');
         _gaq.push(['_trackPageview', '/photomosaic/sp/fb/' + _id]);
         console.log(_gaq);
         return $(".snsFacebookButton").unbind();
       });
       $(".snsTwitterButton").bind("touchend", function(e) {
-        window.open('https://twitter.com/?status=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr');
         _gaq.push(['_trackPageview', '/photomosaic/sp/tw/' + _id]);
         console.log(_gaq);
         return $(".snsTwitterButton").unbind();
       });
       return $(".snsLineButton").bind("touchend", function(e) {
-        window.open('https://line.naver.jp/R/msg/text/?http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr');
         _gaq.push(['_trackPageview', '/photomosaic/sp/line/' + _id]);
         console.log(_gaq);
         return $(".snsLineButton").unbind();
