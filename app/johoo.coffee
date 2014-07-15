@@ -85,8 +85,6 @@ class PhotomosaicViewer extends Backbone.View
 		#環境設定とか
 		@uniBrowse = new Browser
 
-
-
 		css_href = 'css/johoo_'+Browser.device+'.css'
 
 		$('<link>').
@@ -94,7 +92,6 @@ class PhotomosaicViewer extends Backbone.View
 			attr('rel','stylesheet').
 			load().
 			appendTo $('head')
-
 
 		@setup("")
 		#@setup()
@@ -149,7 +146,6 @@ class PhotomosaicViewer extends Backbone.View
 					@onOrient()
 				,1000
 
-
 		#フォトモザイク部分がクリックされ、かつ有効な座標であった場合、拡大表示を実行
 		@pyramid.bind 'openPopupFromPoint',(p) =>
 			@popup.openPopupFromPoint p
@@ -171,8 +167,8 @@ class PhotomosaicViewer extends Backbone.View
 			Pyramid.show()
 			ControlPanel.show()
 
-			nowZoom = 5
-			prevZoom = 4
+			nowZoom = arrZoomSizeX.length-2
+			prevZoom = arrZoomSizeX.length-3
 
 			@marker.setResult d
 			@pyramid.moveToNum d
@@ -1485,11 +1481,13 @@ class Popup extends Backbone.View
 
 	openPopupFromPoint:(p)->
 		#@show()
+		Shadow.show()
 		$.getJSON SEARCH_API,{'n':p,'uid':UID},(data,status)=>
 			#タップ拡大時に特殊なフラグによって条件分岐するならココ
 			##and "#{data.img}" isnt 'undefined' 
 			if status and data isnt null then @render data[0] else @hide()
 		.fail =>
+
 			@hide()
 
 	clear:->
@@ -1530,10 +1528,10 @@ class Popup extends Backbone.View
 					attr('class','popupB2Style').
 					html(data.b2+"(#{data.id})").
 					appendTo $(@el)
-				$('<p>').
-					attr('class','popupSnsStyle').
-					html('<a href="https://www.facebook.com/sharer.php?u='+v+'" target="_blank" class="snsFacebookButton"><img src="assets/buttons/snsFacebookIcon.png"></a> <a href="https://twitter.com/?status='+v+'" target="_blank" class="snsTwitterButton"><img src="assets/buttons/snsTwitterIcon.png"></a>').
-					appendTo $(@el)
+#				$('<p>').
+#					attr('class','popupSnsStyle').
+#					html('<a href="https://www.facebook.com/sharer.php?u='+v+'" target="_blank" class="snsFacebookButton"><img src="assets/buttons/snsFacebookIcon.png"></a> <a href="https://twitter.com/?status='+v+'" target="_blank" class="snsTwitterButton"><img src="assets/buttons/snsTwitterIcon.png"></a>').
+#					appendTo $(@el)
 				$('<input>').
 					attr('id','closeButton').
 					attr('type','button').
@@ -1543,7 +1541,6 @@ class Popup extends Backbone.View
 				@closeButtonAction()
 
 				@show()
-
 			).
 			error( =>
 				@closePopup()
