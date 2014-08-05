@@ -9,8 +9,11 @@ RewriteRule ^.*bg_(\w+)\.(jpg|gif|png)$ /makeBgImage.php?id=$1 [R]
 //ソリューション時のbg.jpgを保存パスを記述する事
 $baseUrlForSolution = 'swfData/';
 
+//ソリューションリアルタイムは0にすること。88、IMQなどは1
+$cache = 0;
+
 if(!empty($_GET["id"])){
-	if(!file_exists("sp/swfData/mosaic/{$_GET["id"]}/bg_{$_GET["id"]}.jpg")){
+	if(!file_exists("sp/swfData/mosaic/{$_GET["id"]}/bg_{$_GET["id"]}.jpg") && !$cache){
 		$dirPath = "sp/swfData/mosaic/{$_GET["id"]}/web/1/";
 
 		$im = new Imagick();
@@ -68,7 +71,7 @@ if(!empty($_GET["id"])){
 		echo file_get_contents("sp/swfData/mosaic/{$_GET["id"]}/bg_{$_GET["id"]}.jpg");
 	}
 }else{
-	if(!file_exists($baseUrlForSolution.'bg.jpg')){
+	if(!file_exists($baseUrlForSolution.'bg.jpg') && !$cache){
 		$dirPath = "{$baseUrlForSolution}/web/1/";
 
 		$im = new Imagick();
@@ -121,4 +124,8 @@ if(!empty($_GET["id"])){
 		//chmod('./uploads_orbi5000/text_img', 0666);
 		header("Content-type: image/jpeg");
 		echo file_get_contents($baseUrlForSolution.'bg.jpg');
+	}else{
+		header("Content-type: image/jpeg");
+		echo file_get_contents($baseUrlForSolution.'bg.jpg');
+	}
 }
