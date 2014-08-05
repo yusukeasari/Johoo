@@ -48,9 +48,6 @@ if(!empty($_GET["id"])){
 		}
 
 		$target = new Imagick();
-
-		//echo "{$mwidth}-{$mheight}";
-
 		$target->newImage($mwidth, $mheight, 'none');
 
 		$x=0;$y=0;
@@ -61,9 +58,9 @@ if(!empty($_GET["id"])){
 		}
 
 		$target->writeImage("sp/swfData/mosaic/{$_GET["id"]}/bg_{$_GET["id"]}.jpg");
-		//$im->clear();
-		//$im->destroy();
-		//chmod('./uploads_orbi5000/text_img', 0666);
+		$target->clear();
+		$target->destroy();
+
 		header("Content-type: image/jpeg");
 		echo file_get_contents("sp/swfData/mosaic/{$_GET["id"]}/bg_{$_GET["id"]}.jpg");
 	}else{
@@ -106,9 +103,6 @@ if(!empty($_GET["id"])){
 		}
 
 		$target = new Imagick();
-
-		//echo "{$mwidth}-{$mheight}";
-
 		$target->newImage($mwidth, $mheight, 'none');
 
 		$x=0;$y=0;
@@ -119,9 +113,9 @@ if(!empty($_GET["id"])){
 		}
 
 		$target->writeImage($baseUrlForSolution.'bg.jpg');
-		//$im->clear();
-		//$im->destroy();
-		//chmod('./uploads_orbi5000/text_img', 0666);
+		$target->clear();
+		$target->destroy();
+
 		header("Content-type: image/jpeg");
 		echo file_get_contents($baseUrlForSolution.'bg.jpg');
 	}else{
