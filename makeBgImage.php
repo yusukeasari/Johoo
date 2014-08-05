@@ -1,4 +1,11 @@
 <?php
+/*
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} .+bg_\w+\.(jpg|gif|png)$
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^.*bg_(\w+)\.(jpg|gif|png)$ /makeBgImage.php?id=$1 [R]
+*/
+
 
 if(!empty($_GET["id"])){
 	if(!file_exists("sp/swfData/mosaic/{$_GET["id"]}/bg_{$_GET["id"]}.jpg")){
