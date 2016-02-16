@@ -70,6 +70,8 @@ if(!empty($_GET["id"])){
 }else{
 	if(!file_exists($baseUrlForSolution.'bg.jpg') && !$cache){
 		$dirPath = "{$baseUrlForSolution}/web/1/";
+		// $clientId = "pearl";
+		// $dirPath = "/home/pituser/public_html/splitedge/blockimg/pituser/{$clientId}/web/1/";
 
 		$im = new Imagick();
 

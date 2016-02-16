@@ -1,5 +1,11 @@
+@charset "UTF-8";
+
 body {
 	margin: 0;
+	/*background-image:url(../form/img/pattern.jpg);	*/
+}
+img{
+	border: none;
 }
 #Pyramid {
 	/*background-color: #CCCCCC;*/
@@ -7,7 +13,6 @@ body {
 	height: 600px;
 	position:relative;
 	overflow: hidden;
-	border: 1px solid black;
 	z-index: 1;
 }
 #Tiles {
@@ -30,7 +35,6 @@ body {
 }
 #SmallMap {
 	position: absolute;
-	border:solid 1px #000;
 	z-index: 30;
 }
 #SmallMap #smallMapImage {
@@ -50,16 +54,28 @@ body {
 	text-align: center;
 }
 #Popup #closeButton {
+	max-width:120px;
 	width:80%;
 	height:40px;
 	font-size: 130%;
 	margin: 0;
 	padding: 5px;
-	background: -webkit-gradient(linear, left top, left bottom, from(#c01618), to(#7d0203));	
+	background: linear-gradient(top, #c01618, #7d0203);
+	background: -webkit-gradient(linear, left top, left bottom, from(#c01618), to(#7d0203));
+	background: -moz-linear-gradient(top,#c01618,#7d0203);
+	/* IE10+ */
+	background: -ms-linear-gradient(top, #c01618, #7d0203);
+	/* IE8-9 */
+	background-color: #c01618;
+	/*-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#c01618', endColorstr='#7d0203', GradientType=0)";*/
 	border: 1px #af1014 solid;
 	color: #FFF;
 	-webkit-appearance: none;
+	-moz-appearance:none;
+	appearance:normal;
+	border-radius:10px;
 	-webkit-border-radius: 10px;
+	box-shadow:0 2px 2px #9d1315;
 	-webkit-box-shadow: 0 2px 2px #9d1315;
 	text-shadow: 1px 2px 3px #C45C00;
 }
@@ -71,8 +87,13 @@ body {
 	z-index: 4001;
 	width:100%;
 	color: #FFF;
+
+	/*PC用*/
+	/*background-color: #CCC;*/
+	/*opacity: 0.8;*/
 }
 #SearchPanel #SearchPanelInnerContents {
+	max-width: 400px;
 	margin: auto;
 	margin-top:15px;
 	text-align: center;
@@ -86,25 +107,50 @@ body {
 	font-size: 140%;
 }
 #SearchPanel #SearchPanelInnerContents #b2 {
-	width:80%;
-	font-size: 140%;
+/*	width:80%;
+	font-size: 140%;*/
+}
+#SearchPanel #SearchPanelInnerContents #b3 {
+/*	width:80%;
+	font-size: 140%;*/
+}
+#selectDate{
+	margin-bottom: 5px;
+}
+.txtmiddle{
+	vertical-align: middle;
 }
 #SearchPanel #SearchPanelInnerContents #searchSubmitButton {
+	max-width: 120px;
 	width:80%;
 	height:40px;
 	font-size: 130%;
 	margin: 0;
 	padding: 5px;
-	background: -webkit-gradient(linear, left top, left bottom, from(#c01618), to(#7d0203));	
+	background: linear-gradient(top, #c01618, #7d0203);
+	background: -webkit-gradient(linear, left top, left bottom, from(#c01618), to(#7d0203));
+	background: -moz-linear-gradient(top,#c01618,#7d0203);
+	/* IE10+ */
+	background: -ms-linear-gradient(top, #c01618, #7d0203);
+	/* IE8-9 */
+	background-color: #c01618;/*filterは指定すると角丸が中途半端になるので不採用*/
+	/*-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#c01618', endColorstr='#7d0203', GradientType=0)";*/
 	border: 1px #af1014 solid;
 	color: #FFF;
 	-webkit-appearance: none;
+	-moz-appearance:none;
+	appearance:normal;	
 	-webkit-border-radius: 10px;
+	border-radius:10px;
 	-webkit-box-shadow: 0 2px 2px #9d1315;
+	box-shadow:0 2px 2px #9d1315;
 	text-shadow: 1px 2px 3px #C45C00;
 }
 #SearchPanel #backToMainButton {
 	width:60px;
+	margin-left:20px;
+	margin-bottom: 10px;
+	/*margin:0 auto;*//* 戻るボタンセンタリングする場合 */
 }
 #SearchPanel #SearchPanelInnerContents #searchResult {
 	margin-top: 40px;
@@ -154,6 +200,43 @@ body {
 
 	z-index: 14;
 }
+#ControlPanel #Logo{
+	display: none;/*PC非表示*/
+
+	position: absolute;
+	background-image: url(../assets/buttons/logo.jpg);
+	width:100px;
+	height:99px;
+
+	top:5px;
+	right:5px;
+
+	z-index: 15;
+}
+#copy{
+	background-image: url(../assets/buttons/copy.png);
+	width:219px;
+	height:30px;
+
+	position: absolute;
+	left:5px;
+	bottom:2px;
+	z-index: 15;
+
+	text-align: center;
+	font-size: 0.8em;
+}
+#pitcomLogo{
+	position: absolute;
+	background-image: url(../assets/buttons/pitcom_logo.png);
+	width:60px;
+	height:17px;
+
+	right:5px;
+	bottom:2px;
+
+	z-index: 14;
+}
 #searchResult{
 	background-color: #000000;
 }
@@ -173,13 +256,18 @@ body {
 	float:left;
 }
 .tlTitle{
-	float:left;
-	margin-left:5px;
+	margin-left:85px;
 	font-weight: bold;
 	text-align:left;
+
+	/*PC用*/
+	width:inherit;
 }
 .tlMsg{
 	float:left;
 	margin-left:5px;
 	text-align:left;
+
+	/*PC用*/
+	width:inherit;
 }

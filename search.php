@@ -1,10 +1,12 @@
 <?php
 
+$FOUND=false;
+
 if(!empty($_GET['id'])){
 	$json = file("pitcomdb.json");
 	$line=json_decode($json[0],true);
 	foreach($line as $k=>$v){
-		if($v["id"] == $_GET['id']){
+		if($v["id"] == $_GET['id'] && strlen($_GET['id'])==6){
 			$v["result"]="FOUND";
 			echo "[[".json_encode($v)."],".'[{"ERROR":""},{"TOTAL":1}]]';
 			$FOUND = true;
@@ -70,7 +72,7 @@ if(!empty($_GET['id'])){
 
 	if(count($result) > 0){
 		echo '['.json_encode($result).',[{"ERROR":""},{"TOTAL":'.$count.'}]]';
-	}else if($_GET['id'] == '' && $_GET['b1'] == '' && $_GET['b2'] == ''){
+	}else if($_GET['id'] == '' && @$_GET['b1'] == '' && @$_GET['b2'] == ''){
 		echo '[[],[{"ERROR":"NOWORD"},{"TOTAL":0}]]';
 	}else{
 		echo '[[],[{"ERROR":"NOTFOUND"},{"TOTAL":0}]]';

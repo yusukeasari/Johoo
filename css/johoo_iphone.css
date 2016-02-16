@@ -1,0 +1,268 @@
+@charset "UTF-8";
+
+body {
+	margin: 0;
+}
+#copy{
+	background-image: url(../assets/buttons/copy.png);
+	width:219px;
+	height:30px;
+
+	position: absolute;
+	left:5px;
+	bottom:2px;
+	z-index: 15;
+
+	text-align: center;
+	font-size: 0.8em;
+}
+#pitcomLogo{
+	position: absolute;
+	background-image: url(../assets/buttons/pitcom_logo.png);
+	width:60px;
+	height:17px;
+
+	right:5px;
+	bottom:2px;
+
+	z-index: 14;
+}
+#Pyramid {
+	/*background-color: #CCCCCC;*/
+	width: 1000px;
+	height: 600px;
+	position: relative;
+	overflow: hidden;
+	z-index: 1;
+}
+#Tiles {
+	/*background-color:#E7E7E7;*/
+	position:relative;
+	z-index: 2;
+}
+#Marker {
+	position:relative;
+	/*background-color:#FF0000;*/
+}
+#Shadow {
+	opacity: 0.8;
+	display: none;
+	position: absolute;
+	top: 0;
+	background: #000;
+	z-index: 2001;
+}
+#Popup {
+	opacity: 1;
+	display: none;
+	position: absolute;
+	z-index: 3001;
+	margin: auto;
+	width:100%;
+	color: #FFF;
+	text-align: center;
+}
+#Popup #closeButton {
+	width:80%;
+	height:40px;
+	font-size: 130%;
+	margin: 0;
+	padding: 5px;
+	margin-top:20px;
+	background: -webkit-gradient(linear, left top, left bottom, from(#c01618), to(#7d0203));	
+	border: 1px #af1014 solid;
+	color: #FFF;
+	-webkit-appearance: none;
+	-webkit-border-radius: 10px;
+	-webkit-box-shadow: 0 2px 2px #9d1315;
+	text-shadow: 1px 2px 3px #C45C00;
+}
+#PostPanel{
+	opacity: 1;
+	display: none;
+	position: absolute;
+	z-index: 4002;
+	width:100%;
+	color: #FFF;
+}
+#PostPanel #PostPanelInnerContents {
+	margin: auto;
+	margin-top:15px;
+	text-align: center;
+}
+
+#SearchPanel {
+	opacity: 1;
+	display: none;
+	position: absolute;
+	z-index: 4001;
+	width:100%;
+	color: #FFF;
+}
+#SearchPanel #SearchPanelInnerContents {
+	margin: auto;
+	margin-top:15px;
+	text-align: center;
+}
+#SearchPanel #SearchPanelInnerContents .delig {
+	position: relative;
+	display: inline-block;
+	/*display: inline;*/
+	zoom: 1;
+}
+#SearchPanel #SearchPanelInnerContents input {
+	padding-right: 20px;
+	margin-left:22px;
+}
+#SearchPanel #SearchPanelInnerContents #id {
+	width:80%;
+	font-size: 150%;
+}
+#SearchPanel #SearchPanelInnerContents #b1 {
+	width:80%;
+	font-size: 150%;
+}
+#SearchPanel #SearchPanelInnerContents #b2 {
+/*	width:80%;
+	font-size: 140%;*/
+}
+#SearchPanel #SearchPanelInnerContents #b3 {
+/*	width:80%;
+	font-size: 140%;*/
+}
+#selectDate{
+	margin-bottom: 5px;
+}
+.txtmiddle{
+	vertical-align: middle;
+}
+#SearchPanel #SearchPanelInnerContents #searchSubmitButton {
+	width:70%;
+	height:40px;
+	font-size: 130%;
+	margin: 0;
+	padding: 5px;
+	background: -webkit-gradient(linear, left top, left bottom, from(#c01618), to(#7d0203));	
+	border: 1px #af1014 solid;
+	color: #FFF;
+	-webkit-appearance: none;
+	-webkit-border-radius: 10px;
+	-webkit-box-shadow: 0 2px 2px #9d1315;
+	text-shadow: 1px 2px 3px #C45C00;
+}
+#SearchPanel .backToMainButton {
+	width:60px;
+
+}
+
+#SearchPanel #SearchPanelInnerContents #searchResult {
+	margin-top: 40px;
+}
+#ControlPanel {
+	position: absolute;
+	width: 100%;
+	z-index: 10;
+}
+#ControlPanel #HomeButton {
+	position: absolute;
+	background-image: url(../assets/buttons/home.png);
+	width:60px;
+	height:60px;
+
+	top:5px;
+	right:5px;
+
+	z-index: 14;
+}
+
+#ControlPanel #SearchPanelButton {
+	position: absolute;
+	background-image: url(../assets/buttons/searchOn.png);
+	width:60px;
+	height:60px;
+
+	top:65px;
+	right:5px;
+
+	z-index: 13;
+}
+#ControlPanel #PostPanelButton {
+	position: absolute;
+	background-image: url(../assets/buttons/post.png);
+	width:60px;
+	height:60px;
+
+	top:5px;
+	top:245px;
+
+	z-index: 17;
+}
+#ControlPanel #ZoomInButton {
+	position: absolute;
+	background-image: url(../assets/buttons/plus.png);
+	width:60px;
+	height:60px;
+
+	top:125px;
+	right:5px;
+	z-index: 11;
+}
+#ControlPanel #ZoomOutButton {
+	position: absolute;
+	background-image: url(../assets/buttons/minus.png);
+	width:60px;
+	height:60px;
+
+	top:185px;
+	right:5px;
+
+	z-index: 12;
+}
+#ControlPanel #Logo{
+	position: absolute;
+	background-image: url(../assets/buttons/logo.jpg);
+	width:100px;
+	height:99px;
+	
+	top:5px;
+	top:5px;
+
+	z-index: 15;
+}
+#SmallMap {
+	position: absolute;
+	z-index: 30;
+	left:10px;
+}
+#SmallMap #smallMapImage {
+	z-index: 31;
+}
+#searchResult {
+	background-color: #000000;
+}
+#loadingAnimation {
+	background-color: #000000;
+}
+.timelineChild {
+	width:100%;
+	background-color: #E7E7E7;
+	border:solid 1px #CCCCCC;
+	color:#000;
+}
+.timelineBR {
+	clear:both;
+}
+.tlImg {
+	float:left;
+}
+.tlTitle{
+	float:left;
+	margin-left:5px;
+	font-weight: bold;
+	text-align:left;
+}
+.tlMsg{
+	float:left;
+	margin-left:5px;
+	text-align:left;
+}
