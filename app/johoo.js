@@ -787,7 +787,7 @@ if(k&&j[k]&&(e||j[k].data)||void 0!==d||"string"!=typeof b)return k||(k=i?a[h]=c
       $('<div>').attr('class', 'tlTitle').html(item.b1).appendTo(tl);
       $('<div>').attr('class', 'tlTitle').html(item.id).appendTo(tl);
       $('<br />').appendTo(tl);
-      // $('<div>').attr('class', 'tlMsg').html(item.b2).appendTo(tl);
+      $('<div>').attr('class', 'tlMsg').html(item.b2).appendTo(tl);
       $('<br />').attr('class', 'timelineBR').appendTo(tl);
       return this;
     };
@@ -1948,8 +1948,7 @@ if(k&&j[k]&&(e||j[k].data)||void 0!==d||"string"!=typeof b)return k||(k=i?a[h]=c
           $('<p>').attr('class', 'popupB1Style').html(data.b1).appendTo($(_this.el));
           // $('<p>').attr('class', 'popupB3Style').html(data.b3).appendTo($(_this.el));
           // $('<p>').attr('class', 'popupB4Style').html(data.b4).appendTo($(_this.el));
-          // $('<p>').attr('class', 'popupB2Style').html(data.b2 + ('(' + data.id + ')')).appendTo($(_this.el));
-          $('<p>').attr('class', 'popupB2Style').html('(' + data.id + ')').appendTo($(_this.el));
+          $('<p>').attr('class', 'popupB2Style').html(data.b2 + ('(' + data.id + ')')).appendTo($(_this.el));
           $('<p>').attr('class', 'popupSnsStyle').html('<a href="https://www.facebook.com/sharer.php?u=' + vf + '" target="_blank" class="snsFacebookButton"><img src="assets/buttons/snsFacebookIcon.png"></a> <a href="https://twitter.com/intent/tweet?url=' + vt + '&text=' + vt2 +'" target="_blank" class="snsTwitterButton"><img src="assets/buttons/snsTwitterIcon.png"></a>').appendTo($(_this.el));
           $('<input>').attr('id', 'closeButton').attr('type', 'button').attr('value', '\u9589\u3058\u308b').appendTo($(_this.el));
           _this.snsButtonAction(data.id);

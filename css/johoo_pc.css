@@ -7,6 +7,42 @@ body {
 img{
 	border: none;
 }
+#Logo{
+	position: absolute;
+	background-image: url(../assets/buttons/logo.jpg);
+	width:300px;
+	height:100px;
+
+	top:5px;
+	right:5px;
+
+	z-index: 15;
+}
+#copy{
+	background-image: url(../assets/buttons/copy.png);
+	width:219px;
+	height:30px;
+
+	position: absolute;
+	left:5px;
+	bottom:2px;
+	z-index: 15;
+
+	text-align: center;
+	font-size: 0.8em;
+}
+#pitcomLogo{
+	position: absolute;
+	background-image: url(../assets/buttons/pitcom_logo.png);
+	width:60px;
+	height:17px;
+
+	right:5px;
+	bottom:2px;
+
+	z-index: 14;
+}
+
 #Pyramid {
 	/*background-color: #CCCCCC;*/
 	width: 1000px;
@@ -197,43 +233,6 @@ img{
 	height:60px;
 
 	left:195px;
-
-	z-index: 14;
-}
-#ControlPanel #Logo{
-	display: none;/*PC非表示*/
-
-	position: absolute;
-	background-image: url(../assets/buttons/logo.jpg);
-	width:100px;
-	height:99px;
-
-	top:5px;
-	right:5px;
-
-	z-index: 15;
-}
-#copy{
-	background-image: url(../assets/buttons/copy.png);
-	width:219px;
-	height:30px;
-
-	position: absolute;
-	left:5px;
-	bottom:2px;
-	z-index: 15;
-
-	text-align: center;
-	font-size: 0.8em;
-}
-#pitcomLogo{
-	position: absolute;
-	background-image: url(../assets/buttons/pitcom_logo.png);
-	width:60px;
-	height:17px;
-
-	right:5px;
-	bottom:2px;
 
 	z-index: 14;
 }

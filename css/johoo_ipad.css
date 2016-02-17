@@ -3,16 +3,23 @@
 body {
 	margin: 0;
 }
+#Logo{
+	position: absolute;
+	background-image: url(../assets/buttons/logo.jpg);
+	width:300px;
+	height:100px;
+	top:5px;
+	left:5px;
+	z-index: 15;
+}
 #copy{
 	background-image: url(../assets/buttons/copy.png);
 	width:219px;
 	height:30px;
-
 	position: absolute;
 	left:5px;
 	bottom:2px;
 	z-index: 15;
-
 	text-align: center;
 	font-size: 0.8em;
 }
@@ -221,17 +228,6 @@ body {
 	top:185px;
 
 	z-index: 12;
-}
-#ControlPanel #Logo{
-	position: absolute;
-	background-image: url(../assets/buttons/logo.jpg);
-	width:100px;
-	height:99px;
-
-	top:5px;
-	left:5px;
-
-	z-index: 15;
 }
 #SmallMap {
 	position: absolute;

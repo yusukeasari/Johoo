@@ -22,8 +22,8 @@
 		<div id="ZoomOutButton"></div>
 		<div id="SearchPanelButton"></div>
 		<div id="HomeButton"></div>
-		<div id="Logo"></div>
 	</div>
+	<!-- <div id="Logo"></div> -->
 	<!-- <div id="copy"></div> -->
 	<div id="pitcomLogo" onclick="openLink('http://pitcom.jp/','PITCOMページを開きますか？')"></div>	
 	<div id="SmallMap">
