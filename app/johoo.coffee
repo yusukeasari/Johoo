@@ -1,76 +1,31 @@
-### 外部設定予定 ここから ###
+### 外部設定 初期化 ###
 
-tileWidth = 256
-tileHeight = 256
-
-#ズームアウト未実装
-commentZoom = false
-
-motifWidth = 70
-motifHeight = 95
-
-SEARCH_API = 'swfData/search.php'
-TIMELINE_API = 'swfData/search.php'
-
-tileImageDir = '/splitedge/blockimg/pituser/abenoharukas/web/'
-zoomImageDir = 'swfData/blockimg/'
-
+INIT_FILE = 'app/mid.json'
 tileImageExtension = '.jpg'
 
-INIT_FILE = 'init.php'
+tileWidth = 0
+tileHeight = 0
 
-#0番目は適当に
+motifWidth = 0
+motifHeight = 0
 
-### 外部設定予定 ここまで ###
-### 以下原則変更不要 ###
+SEARCH_API = ''
+TIMELINE_API = ''
+
+tileImageDir = ''
+zoomImageDir = ''
+
+commentZoom = false
 pinchTrigger = 15
 minBlockSize = 1
 minZoom = 1
 tlImageWidth = 80
 nowZoom = minZoom
 prevZoom = minZoom
-
-initJson = {}
-
-#ピンチイン/アウトのトリガーとなる距離配列を作る
 zoomSize = []
 
-getUrlVars = (_id)=>
-  vars = {}
-  params = location.search.substring(1).split('&')
-
-  for item in params
-    #エスケープ要注意
-    keySearch = item.search(/\=/)
-    key = ''
-    if keySearch isnt -1
-      key = item.slice 0,keySearch
-    val = item.slice(item.indexOf('=',0)+1)
-    if key isnt ''
-      vars[key] = decodeURI val
-  vars[_id]
-
-UID = getUrlVars 'uid'
-
-DT = if getUrlVars 'dt' then getUrlVars 'dt' else 0
-
-MID = getUrlVars 'mid'
-initJsonPath = 'app/mid.json'
-
-# DTあるなしでIMQとソリューションの切り分け
-if DT isnt 0
-  motifWidth = (if DT is "2" or DT is "4" then 45 else 50)
-  motifHeight = (if DT is "2" or DT is "4" then 45 else 50)
-
-  arrZoomSizeX = [0,4,8,16,32,64]
-  arrZoomSizeY = [0,4,8,16,32,64]
-
-  tileImageDir = 'swfData/mosaic/' + UID + '/web/'
-  zoomImageDir = 'img/data/' + DT + '/orig_images_220/'
-
-#こっからクラス群
-
-###*
+###
+ *
  * Class PhotomosaicViewer メインクラス
  * 表示別にクラスを分けるようにすること
 ###
@@ -78,7 +33,6 @@ class PhotomosaicViewer extends Backbone.View
   el: '#Johoo'
 
   initialize:=>
-    #_.bindAll @
     #環境設定とか
     @uniBrowse = new Browser
 
@@ -158,9 +112,6 @@ class PhotomosaicViewer extends Backbone.View
 
     #検索パネルクラス
     @searchPanel = new SearchPanel
-
-    #検索パネルクラス
-    @postPanel = new PostPanel
 
     #コンパネ ズームボタン、検索ウィンドウ表示ボタン、ヘルプ表示ボタンとか
     @controlPanel = new ControlPanel
@@ -246,14 +197,6 @@ class PhotomosaicViewer extends Backbone.View
       setTimeout =>
         @pyramid.update()
       , 100
-
-    #投稿パネル表示イベント
-    @controlPanel.bind 'showPostPanel', =>
-      @searchPanel.hide()
-      @postPanel.show()
-      #@smallMap.hide()
-      Pyramid.hide()
-      ControlPanel.hide()
 
     Browser.setup()
     @onOrient()
@@ -347,25 +290,6 @@ class SModel extends Backbone.Model
   cEvent:(_event,_data)=>
     @trigger "#{_event}R",_data
 
-class PostPanel extends Backbone.View
-  el: '#PostPanel'
-
-  initialize:->
-    #_.bindAll @
-
-  show:=>
-    $('<iframe>').
-      attr('id','postLoadArea').
-      attr('src','post.html').
-      attr('width',300).
-      attr('height',340).
-      appendTo @el
-    $(@el).show()
-
-  hide:=>
-    $(@el).html('')
-    $(@el).hide()
-
 class SearchPanel extends Backbone.View
   el: '#SearchPanel'
   searchQuery: ''
@@ -384,12 +308,14 @@ class SearchPanel extends Backbone.View
     @loadingStatus = false
     @execSearched = false
 
-    $(@el).load "/searchPanel.html",@searchpanelloaded
+    $(@el).load "/assets/html/searchPanel.html",@searchpanelloaded
 
   searchpanelloaded:(data,status)=>
     if status isnt 'success'
       alert "ERROR:検索パネルが読み込めません"
     else
+      #置換処理を入れる
+      #@@@@@@@@@@@@@
       $(SearchPanel.el).html(data)
     $('#backToMainButton').bind 'click', @onBackToMain
     @setup()
@@ -805,7 +731,7 @@ class Pyramid extends Backbone.View
 
     #背景を設定
     $(@el).css
-      'background-image':"url('./makeBgImage.php')"
+      'background-image':"url('#{BG_IMAGE_API}')"
       'background-size':'contain'
       #'-webkit-transform':'scale(2)'
       #'-moz-transform':'scale(2)'
@@ -898,17 +824,12 @@ class Pyramid extends Backbone.View
 
   onMouseMove:(e)=>
     cords = Point.getPoint e
-    #Point.lock(e)
 
     if cords isnt undefined and Point.isLock() is false
       e.preventDefault()
       if Utility.type(cords[0]) is "number" and @dragging is true
         $(@el).css {'left':@dragStartPyramidX+(@getMousePos(e)[0]-@dragStartX),'top':@dragStartPyramidY+(@getMousePos(e)[1]-@dragStartY)}
         @trigger 'moving',[@dragStartPyramidX+(@getMousePos(e)[0]-@dragStartX),@dragStartPyramidY+(@getMousePos(e)[1]-@dragStartY)]
-      else if Utility.type(cords[0]) is "array" and @dragging is true
-        #dx = @pinchinStartCenterX*2 - (cords[0][0]+cords[1][0])
-        #dy = @pinchinStartCenterY*2 - (cords[0][1]+cords[1][1])
-      else
 
   onGestureStart:(e)=>
     if Point.isLock() is false
@@ -925,7 +846,6 @@ class Pyramid extends Backbone.View
 
       dy = (zoomSize[nowZoom][1]-(zoomSize[nowZoom][1]*e.originalEvent.scale))/2
       dy = (dy/e.originalEvent.scale)+(zoomSize[nowZoom][1]-localY)
-
 
       $(@el).css
         transform:"scale(#{e.originalEvent.scale}) translate(#{dx}px,#{dy}px)"
@@ -1273,7 +1193,7 @@ class TileView extends Backbone.View
     #クラス内でthisを使うおまじない
     #_.bindAll @
 
-    @model.view = @;
+    @model.view = @
 
   #tile描画に必要なhtml情報をreturnする
   render: =>
@@ -1358,10 +1278,6 @@ class ControlPanel extends Backbone.View
     showHomeButton = new ClickOnlyButton {'el':'#HomeButton'}
     showHomeButton.bind 'change',@onclickhomebutton
 
-    #投稿パネル表示ボタン
-    showPostButton = new ClickOnlyButton {'el':'#PostPanelButton'}
-    showPostButton.bind 'change',@showPostPanel
-
   #ズームインボタンが押下された
   zoomIn:=>
     if nowZoom < zoomSize.length-1
@@ -1383,10 +1299,6 @@ class ControlPanel extends Backbone.View
   #タイムラインパネル表示ボタンが押下された
   onclickhomebutton:=>
     @trigger 'onclickhomebutton'
-
-  #タイムラインパネル表示ボタンが押下された
-  showPostPanel:=>
-    @trigger 'showPostPanel'
 
   @show:=> $(@el).show()
   @hide:=> $(@el).hide()
@@ -1644,6 +1556,38 @@ getSection = (url, callback) ->
   req = $.getJSON url
   req.success (data) ->
     callback(data)
+getUrlVars = (_id)=>
+  vars = {}
+  params = location.search.substring(1).split('&')
+
+  for item in params
+    #エスケープ要注意
+    keySearch = item.search(/\=/)
+    key = ''
+    if keySearch isnt -1
+      key = item.slice 0,keySearch
+    val = item.slice(item.indexOf('=',0)+1)
+    if key isnt ''
+      vars[key] = decodeURI val
+  vars[_id]
+
+UID = getUrlVars 'uid'
+
+DT = if getUrlVars 'dt' then getUrlVars 'dt' else 0
+
+MID = getUrlVars 'mid'
+
+# DTあるなしでIMQとソリューションの切り分け
+if DT isnt 0
+  motifWidth = (if DT is "2" or DT is "4" then 45 else 50)
+  motifHeight = (if DT is "2" or DT is "4" then 45 else 50)
+
+  arrZoomSizeX = [0,4,8,16,32,64]
+  arrZoomSizeY = [0,4,8,16,32,64]
+
+  tileImageDir = 'swfData/mosaic/' + UID + '/web/'
+  zoomImageDir = 'img/data/' + DT + '/orig_images_220/'
+
 setInitData = (data) ->
   tileWidth = data.tileWidth
   tileHeight = data.tileHeight
@@ -1654,6 +1598,7 @@ setInitData = (data) ->
   tileImageDir = data.blockimgPath
   zoomImageDir = data.zoomImagePath
   SEARCH_API = data.searchApi
+  BG_IMAGE_API = data.bgImageApi
 
   i=0
   for x in arrZoomSizeX
@@ -1663,4 +1608,4 @@ setInitData = (data) ->
   pmviewer = new PhotomosaicViewer
 
 $(window).load ->
-  getSection initJsonPath,setInitData
+  getSection INIT_FILE,setInitData

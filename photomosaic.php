@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<?php require_once 'viewport.php'; ?>
+<?php require_once 'assets/viewport.php'; ?>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>PITビューア</title>
 <meta property="og:title" content='PITビューア'/>
