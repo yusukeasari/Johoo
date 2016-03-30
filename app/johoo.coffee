@@ -35,7 +35,7 @@ initJson = {}
 #ピンチイン/アウトのトリガーとなる距離配列を作る
 zoomSize = []
 
-getUrlVars = (_id)->
+getUrlVars = (_id)=>
   vars = {}
   params = location.search.substring(1).split('&')
 
@@ -755,7 +755,7 @@ class Utility
       classToType[strType] or "object"
 
   #対角線を求める
-  @getDiagonal:(_x,_y)=>
+  @getDiagonal:(_x,_y)->
     if _x > 0 and _y > 0
       return Math.sqrt(Math.pow(_x,2)+Math.pow(_y,2))
     else
@@ -985,9 +985,13 @@ class Pyramid extends Backbone.View
     
   #与えられた座標がフォトモザイク上であるかどうか調べる
   isOnTiles:(p)=>
-    if p[0] >= @getPyramidPos()[0] && p[1]>=@getPyramidPos()[1] && p[0] <=zoomSize[nowZoom][0]+@getPyramidPos()[0] && p[1] <= parseInt(zoomSize[nowZoom][1])+@getPyramidPos()[1] then true else false
+    if p[0] >= @getPyramidPos()[0] &&
+      p[1]>=@getPyramidPos()[1] &&
+      p[0] <=zoomSize[nowZoom][0]+@getPyramidPos()[0] &&
+      p[1] <= parseInt(zoomSize[nowZoom][1])+@getPyramidPos()[1]
+      then true else false
 
-  isSingleTap:(_a,_b)=>
+  isSingleTap:(_a,_b)->
     if _a+3 > _b and _b > _a-3 then true else false
 
   getNumFromPoint:(p)=>
