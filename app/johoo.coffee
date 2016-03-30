@@ -606,7 +606,6 @@ class TimelineChildView extends Backbone.View
 
   initialize:=>
     #クラス内でthisを使うおまじない
-    #_.bindAll @
     
     @model.view = @;
     
@@ -701,7 +700,6 @@ class Browser extends Backbone.View
   @setup:=>
     #alert navigator.userAgent
     #iPhone or iPod
-
     
     @orientation = if Math.abs(window.orientation == 90) then "h" else "v"
 
@@ -726,7 +724,6 @@ class Browser extends Backbone.View
 
     Browser.width = $(window).width()
     Browser.height = $(window).height()
-
 
     #描画範囲を決定
     $('#Pyramid').width Browser.width
@@ -784,7 +781,6 @@ class Pyramid extends Backbone.View
   ###
   initialize:->
     #クラス内でthis(=@)を使うおまじない
-    #_.bindAll @
 
     if Browser.device isnt 'pc'
       $(@el).bind 'touchstart',@onMouseDown
@@ -799,8 +795,6 @@ class Pyramid extends Backbone.View
       $(@el).bind 'mousedown',@onMouseDown
       $(@el).bind 'mouseup',@onMouseUp
       $(@el).bind 'mousemove',@onMouseMove
-
-    #$(@el).flickable()
 
     #初期化
     @dragging = false
@@ -889,8 +883,6 @@ class Pyramid extends Backbone.View
       cordx = if Utility.type(cords[0]) isnt 'array' then cords[0] else cords[0][0]
       cordy = if Utility.type(cords[1]) isnt 'array' then cords[1] else cords[0][1]
 
-      #console.log cordx,cordy
-
       if @isSingleTap(@dragStartX,cordx) and @isSingleTap(@dragStartY,cordy)
         #！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
         if not Shadow.isShow() and nowZoom > 3
@@ -902,7 +894,6 @@ class Pyramid extends Backbone.View
           $(@el).unbind 'touchend',@onMouseUp
           @trigger 'openPopupFromPoint',@getNumFromPoint [cords[0][0],cords[0][1]]
       else
-        #alert 'else'
         #フォトモザイクを描画
         @update()
 
@@ -1526,12 +1517,9 @@ class Popup extends Backbone.View
   el: '#Popup'
 
   initialize:->
-    #_.bindAll @
 
   openPopupFromPoint:(p)=>
-    #@show()
     Shadow.show()
-    #$.getJSON SEARCH_API,{'n':p,'uid':UID},(data,status)=>
     $.getJSON SEARCH_API,{'n':p},(data,status)=>
       #タップ拡大時に特殊なフラグによって条件分岐するならココ
       ##and "#{data.img}" isnt 'undefined' 
@@ -1590,11 +1578,6 @@ class Popup extends Backbone.View
           attr('type','button').
           attr('value','閉じる').
           appendTo $(@el)
-        # $('<input>').
-        #   attr('id','mosaicButton').
-        #   attr('type','button').
-        #   attr('value','モザイクを見る').
-        #   appendTo $(@el)
         @snsButtonAction(data.id)
         @mosaicButtonAction(data.mid)
         @closeButtonAction()
