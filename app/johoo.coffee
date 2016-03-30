@@ -231,7 +231,7 @@ class PhotomosaicViewer extends Backbone.View
       @router.navigate "timeline/#{d}/",
         trigger: true
 
-    @pyramid.bind 'moving',(c) =>
+    @pyramid.bind 'moving',(c) ->
       #@smallMap.setCoords c
     #コンパネイベント
     @controlPanel.bind 'change',(h) =>
@@ -401,7 +401,7 @@ class SearchPanel extends Backbone.View
     @clear()
     @trigger 'onclicktimeline',d
 
-  appendTimeline:(tile)=>
+  appendTimeline:(tile)->
     timelineChildView = new TimelineChildView model: tile
 
     $("#searchResult").append timelineChildView.render().el
@@ -582,7 +582,7 @@ class Timeline extends Backbone.Collection
   model: TimelineChild
 
   clear:=>
-    @each (tlChild) =>
+    @each (tlChild) ->
       tlChild.clear()
 
 class TimelineChild extends Backbone.Model
@@ -607,7 +607,7 @@ class TimelineChildView extends Backbone.View
   initialize:=>
     #クラス内でthisを使うおまじない
 
-    @model.view = @;
+    @model.view = @
 
   #tile描画に必要なhtml情報をreturnする
   render:=>
@@ -692,8 +692,7 @@ class Browser extends Backbone.View
   @displayFix: 0
   @browserNameList:[{"name":'chrome'},{"name":'safari'},{"name":'firefox'},{"name":'androidbrowser'},{"name":'opera'}]
 
-  initialize:=>
-    #_.bindAll @
+  initialize:->
     #デバイスをチェック 縦横サイズ
     Browser.setup()
 
@@ -739,7 +738,7 @@ class Browser extends Backbone.View
         return b.name
 
   #PC以外ならアドレスバーを隠す処理をおこなう
-  @hideAddressBar:=>
+  @hideAddressBar:->
     if Browser.getOS() is 'ios'
       setTimeout scrollTo,100,0,1
 
@@ -747,11 +746,11 @@ class Browser extends Backbone.View
   @getOS:=> @os
 
 class Utility
-  @type = do =>
+  @type = do ->
     classToType = {}
     for name in "Boolean Number String Function Array Date RegExp Undefined Null".split(" ")
       classToType["[object " + name + "]"] = name.toLowerCase()
-    (obj) =>
+    (obj) ->
       strType = Object::toString.call(obj)
       classToType[strType] or "object"
 
@@ -763,7 +762,7 @@ class Utility
       return false
 
   #キャッシュ対策用乱数取得
-  @getRandom:=>
+  @getRandom:->
     return Math.floor(Math.random()*10000)
 
 
@@ -962,7 +961,7 @@ class Pyramid extends Backbone.View
         nowZoom = zoomSize.length-2
         @update 'pinchZoom'
 
-  zoomIn:(_z)=>
+  zoomIn:(_z)->
     rate = Math.floor _z/2
     if nowZoom < zoomSize.length-1
       prevZoom = nowZoom
@@ -972,7 +971,7 @@ class Pyramid extends Backbone.View
         nowZoom = zoomSize.length-1
 
   #ズームアウトボタンが押下された
-  zoomOut:(_z)=>
+  zoomOut:(_z)->
     _z = (_z-1)*10
     rate = Math.floor _z/2
 
@@ -995,7 +994,7 @@ class Pyramid extends Backbone.View
     xb = Math.floor (p[0]-@getPyramidPos()[0])/arrZoomSizeX[nowZoom]
     yb = Math.round (p[1]-@getPyramidPos()[1]+(arrZoomSizeX[nowZoom]/2))/arrZoomSizeY[nowZoom]
     yb = if yb is 0 or yb is 1 then 0 else yb-1
-    xb++;
+    xb++
 
     motifWidth*yb+xb
 
@@ -1071,8 +1070,8 @@ class Pyramid extends Backbone.View
         @moveToPinchZoomPos()
       else
 
-    $(@el).width zoomSize[nowZoom][0];
-    $(@el).height zoomSize[nowZoom][1];
+    $(@el).width zoomSize[nowZoom][0]
+    $(@el).height zoomSize[nowZoom][1]
     @render @checkActiveTile()
 
   ###*
@@ -1134,7 +1133,7 @@ class Pyramid extends Backbone.View
   ###*
    * 座標コンバーター
   ###
-  convertToGrobalCenterPos:(_x,_y)=>
+  convertToGrobalCenterPos:(_x,_y)->
     if nowZoom isnt 1 or prevZoom is zoomSize.length-1
       prevPyramidWidth = zoomSize[prevZoom][0]
       prevPyramidHeight = zoomSize[prevZoom][1]
@@ -1150,8 +1149,7 @@ class Pyramid extends Backbone.View
   ###*
    * 座標コンバーター2
   ###
-  convertToLocalCenterPos:(_x,_y)=>
-    #注意
+  convertToLocalCenterPos:(_x,_y)->
     nowPyramidWidth =  zoomSize[nowZoom][0]
     nowPyramidHeight =  zoomSize[nowZoom][1]
 
@@ -1185,7 +1183,7 @@ class Pyramid extends Backbone.View
    * 基本はreturnする簡単なお仕事
    * @param {e} Event
   ###
-  getMousePos:(e)=>
+  getMousePos:(e)->
     cords = Point.getPoint(e)
     [cords[0],cords[1]]
 
@@ -1241,7 +1239,7 @@ class Marker extends Backbone.View
         @swap()
       , 1000
 
-  swap:=>
+  swap:->
     $('#Marker').css {'zIndex':3000}
 
 ###*
@@ -1286,7 +1284,7 @@ class TileView extends Backbone.View
       load()
     @
 
-  loadTile: =>
+  loadTile: ->
 
 
   unrender:=>
@@ -1298,12 +1296,11 @@ class TileView extends Backbone.View
 class Tiles extends Backbone.Collection
   model: Tile
 
-  initialize:=>
-    #_.bindAll @
+  initialize:->
 
   isSameTile:(_z,_x,_y)=>
     data = []
-    @each (tile) =>
+    @each (tile) ->
       data.push tile
     for item in data
       if "#{item.get 'z'} #{item.get 'x'} #{item.get 'y'}" is "#{_z} #{_x} #{_y}"
@@ -1314,22 +1311,22 @@ class Tiles extends Backbone.Collection
 
   getNowVisibleList:=>
     data = []
-    @each (tile) =>
+    @each (tile) ->
       data.push tile
     data
 
   setRemove:=>
     data = []
-    @each (tile) =>
+    @each (tile) ->
       data.push tile
 
-  removeCheckedTiles:=>
+  removeCheckedTiles:->
     for tile in data
       if tile.get 'display' != true
         tile.clear()
 
   removeAllTiles:=>
-    @each (tile) =>
+    @each (tile) ->
       tile.clear()
 
 ###*
@@ -1439,7 +1436,7 @@ class Point
   @isLock:=>
     @locked
   #座標を取得
-  @getPoint:(e)=>
+  @getPoint:(e)->
     if Point.isTouch()
       #SP or Tab
       #for Single Touch
@@ -1482,7 +1479,7 @@ class Point
       [e.pageX,e.pageY]
 
   #タッチされている
-  @isTouch:=> 'ontouchstart' of window
+  @isTouch:-> 'ontouchstart' of window
 
 #テンポラリクラス
 class Shadow extends Backbone.View
@@ -1496,7 +1493,7 @@ class Shadow extends Backbone.View
     Shadow.setSize()
     $(@el).hide()
 
-  resize:=> Shadow.setSize()
+  resize:-> Shadow.setSize()
 
   @setSize:=>
     $(@el).width Browser.width
@@ -1588,20 +1585,20 @@ class Popup extends Backbone.View
         @closePopup()
       ).
       appendTo $(@el)
-  snsButtonAction:(_id)=>
-    $(".snsFacebookButton").bind "touchend",(e) =>
+  snsButtonAction:(_id)->
+    $(".snsFacebookButton").bind "touchend",(e) ->
       #window.open('https://www.facebook.com/sharer.php?u=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr')
-      _gaq.push(['_trackPageview', '/photomosaic/sp/fb/'+_id]);
+      _gaq.push(['_trackPageview', '/photomosaic/sp/fb/'+_id])
       $(".snsFacebookButton").unbind()
 
-    $(".snsTwitterButton").bind "touchend",(e) =>
+    $(".snsTwitterButton").bind "touchend",(e) ->
       #window.open('https://twitter.com/?status=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr')
-      _gaq.push(['_trackPageview', '/photomosaic/sp/tw/'+_id]);
+      _gaq.push(['_trackPageview', '/photomosaic/sp/tw/'+_id])
       $(".snsTwitterButton").unbind()
 
-    $(".snsLineButton").bind "touchend",(e) =>
+    $(".snsLineButton").bind "touchend",(e) ->
       #window.open('https://line.naver.jp/R/msg/text/?http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr')
-      _gaq.push(['_trackPageview', '/photomosaic/sp/line/'+_id]);
+      _gaq.push(['_trackPageview', '/photomosaic/sp/line/'+_id])
       $(".snsLineButton").unbind()
 
   closeButtonAction:=>
@@ -1615,11 +1612,11 @@ class Popup extends Backbone.View
         e.preventDefault()
         @closePopup(e)
         $("#closeButton").unbind()
-  mosaicButtonAction:(_mid)=>
-      $("#mosaicButton").bind "touchend",(e) =>
+  mosaicButtonAction:(_mid)->
+      $("#mosaicButton").bind "touchend",(e) ->
         location.href='mosaicView.php?mid='+ _mid
         $("#mosaicButton").unbind()
-      $("#mosaicButton").bind "mouseup",(e) =>
+      $("#mosaicButton").bind "mouseup",(e) ->
         location.href='mosaicView.php?mid='+ _mid
         $("#mosaicButton").unbind()
 
@@ -1634,7 +1631,7 @@ class Popup extends Backbone.View
     $(@el).hide()
     Shadow.hide()
 
-  resize:=> Shadow.setSize()
+  resize:-> Shadow.setSize()
 
   @setSize:=>
     $(@el).width Browser.width
@@ -1662,5 +1659,5 @@ setInitData = (data) ->
 
   pmviewer = new PhotomosaicViewer
 
-$(window).load =>
+$(window).load ->
   getSection initJsonPath,setInitData
