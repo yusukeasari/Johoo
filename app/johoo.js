@@ -2241,8 +2241,8 @@
     arrZoomSizeX = data.arrZoomSize;
     arrZoomSizeY = data.arrZoomSize;
     tileImageDir = data.blockimgPath;
-    zoomImageDir = 'swfData/blockimg/';
-    SEARCH_API = 'swfData/search.php';
+    zoomImageDir = data.zoomImagePath;
+    SEARCH_API = data.searchApi;
     i = 0;
     for (j = 0, len = arrZoomSizeX.length; j < len; j++) {
       x = arrZoomSizeX[j];

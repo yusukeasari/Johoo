@@ -1652,9 +1652,8 @@ setInitData = (data) ->
   arrZoomSizeX = data.arrZoomSize
   arrZoomSizeY = data.arrZoomSize
   tileImageDir = data.blockimgPath
-  zoomImageDir = 'swfData/blockimg/'
-
-  SEARCH_API = 'swfData/search.php'
+  zoomImageDir = data.zoomImagePath
+  SEARCH_API = data.searchApi
 
   i=0
   for x in arrZoomSizeX
