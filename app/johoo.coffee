@@ -12,7 +12,7 @@ motifHeight = 95
 SEARCH_API = 'swfData/search.php'
 TIMELINE_API = 'swfData/search.php'
 
-tileImageDir = 'http://abenoharukas.pitcom.jp/splitedge/blockimg/pituser/abenoharukas/web/'
+tileImageDir = '/splitedge/blockimg/pituser/abenoharukas/web/'
 zoomImageDir = 'swfData/blockimg/'
 
 tileImageExtension = '.jpg'
@@ -20,8 +20,6 @@ tileImageExtension = '.jpg'
 INIT_FILE = 'init.php'
 
 #0番目は適当に
-#arrZoomSizeX = [0,4,8,16,32,64,128,256]
-#arrZoomSizeY = [0,4,8,16,32,64,128,256]
 
 ### 外部設定予定 ここまで ###
 ### 以下原則変更不要 ###
@@ -37,7 +35,7 @@ initJson = {}
 #ピンチイン/アウトのトリガーとなる距離配列を作る
 zoomSize = []
 
-getUrlVars = (_id)=>
+getUrlVars = (_id)->
   vars = {}
   params = location.search.substring(1).split('&')
 
@@ -78,7 +76,6 @@ if DT isnt 0
 ###
 class PhotomosaicViewer extends Backbone.View
   el: '#Johoo'
-  #_.bindAll @
 
   initialize:=>
     #_.bindAll @
@@ -102,7 +99,6 @@ class PhotomosaicViewer extends Backbone.View
     $(@el).show()
   openPopupFromPoint:(_id)=>
     p = 0
-    #console.log 'id:'+_id
     $.getJSON SEARCH_API,{'id':_id},(data,status)=>
       #タップ拡大時に特殊なフラグによって条件分岐するならココ
       ##and "#{data.img}" isnt 'undefined' 
@@ -111,12 +107,10 @@ class PhotomosaicViewer extends Backbone.View
         @popup.openPopupFromPoint p
         @marker.setResult p
         @marker.render()
-    .fail =>
+    .fail ->
       console.log 'error:'+status
 
   openPopupFromTimeline:(_id)=>
-    #console.log "openPopupFromTimeline"+_id
-
     @popup.clear()
     @searchPanel.hide()
     #@smallMap.show()
@@ -179,7 +173,6 @@ class PhotomosaicViewer extends Backbone.View
         $(@el).hide()
         
         setTimeout =>
-          #alert $(document).width()+"/"+$(@el)+"/"+$(document).height()
           Browser.setup()
           @onOrient()
         ,1000
@@ -188,7 +181,6 @@ class PhotomosaicViewer extends Backbone.View
         $(@el).hide()
         
         setTimeout =>
-          #alert $(document).width()+"/"+$(@el)+"/"+$(document).height()
           Browser.setup()
           @onOrient()
         ,1000
@@ -212,14 +204,13 @@ class PhotomosaicViewer extends Backbone.View
 
       $.getJSON SEARCH_API,{'n':_p},(data,status)=>
         #タップ拡大時に特殊なフラグによって条件分岐するならココ
-        ##and "#{data.img}" isnt 'undefined' 
         if status and data isnt null
           if data[0].id isnt undefined
             p = data[0].id
             @router.navigate "mosaic/#{p}/",
               trigger: true
 
-      .fail =>
+      .fail ->
         console.log 'error:'+status
 
     #検索パネル表示イベント
@@ -344,7 +335,6 @@ class SmallMap extends Backbone.View
 
 ###*
  * Class SModel 現在はイベント管理のみ
- * 
 ###
 class SModel extends Backbone.Model
   setEvent:(_target,_eventname)=>
@@ -360,7 +350,7 @@ class SModel extends Backbone.Model
 class PostPanel extends Backbone.View
   el: '#PostPanel'
 
-  initialize:=>
+  initialize:->
     #_.bindAll @
 
   show:=>
@@ -734,10 +724,6 @@ class Browser extends Backbone.View
     else
       Browser.device = 'pc'
 
-    #@bname = @tests navigator.userAgent
-    #Browser.width = $(window).width()+devices[@bname][Browser.device][@orientation][0]
-    #Browser.height = $(window).height()+devices[@bname][Browser.device][@orientation][1]
-
     Browser.width = $(window).width()
     Browser.height = $(window).height()
 
@@ -796,7 +782,7 @@ class Pyramid extends Backbone.View
   ###
   初期化メソッド
   ###
-  initialize:=>
+  initialize:->
     #クラス内でthis(=@)を使うおまじない
     #_.bindAll @
 
@@ -838,9 +824,9 @@ class Pyramid extends Backbone.View
     @update()
     @pyramidSetPositionToCenter()
 
-  @show = =>
+  @show = ->
     $(@outerel).show()
-  @hide = =>
+  @hide = ->
     $(@outerel).hide()
 
   ###
@@ -1290,7 +1276,7 @@ class Tile extends Backbone.Model
 ###
 class TileView extends Backbone.View
   tagName: 'img'
-  initialize:=>
+  initialize:->
     #クラス内でthisを使うおまじない
     #_.bindAll @
 
@@ -1539,7 +1525,7 @@ class Shadow extends Backbone.View
 class Popup extends Backbone.View
   el: '#Popup'
 
-  initialize:=>
+  initialize:->
     #_.bindAll @
 
   openPopupFromPoint:(p)=>
@@ -1550,7 +1536,7 @@ class Popup extends Backbone.View
       #タップ拡大時に特殊なフラグによって条件分岐するならココ
       ##and "#{data.img}" isnt 'undefined' 
       if status and data isnt null then @render data[0] else @hide()
-    .fail =>
+    .fail ->
       @hide()
 
   clear:=>
@@ -1681,13 +1667,10 @@ setInitData = (data) ->
   motifHeight = data.motifHeight
   arrZoomSizeX = data.arrZoomSize
   arrZoomSizeY = data.arrZoomSize
-  #tileImageDir = 'splitedge/blockimg/pituser/abenoharukas/web/'
   tileImageDir = data.blockimgPath
-  #zoomImageDir = 'motif/'
-  zoomImageDir = 'swfData/blockimg/'#data.zoomImagePath
+  zoomImageDir = 'swfData/blockimg/'
 
-  #SEARCH_API = 'search.php?mid='+MID
-  SEARCH_API = 'swfData/search.php'#data.searchApi
+  SEARCH_API = 'swfData/search.php'
 
   i=0
   for x in arrZoomSizeX
@@ -1697,5 +1680,4 @@ setInitData = (data) ->
   pmviewer = new PhotomosaicViewer
 
 $(window).load =>
-#setup = =>
   getSection initJsonPath,setInitData
