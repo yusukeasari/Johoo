@@ -196,7 +196,7 @@ class PhotomosaicViewer extends Backbone.View
       @pyramid.pyramidSetPositionToCenter()
       setTimeout =>
         @pyramid.update()
-      , 100
+      ,100
 
     Browser.setup()
     @onOrient()
@@ -257,7 +257,7 @@ class SmallMap extends Backbone.View
       width:zoomSize[1][0]/@m
       height:zoomSize[1][1]/@m
 
-    @setCoords([Browser.width/2 - zoomSize[nowZoom][0]/2,Browser.height/2 - zoomSize[nowZoom][1]/2])
+    @setCoords([Browser.width/2-zoomSize[nowZoom][0]/2,Browser.height/2-zoomSize[nowZoom][1]/2])
 
   setCoords:(c)=>
     $(@cursor).css
@@ -365,7 +365,7 @@ class SearchPanel extends Backbone.View
   bottom:=>
     setTimeout =>
       @sendQuery()
-    , 1500
+    ,1500
 
   loading:(bool)=>
     if bool
@@ -531,8 +531,6 @@ class TimelineChildView extends Backbone.View
     "click"  :  "onclicks"
 
   initialize:=>
-    #クラス内でthisを使うおまじない
-
     @model.view = @
 
   #tile描画に必要なhtml情報をreturnする
@@ -623,7 +621,6 @@ class Browser extends Backbone.View
     Browser.setup()
 
   @setup:=>
-    #alert navigator.userAgent
     #iPhone or iPod
 
     @orientation = if Math.abs(window.orientation == 90) then "h" else "v"
@@ -675,7 +672,7 @@ class Utility
   @type = do ->
     classToType = {}
     for name in "Boolean Number String Function Array Date RegExp Undefined Null".split(" ")
-      classToType["[object " + name + "]"] = name.toLowerCase()
+      classToType["[object "+name+"]"] = name.toLowerCase()
     (obj) ->
       strType = Object::toString.call(obj)
       classToType[strType] or "object"
@@ -705,8 +702,6 @@ class Pyramid extends Backbone.View
   初期化メソッド
   ###
   initialize:->
-    #クラス内でthis(=@)を使うおまじない
-
     if Browser.device isnt 'pc'
       $(@el).bind 'touchstart',@onMouseDown
       $(@el).bind 'touchend',@onMouseUp
@@ -787,8 +782,8 @@ class Pyramid extends Backbone.View
     ###
     else if Utility.type(cords[0]) is 'array'
       $(@el).css {'cursor':'-moz-grab'}
-      @pinchinStartCenterX = (cords[0][0] + cords[1][0])/2
-      @pinchinStartCenterY = (cords[0][1] + cords[1][1])/2
+      @pinchinStartCenterX = (cords[0][0]+cords[1][0])/2
+      @pinchinStartCenterY = (cords[0][1]+cords[1][1])/2
 
       @pinchinStart = cords
     ###
@@ -937,9 +932,6 @@ class Pyramid extends Backbone.View
     displayAreaEndX = 0 if displayAreaEndX <= 0
     displayAreaEndY = 0 if displayAreaEndY <= 0
 
-    #デバッグ用
-    #console.log "D:",displayAreaStartX,displayAreaStartY,displayAreaEndX,displayAreaEndY,zoomSize[nowZoom][0],zoomSize[nowZoom][1]
-
     #タイル番号へ
     loadStartX = Math.floor displayAreaStartX/tileWidth
     loadStartY = Math.floor displayAreaStartY/tileHeight
@@ -1002,19 +994,19 @@ class Pyramid extends Backbone.View
    * Pyramidを指定numにあわせて移動させるメソッド
   ###
   moveToNum:(d)=>
-    if d % motifWidth is 0
-      tx = motifWidth * arrZoomSizeX[nowZoom] * -1
-      ty = Math.floor((d / motifWidth)-1) * arrZoomSizeX[nowZoom] * -1
+    if d%motifWidth is 0
+      tx = motifWidth*arrZoomSizeX[nowZoom]*-1
+      ty = Math.floor((d/motifWidth)-1)*arrZoomSizeX[nowZoom]*-1
     else
-      tx = d % motifWidth * arrZoomSizeX[nowZoom] * -1
-      ty = Math.floor(d / motifWidth) * arrZoomSizeY[nowZoom] * -1
+      tx = d%motifWidth*arrZoomSizeX[nowZoom]*-1
+      ty = Math.floor(d/motifWidth)*arrZoomSizeY[nowZoom]*-1
 
     $(@el).css
       left:(Browser.width/2)+tx+arrZoomSizeX[nowZoom]/2
       top:(Browser.height/2)+ty-arrZoomSizeY[nowZoom]/2
     setTimeout =>
       @update ''
-    , 500
+    ,500
 
     @trigger 'moving',[(Browser.width/2)+tx+arrZoomSizeX[nowZoom]/2,(Browser.height/2)+ty-arrZoomSizeY[nowZoom]/2]
 
@@ -1077,8 +1069,8 @@ class Pyramid extends Backbone.View
     nowPyramidWidth =  zoomSize[nowZoom][0]
     nowPyramidHeight =  zoomSize[nowZoom][1]
 
-    x =  _x - nowPyramidWidth/2+Browser.width/2
-    y =  _y - nowPyramidHeight/2+Browser.height/2
+    x =  _x-nowPyramidWidth/2+Browser.width/2
+    y =  _y-nowPyramidHeight/2+Browser.height/2
 
     [x,y]
 
@@ -1097,10 +1089,10 @@ class Pyramid extends Backbone.View
   #中央寄せ処理
   pyramidSetPositionToCenter:=>
     $(@el).css
-      left:Browser.width/2 - zoomSize[nowZoom][0]/2
-      top:Browser.height/2 - zoomSize[nowZoom][1]/2
+      left:Browser.width/2-zoomSize[nowZoom][0]/2
+      top:Browser.height/2-zoomSize[nowZoom][1]/2
 
-    @trigger 'moving',[Browser.width/2 - zoomSize[nowZoom][0]/2,Browser.height/2 - zoomSize[nowZoom][1]/2]
+    @trigger 'moving',[Browser.width/2-zoomSize[nowZoom][0]/2,Browser.height/2-zoomSize[nowZoom][1]/2]
 
   ###
    * 位置取得メソッド群
@@ -1130,15 +1122,15 @@ class Marker extends Backbone.View
     if @result isnt ''
       $('#Marker').remove()
 
-      tx = (@result%motifWidth-1) * arrZoomSizeX[nowZoom]
+      tx = (@result%motifWidth-1)*arrZoomSizeX[nowZoom]
       ty = Math.floor(@result/motifWidth)*arrZoomSizeY[nowZoom]
 
-      if this.result % motifWidth is 0
-        tx = (motifWidth-1) * arrZoomSizeX[nowZoom]
-        ty = Math.floor((this.result / motifWidth)-1) * arrZoomSizeX[nowZoom]
+      if this.result%motifWidth is 0
+        tx = (motifWidth-1)*arrZoomSizeX[nowZoom]
+        ty = Math.floor((this.result/motifWidth)-1)*arrZoomSizeX[nowZoom]
       else
-        tx = (this.result % motifWidth - 1) * arrZoomSizeY[nowZoom]
-        ty = Math.floor(this.result / motifWidth) * arrZoomSizeY[nowZoom]
+        tx = (this.result%motifWidth-1)*arrZoomSizeY[nowZoom]
+        ty = Math.floor(this.result/motifWidth)*arrZoomSizeY[nowZoom]
 
       if tx < 0
         tx = 0
@@ -1161,7 +1153,7 @@ class Marker extends Backbone.View
 
       setTimeout =>
         @swap()
-      , 1000
+      ,1000
 
   swap:->
     $('#Marker').css {'zIndex':3000}
@@ -1190,9 +1182,6 @@ class Tile extends Backbone.Model
 class TileView extends Backbone.View
   tagName: 'img'
   initialize:->
-    #クラス内でthisを使うおまじない
-    #_.bindAll @
-
     @model.view = @
 
   #tile描画に必要なhtml情報をreturnする
@@ -1200,7 +1189,7 @@ class TileView extends Backbone.View
     x = @model.get 'x'
     y = @model.get 'y'
     z = @model.get 'z'
-    url = tileImageDir + "#{z}/#{y}/" + 'z' + z + 'x' + x + 'y' + y + tileImageExtension+"?"+Utility.getRandom()
+    url = "#{tileImageDir}#{z}/#{y}/z#{z}x#{x}y#{y}#{tileImageExtension}?"+Utility.getRandom()
 
     $(@el).
       attr({id:'z'+z+'x'+x+'y'+y,src:url}).
@@ -1460,8 +1449,8 @@ class Popup extends Backbone.View
       load( =>
 #        v = encodeURIComponent 'http://instantmosaiq.com/sp/sp.php?uid='+UID#+'&dt='+DT
 #        v = encodeURIComponent "http://abenoharukas.pitcom.jp/sp.php#mosaic/#{data.id}/"
-        vf = encodeURIComponent "http://abenoharukas.pitcom.jp/sp.php#mosaic/#{data.id}/?utm_source=facebook_sp_id&utm_medium=sosial&utm_campaign=abenoharukas"
-        vt = encodeURIComponent "http://abenoharukas.pitcom.jp/sp.php#mosaic/#{data.id}/?utm_source=twitter_sp_id&utm_medium=sosial&utm_campaign=abenoharukas"
+        vf = encodeURIComponent "#{DOMAIN}/#{APP_FILE}#mosaic/#{data.id}/?utm_source=facebook_sp_id&utm_medium=social&utm_campaign=#{DOMAIN}"
+        vt = encodeURIComponent "#{DOMAIN}/#{APP_FILE}#mosaic/#{data.id}/?utm_source=twitter_sp_id&utm_medium=social&utm_campaign=#{DOMAIN}"
         $('<div />').
           attr('id','popupOuterText').
           appendTo $(@el)
@@ -1503,18 +1492,15 @@ class Popup extends Backbone.View
       appendTo $(@el)
   snsButtonAction:(_id)->
     $(".snsFacebookButton").bind "touchend",(e) ->
-      #window.open('https://www.facebook.com/sharer.php?u=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr')
-      _gaq.push(['_trackPageview', '/photomosaic/sp/fb/'+_id])
+      _gaq.push(['_trackPageview', "/photomosaic/sp/fb/#{_id}"])
       $(".snsFacebookButton").unbind()
 
     $(".snsTwitterButton").bind "touchend",(e) ->
-      #window.open('https://twitter.com/?status=http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr')
-      _gaq.push(['_trackPageview', '/photomosaic/sp/tw/'+_id])
+      _gaq.push(['_trackPageview', "/photomosaic/sp/tw/#{_id}"])
       $(".snsTwitterButton").unbind()
 
     $(".snsLineButton").bind "touchend",(e) ->
-      #window.open('https://line.naver.jp/R/msg/text/?http://www.amwaylive.com/ctl/m/cam/msc_pc.html?cip=mscsnsr')
-      _gaq.push(['_trackPageview', '/photomosaic/sp/line/'+_id])
+      _gaq.push(['_trackPageview', "/photomosaic/sp/line/#{_id}"])
       $(".snsLineButton").unbind()
 
   closeButtonAction:=>
@@ -1530,10 +1516,10 @@ class Popup extends Backbone.View
         $("#closeButton").unbind()
   mosaicButtonAction:(_mid)->
       $("#mosaicButton").bind "touchend",(e) ->
-        location.href='mosaicView.php?mid='+ _mid
+        location.href="mosaicView.php?mid=_mid"
         $("#mosaicButton").unbind()
       $("#mosaicButton").bind "mouseup",(e) ->
-        location.href='mosaicView.php?mid='+ _mid
+        location.href="mosaicView.php?mid=_mid"
         $("#mosaicButton").unbind()
 
   show:=>
@@ -1585,10 +1571,12 @@ if DT isnt 0
   arrZoomSizeX = [0,4,8,16,32,64]
   arrZoomSizeY = [0,4,8,16,32,64]
 
-  tileImageDir = 'swfData/mosaic/' + UID + '/web/'
-  zoomImageDir = 'img/data/' + DT + '/orig_images_220/'
+  tileImageDir = "swfData/mosaic/#{UID}/web/"
+  zoomImageDir = "img/data/#{DT}/orig_images_220/"
 
 setInitData = (data) ->
+  DOMAIN = data.domain
+  APP_FILE = data.app
   tileWidth = data.tileWidth
   tileHeight = data.tileHeight
   motifWidth = data.motifWidth
@@ -1608,4 +1596,4 @@ setInitData = (data) ->
   pmviewer = new PhotomosaicViewer
 
 $(window).load ->
-  getSection INIT_FILE,setInitData
+  getSection INIT_FILE+Utility.getRandom(),setInitData

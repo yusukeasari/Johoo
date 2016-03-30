@@ -1,4 +1,6 @@
 {
+  "domain":"http://luch.pitcom.jp",
+  "app":"app.php",
   "tileWidth":256,"tileHeight":256,
   "motifWidth":36,"motifHeight":56,
   "blockimgPath":"swfData\/web\/",

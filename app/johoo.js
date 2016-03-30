@@ -1083,8 +1083,8 @@
       /*
       else if Utility.type(cords[0]) is 'array'
         $(@el).css {'cursor':'-moz-grab'}
-        @pinchinStartCenterX = (cords[0][0] + cords[1][0])/2
-        @pinchinStartCenterY = (cords[0][1] + cords[1][1])/2
+        @pinchinStartCenterX = (cords[0][0]+cords[1][0])/2
+        @pinchinStartCenterY = (cords[0][1]+cords[1][1])/2
       
         @pinchinStart = cords
        */
@@ -1615,7 +1615,7 @@
       x = this.model.get('x');
       y = this.model.get('y');
       z = this.model.get('z');
-      url = tileImageDir + (z + "/" + y + "/") + 'z' + z + 'x' + x + 'y' + y + tileImageExtension + "?" + Utility.getRandom();
+      url = ("" + tileImageDir + z + "/" + y + "/z" + z + "x" + x + "y" + y + tileImageExtension + "?") + Utility.getRandom();
       $(this.el).attr({
         id: 'z' + z + 'x' + x + 'y' + y,
         src: url
@@ -2033,8 +2033,8 @@
       return $('<img />').css('margin-top', 5).attr('src', zoomImageDir + data.img + tileImageExtension).load((function(_this) {
         return function() {
           var vf, vt;
-          vf = encodeURIComponent("http://abenoharukas.pitcom.jp/sp.php#mosaic/" + data.id + "/?utm_source=facebook_sp_id&utm_medium=sosial&utm_campaign=abenoharukas");
-          vt = encodeURIComponent("http://abenoharukas.pitcom.jp/sp.php#mosaic/" + data.id + "/?utm_source=twitter_sp_id&utm_medium=sosial&utm_campaign=abenoharukas");
+          vf = encodeURIComponent(DOMAIN + "/" + APP_FILE + "#mosaic/" + data.id + "/?utm_source=facebook_sp_id&utm_medium=social&utm_campaign=" + DOMAIN);
+          vt = encodeURIComponent(DOMAIN + "/" + APP_FILE + "#mosaic/" + data.id + "/?utm_source=twitter_sp_id&utm_medium=social&utm_campaign=" + DOMAIN);
           $('<div />').attr('id', 'popupOuterText').appendTo($(_this.el));
           $("#popupOuterText").css({
             'width': '80%',
@@ -2060,15 +2060,15 @@
 
     Popup.prototype.snsButtonAction = function(_id) {
       $(".snsFacebookButton").bind("touchend", function(e) {
-        _gaq.push(['_trackPageview', '/photomosaic/sp/fb/' + _id]);
+        _gaq.push(['_trackPageview', "/photomosaic/sp/fb/" + _id]);
         return $(".snsFacebookButton").unbind();
       });
       $(".snsTwitterButton").bind("touchend", function(e) {
-        _gaq.push(['_trackPageview', '/photomosaic/sp/tw/' + _id]);
+        _gaq.push(['_trackPageview', "/photomosaic/sp/tw/" + _id]);
         return $(".snsTwitterButton").unbind();
       });
       return $(".snsLineButton").bind("touchend", function(e) {
-        _gaq.push(['_trackPageview', '/photomosaic/sp/line/' + _id]);
+        _gaq.push(['_trackPageview', "/photomosaic/sp/line/" + _id]);
         return $(".snsLineButton").unbind();
       });
     };
@@ -2095,11 +2095,11 @@
 
     Popup.prototype.mosaicButtonAction = function(_mid) {
       $("#mosaicButton").bind("touchend", function(e) {
-        location.href = 'mosaicView.php?mid=' + _mid;
+        location.href = "mosaicView.php?mid=_mid";
         return $("#mosaicButton").unbind();
       });
       return $("#mosaicButton").bind("mouseup", function(e) {
-        location.href = 'mosaicView.php?mid=' + _mid;
+        location.href = "mosaicView.php?mid=_mid";
         return $("#mosaicButton").unbind();
       });
     };
@@ -2170,12 +2170,14 @@
     motifHeight = (DT === "2" || DT === "4" ? 45 : 50);
     arrZoomSizeX = [0, 4, 8, 16, 32, 64];
     arrZoomSizeY = [0, 4, 8, 16, 32, 64];
-    tileImageDir = 'swfData/mosaic/' + UID + '/web/';
-    zoomImageDir = 'img/data/' + DT + '/orig_images_220/';
+    tileImageDir = "swfData/mosaic/" + UID + "/web/";
+    zoomImageDir = "img/data/" + DT + "/orig_images_220/";
   }
 
   setInitData = function(data) {
-    var BG_IMAGE_API, i, j, len, pmviewer, x;
+    var APP_FILE, BG_IMAGE_API, DOMAIN, i, j, len, pmviewer, x;
+    DOMAIN = data.domain;
+    APP_FILE = data.app;
     tileWidth = data.tileWidth;
     tileHeight = data.tileHeight;
     motifWidth = data.motifWidth;
@@ -2196,7 +2198,7 @@
   };
 
   $(window).load(function() {
-    return getSection(INIT_FILE, setInitData);
+    return getSection(INIT_FILE + Utility.getRandom(), setInitData);
   });
 
 }).call(this);
