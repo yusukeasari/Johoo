@@ -91,7 +91,7 @@ class PhotomosaicViewer extends Backbone.View
       appendTo $('head')
 
     @setup("")
-    
+
   onOrient:=>
     Shadow.setSize()
     #@smallMap.setup()
@@ -101,7 +101,7 @@ class PhotomosaicViewer extends Backbone.View
     p = 0
     $.getJSON SEARCH_API,{'id':_id},(data,status)=>
       #タップ拡大時に特殊なフラグによって条件分岐するならココ
-      ##and "#{data.img}" isnt 'undefined' 
+      ##and "#{data.img}" isnt 'undefined'
       if status and data isnt null
         p = data[0][0].num
         @popup.openPopupFromPoint p
@@ -171,7 +171,7 @@ class PhotomosaicViewer extends Backbone.View
     if Browser.device isnt 'pc'
       $(window).bind "orientationchange", =>
         $(@el).hide()
-        
+   
         setTimeout =>
           Browser.setup()
           @onOrient()
@@ -179,7 +179,7 @@ class PhotomosaicViewer extends Backbone.View
     else
       $(window).bind "resize", =>
         $(@el).hide()
-        
+    
         setTimeout =>
           Browser.setup()
           @onOrient()
@@ -322,7 +322,7 @@ class SmallMap extends Backbone.View
       top:(c[1]/(@m*(zoomSize[nowZoom][1]/zoomSize[1][1])))*-1
       width:Browser.width/(@m*(zoomSize[nowZoom][0]/zoomSize[1][0]))
       height:Browser.height/(@m*(zoomSize[nowZoom][1]/zoomSize[1][1]))
-      
+  
   hide:=>
     $(@el).hide()
   show:=>
@@ -384,7 +384,7 @@ class SearchPanel extends Backbone.View
     @loadingStatus = false
     @execSearched = false
 
-    $(@el).load "/searchPanel.html",@searchpanelloaded 
+    $(@el).load "/searchPanel.html",@searchpanelloaded
 
   searchpanelloaded:(data,status)=>
     if status isnt 'success'
@@ -409,7 +409,7 @@ class SearchPanel extends Backbone.View
       width:Browser.width-tlImageWidth-10
     $('.tlMsg').css
       width:Browser.width-tlImageWidth-10
-    
+
   setup:=>
     #検索ボタンを有効化
     $('#searchSubmitButton').bind 'click', @onTapSubmitButton
@@ -600,15 +600,15 @@ class TimelineChild extends Backbone.Model
 class TimelineChildView extends Backbone.View
   tagName: 'div'
   data: ''
-  
+
   events:
     "click"  :  "onclicks"
 
   initialize:=>
     #クラス内でthisを使うおまじない
-    
+
     @model.view = @;
-    
+
   #tile描画に必要なhtml情報をreturnする
   render:=>
     item = @model.get 'data'
@@ -700,7 +700,7 @@ class Browser extends Backbone.View
   @setup:=>
     #alert navigator.userAgent
     #iPhone or iPod
-    
+
     @orientation = if Math.abs(window.orientation == 90) then "h" else "v"
 
     if navigator.userAgent.match /iPhone/i or navigator.userAgent.match /iPod/i
@@ -790,7 +790,7 @@ class Pyramid extends Backbone.View
       $(@el).bind 'gesturestart',@onGestureStart
       $(@el).bind 'gesturechange',@onGestureMove
       $(@el).bind 'gestureend',@onGestureEnd
-      
+  
     else
       $(@el).bind 'mousedown',@onMouseDown
       $(@el).bind 'mouseup',@onMouseUp
@@ -801,7 +801,7 @@ class Pyramid extends Backbone.View
 
     @tiles = new Tiles
     @tiles.bind 'add', @appendTile
-    
+
     $(@el).css {'cursor':'-moz-grab'}
 
     #背景を設定
@@ -839,7 +839,7 @@ class Pyramid extends Backbone.View
 
       if Utility.type(cords[0]) isnt 'array'
         $(@el).css {'cursor':'-moz-grab'}
-        
+    
         @dragStartX = cords[0]
         @dragStartY = cords[1]
         @dragStartLeft = $(@el).position().left
@@ -849,7 +849,7 @@ class Pyramid extends Backbone.View
         @dragStartPyramidY = @getPyramidPos()[1]
       else
         $(@el).css {'cursor':'-moz-grab'}
-        
+    
         @dragStartX = cords[0][0]/2+cords[1][0]/2
         @dragStartY = cords[0][1]/2+cords[1][1]/2
         @dragStartLeft = $(@el).position().left
@@ -879,7 +879,7 @@ class Pyramid extends Backbone.View
       $(@el).css {'cursor':''}
 
       #マウスの位置がdownとupで変わらない＝単純クリックなら拡大表示実行
-      
+  
       cordx = if Utility.type(cords[0]) isnt 'array' then cords[0] else cords[0][0]
       cordy = if Utility.type(cords[1]) isnt 'array' then cords[1] else cords[0][1]
 
@@ -920,7 +920,7 @@ class Pyramid extends Backbone.View
     if Point.isLock() is false
       localX = @dragStartX-@dragStartLeft
       localY = @dragStartY-@dragStartTop
-      
+  
       dx = (zoomSize[nowZoom][0]-(zoomSize[nowZoom][0]*e.originalEvent.scale))/2
       dx = (dx/e.originalEvent.scale)+(zoomSize[nowZoom][0]-localX)
 
@@ -983,7 +983,7 @@ class Pyramid extends Backbone.View
         nowZoom = minZoom
       else
         nowZoom = nowZoom+rate
-        
+    
   #与えられた座標がフォトモザイク上であるかどうか調べる
   isOnTiles:(p)=>
     if p[0] >= @getPyramidPos()[0] && p[1]>=@getPyramidPos()[1] && p[0] <=zoomSize[nowZoom][0]+@getPyramidPos()[0] && p[1] <= parseInt(zoomSize[nowZoom][1])+@getPyramidPos()[1] then true else false
@@ -996,7 +996,7 @@ class Pyramid extends Backbone.View
     yb = Math.round (p[1]-@getPyramidPos()[1]+(arrZoomSizeX[nowZoom]/2))/arrZoomSizeY[nowZoom]
     yb = if yb is 0 or yb is 1 then 0 else yb-1
     xb++;
-    
+
     motifWidth*yb+xb
 
   ###*
@@ -1141,10 +1141,10 @@ class Pyramid extends Backbone.View
     else
       prevPyramidWidth = zoomSize[prevZoom][0]
       prevPyramidHeight = zoomSize[prevZoom][1]
-      
+  
     x = (_x+prevPyramidWidth/2)-Browser.width/2
     y = (_y+prevPyramidHeight/2)-Browser.height/2
-    
+
     [x,y]
 
   ###*
@@ -1154,10 +1154,10 @@ class Pyramid extends Backbone.View
     #注意
     nowPyramidWidth =  zoomSize[nowZoom][0]
     nowPyramidHeight =  zoomSize[nowZoom][1]
-    
+
     x =  _x - nowPyramidWidth/2+Browser.width/2
     y =  _y - nowPyramidHeight/2+Browser.height/2
-    
+
     [x,y]
 
   ###
@@ -1220,7 +1220,7 @@ class Marker extends Backbone.View
 
       if tx < 0
         tx = 0
-    
+
 
       $('<div />').
         attr('id','Marker').
@@ -1325,7 +1325,7 @@ class Tiles extends Backbone.Collection
 
   removeCheckedTiles:=>
     for tile in data
-      if tile.get 'display' != true 
+      if tile.get 'display' != true
         tile.clear()
 
   removeAllTiles:=>
@@ -1378,7 +1378,7 @@ class ControlPanel extends Backbone.View
   #検索パネル表示ボタンが押下された
   showSearchPanel:=>
     @trigger 'showSearchPanel'
-    
+
   #タイムラインパネル表示ボタンが押下された
   onclickhomebutton:=>
     @trigger 'onclickhomebutton'
@@ -1498,11 +1498,11 @@ class Shadow extends Backbone.View
 
   resize:=> Shadow.setSize()
 
-  @setSize:=> 
+  @setSize:=>
     $(@el).width Browser.width
     $(@el).height Browser.height
 
-  @setFullSize:(_h)=> 
+  @setFullSize:(_h)=>
     $(@el).width Browser.width
     if Browser.height >_h+20
       $(@el).height Browser.height
@@ -1522,7 +1522,7 @@ class Popup extends Backbone.View
     Shadow.show()
     $.getJSON SEARCH_API,{'n':p},(data,status)=>
       #タップ拡大時に特殊なフラグによって条件分岐するならココ
-      ##and "#{data.img}" isnt 'undefined' 
+      ##and "#{data.img}" isnt 'undefined'
       if status and data isnt null then @render data[0] else @hide()
     .fail ->
       @hide()
@@ -1636,7 +1636,7 @@ class Popup extends Backbone.View
 
   resize:=> Shadow.setSize()
 
-  @setSize:=> 
+  @setSize:=>
     $(@el).width Browser.width
     $(@el).height Browser.height
 getSection = (url, callback) ->
