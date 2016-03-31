@@ -688,8 +688,7 @@ class Utility
   @getRandom:->
     return Math.floor(Math.random()*10000)
 
-
-###*
+###
  * Class Pyramidクラス
 ###
 class Pyramid extends Backbone.View
