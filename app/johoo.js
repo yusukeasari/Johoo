@@ -3,12 +3,18 @@
 /* 外部設定 初期化 */
 
 (function() {
-  var Browser, ClickOnlyButton, ControlPanel, ControlPanelModel, DT, DeleteValueButton, INIT_FILE, MID, Marker, PhotomosaicViewer, Point, Popup, Pyramid, SEARCH_API, SModel, SearchPanel, SearchResult, Shadow, SmallMap, TIMELINE_API, Tile, TileView, Tiles, Timeline, TimelineChild, TimelineChildView, UID, Utility, arrZoomSizeX, arrZoomSizeY, commentZoom, getSection, getUrlVars, minBlockSize, minZoom, motifHeight, motifWidth, nowZoom, pinchTrigger, prevZoom, setInitData, tileHeight, tileImageDir, tileImageExtension, tileWidth, tlImageWidth, zoomImageDir, zoomSize,
+  var APP_FILE, BG_IMAGE_API, Browser, CAMP_TWITTER_TEXT, ClickOnlyButton, ControlPanel, ControlPanelModel, DOMAIN, DT, DeleteValueButton, INDI_TWITTER_TEXT, INIT_FILE, MID, Marker, PhotomosaicViewer, Point, Popup, Pyramid, SEARCH_API, SModel, SearchPanel, SearchResult, Shadow, SmallMap, TIMELINE_API, Tile, TileView, Tiles, Timeline, TimelineChild, TimelineChildView, UID, Utility, arrZoomSizeX, arrZoomSizeY, commentZoom, getSection, getUrlVars, minBlockSize, minZoom, motifHeight, motifWidth, nowZoom, pinchTrigger, prevZoom, setInitData, tileHeight, tileImageDir, tileImageExtension, tileWidth, tlImageWidth, zoomImageDir, zoomSize,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
   INIT_FILE = 'app/mid.json';
+
+  DOMAIN = '';
+
+  BG_IMAGE_API = '';
+
+  APP_FILE = '';
 
   tileImageExtension = '.jpg';
 
@@ -27,6 +33,10 @@
   tileImageDir = '';
 
   zoomImageDir = '';
+
+  INDI_TWITTER_TEXT = '';
+
+  CAMP_TWITTER_TEXT = '';
 
   commentZoom = false;
 
@@ -390,9 +400,11 @@
       this.bottom = bind(this.bottom, this);
       this.inputKeyup = bind(this.inputKeyup, this);
       this.setup = bind(this.setup, this);
+      this.appendTimeline = bind(this.appendTimeline, this);
       this.onclicktimeline = bind(this.onclicktimeline, this);
       this.onBackToMain = bind(this.onBackToMain, this);
       this.searchpanelloaded = bind(this.searchpanelloaded, this);
+      this.test = bind(this.test, this);
       this.initialize = bind(this.initialize, this);
       return SearchPanel.__super__.constructor.apply(this, arguments);
     }
@@ -407,12 +419,17 @@
 
     SearchPanel.prototype.initialize = function() {
       this.timeline = new Timeline;
+      this.timeline.bind('test', this.test);
       this.timeline.bind('add', this.appendTimeline);
       this.timeline.bind('onclicktimeline', this.onclicktimeline);
       this.searchQuery = new SearchResult;
       this.loadingStatus = false;
       this.execSearched = false;
       return $(this.el).load("/assets/html/searchPanel.html", this.searchpanelloaded);
+    };
+
+    SearchPanel.prototype.test = function(a) {
+      return console.log(a);
     };
 
     SearchPanel.prototype.searchpanelloaded = function(data, status) {
@@ -799,7 +816,7 @@
       } else {
         pageQuery = 'page=' + this.page;
       }
-      return $.ajax(TIMELINE_API, {
+      return $.ajax(SEARCH_API, {
         type: "GET",
         data: query + pageQuery,
         dataType: "json",
@@ -1877,7 +1894,7 @@
 
     Point.getPoint = function(e) {
       var cords, ftime, hx, hy, item, j, len, lx, ly, ref;
-      if (Point.isTouch()) {
+      if (Point.isTouch(e)) {
         if (e.originalEvent.touches.length === 1) {
           return [e.originalEvent.touches[0].pageX, e.originalEvent.touches[0].pageY];
         } else if (e.originalEvent.touches.length > 1) {
@@ -1919,8 +1936,8 @@
       }
     };
 
-    Point.isTouch = function() {
-      return 'ontouchstart' in window;
+    Point.isTouch = function(e) {
+      return e.originalEvent.touches;
     };
 
     return Point;
@@ -1985,16 +2002,28 @@
       this.hide = bind(this.hide, this);
       this.show = bind(this.show, this);
       this.closeButtonAction = bind(this.closeButtonAction, this);
+      this.setDataToView = bind(this.setDataToView, this);
       this.render = bind(this.render, this);
       this.closePopup = bind(this.closePopup, this);
       this.clear = bind(this.clear, this);
       this.openPopupFromPoint = bind(this.openPopupFromPoint, this);
+      this.popupHtmlLoaded = bind(this.popupHtmlLoaded, this);
       return Popup.__super__.constructor.apply(this, arguments);
     }
 
     Popup.prototype.el = '#Popup';
 
-    Popup.prototype.initialize = function() {};
+    Popup.prototype.initialize = function() {
+      return $(this.el).load("/assets/html/popup.html", this.popupHtmlLoaded);
+    };
+
+    Popup.prototype.popupHtmlLoaded = function(data, status) {
+      if (status !== 'success') {
+        return console.log("ERROR:Popuphtmlが読み込めません");
+      } else {
+        return $(this.el).html(data);
+      }
+    };
 
     Popup.prototype.openPopupFromPoint = function(p) {
       Shadow.show();
@@ -2016,7 +2045,7 @@
     Popup.prototype.clear = function() {
       if ($(this.el).html() !== '') {
         $("#closeButton").unbind();
-        return $(this.el).html('');
+        return $("#loadImage").attr('src', '');
       }
     };
 
@@ -2029,25 +2058,10 @@
     };
 
     Popup.prototype.render = function(data) {
-      $(this.el).empty();
-      return $('<img />').css('margin-top', 5).attr('src', zoomImageDir + data.img + tileImageExtension).load((function(_this) {
+      return $("#loadImage").css('margin-top', 5).attr('src', zoomImageDir + data.img + tileImageExtension).load((function(_this) {
         return function() {
-          var vf, vt;
-          vf = encodeURIComponent(DOMAIN + "/" + APP_FILE + "#mosaic/" + data.id + "/?utm_source=facebook_sp_id&utm_medium=social&utm_campaign=" + DOMAIN);
-          vt = encodeURIComponent(DOMAIN + "/" + APP_FILE + "#mosaic/" + data.id + "/?utm_source=twitter_sp_id&utm_medium=social&utm_campaign=" + DOMAIN);
-          $('<div />').attr('id', 'popupOuterText').appendTo($(_this.el));
-          $("#popupOuterText").css({
-            'width': '80%',
-            'margin': 'auto'
-          });
-          $('<p>').attr('class', 'popupB1Style').html(data.b1).appendTo($(_this.el));
-          $('<p>').attr('class', 'popupB3Style').html(data.b3).appendTo($(_this.el));
-          $('<p>').attr('class', 'popupB4Style').html(data.b4).appendTo($(_this.el));
-          $('<p>').attr('class', 'popupB2Style').html(data.b2 + ("(" + data.id + ")")).appendTo($(_this.el));
-          $('<p>').attr('class', 'popupSnsStyle').html('<a href="https://www.facebook.com/sharer.php?u=' + vf + '" target="_blank" class="snsFacebookButton"><img src="assets/buttons/snsFacebookIcon.png"></a> <a href="https://twitter.com/intent/tweet?url=' + vt + '" target="_blank" class="snsTwitterButton"><img src="assets/buttons/snsTwitterIcon.png"></a>').appendTo($(_this.el));
-          $('<input>').attr('id', 'closeButton').attr('type', 'button').attr('value', '閉じる').appendTo($(_this.el));
+          _this.setDataToView(data);
           _this.snsButtonAction(data.id);
-          _this.mosaicButtonAction(data.mid);
           _this.closeButtonAction();
           return _this.show();
         };
@@ -2055,7 +2069,19 @@
         return function() {
           return _this.closePopup();
         };
-      })(this)).appendTo($(this.el));
+      })(this));
+    };
+
+    Popup.prototype.setDataToView = function(data) {
+      var item, results, str;
+      $(".snsFacebookButton").attr('href', "https://www.facebook.com/sharer.php?u=" + encodeURIComponent("" + DOMAIN + APP_FILE + "#mosaic/" + data.id + "/"));
+      $(".snsTwitterButton").attr('href', "https://twitter.com/intent/tweet?url=" + encodeURIComponent("" + DOMAIN + APP_FILE + "#mosaic/" + data.id + "/") + "&text=" + encodeURIComponent("" + INDI_TWITTER_TEXT));
+      results = [];
+      for (item in data) {
+        str = "{#" + item + "#}";
+        results.push($(this.el).html($(this.el).html().replace(new RegExp(str, "g"), data[item])));
+      }
+      return results;
     };
 
     Popup.prototype.snsButtonAction = function(_id) {
@@ -2175,7 +2201,7 @@
   }
 
   setInitData = function(data) {
-    var APP_FILE, BG_IMAGE_API, DOMAIN, i, j, len, pmviewer, x;
+    var i, j, len, pmviewer, x;
     DOMAIN = data.domain;
     APP_FILE = data.app;
     tileWidth = data.tileWidth;
@@ -2188,6 +2214,8 @@
     zoomImageDir = data.zoomImagePath;
     SEARCH_API = data.searchApi;
     BG_IMAGE_API = data.bgImageApi;
+    INDI_TWITTER_TEXT = data.indiTwitterText;
+    CAMP_TWITTER_TEXT = data.campTwitterText;
     i = 0;
     for (j = 0, len = arrZoomSizeX.length; j < len; j++) {
       x = arrZoomSizeX[j];
@@ -2198,7 +2226,7 @@
   };
 
   $(window).load(function() {
-    return getSection(INIT_FILE + Utility.getRandom(), setInitData);
+    return getSection((INIT_FILE + "?") + Utility.getRandom(), setInitData);
   });
 
 }).call(this);

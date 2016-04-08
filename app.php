@@ -33,6 +33,8 @@
 	</div>
 </div>
 
+<script type="text/javascript" src="lib/package.js"></script>
+
 <script type="text/javascript" src="app/johoo.js"></script>
 <!--[if lte IE 9]>
 <script type="text/javascript" src="lib/jquery.ah-placeholder.js"></script>
@@ -40,6 +42,7 @@
 <script type="text/javascript" src="lib/jquery.flickable-1.0b3.js"></script>
 <script type="text/javascript" src="lib/jquery.bottom-1.0.js"></script>
 <script>
+<!--
 function openLink(_url,_str){
 	var openF = window.confirm(_str);
 	if(openF){
@@ -58,7 +61,7 @@ function openLink(_url,_str){
   // ga('create', '', 'auto');
   ga('require', 'displayfeatures');
   ga('send', 'pageview');
-
+//-->
 </script>
 </body>
 </html>

@@ -1,6 +1,10 @@
 ### 外部設定 初期化 ###
 
 INIT_FILE = 'app/mid.json'
+DOMAIN = ''
+BG_IMAGE_API = ''
+APP_FILE = ''
+
 tileImageExtension = '.jpg'
 
 tileWidth = 0
@@ -15,11 +19,15 @@ TIMELINE_API = ''
 tileImageDir = ''
 zoomImageDir = ''
 
+INDI_TWITTER_TEXT = ''
+CAMP_TWITTER_TEXT = ''
+
 commentZoom = false
 pinchTrigger = 15
 minBlockSize = 1
 minZoom = 1
 tlImageWidth = 80
+
 nowZoom = minZoom
 prevZoom = minZoom
 zoomSize = []
@@ -37,7 +45,6 @@ class PhotomosaicViewer extends Backbone.View
     @uniBrowse = new Browser
 
     css_href = 'css/johoo_'+Browser.device+'.css?'+Utility.getRandom()
-
     $('<link>').
       attr('href',css_href).
       attr('rel','stylesheet').
@@ -301,8 +308,9 @@ class SearchPanel extends Backbone.View
 
     #タイムラインを構築
     @timeline = new Timeline
+    @timeline.bind 'test', @test
     @timeline.bind 'add', @appendTimeline
-    @timeline.bind 'onclicktimeline',@onclicktimeline
+    @timeline.bind 'onclicktimeline', @onclicktimeline
 
     @searchQuery = new SearchResult
     @loadingStatus = false
@@ -310,6 +318,8 @@ class SearchPanel extends Backbone.View
 
     $(@el).load "/assets/html/searchPanel.html",@searchpanelloaded
 
+  test:(a)=>
+    console.log a
   searchpanelloaded:(data,status)=>
     if status isnt 'success'
       alert "ERROR:検索パネルが読み込めません"
@@ -327,7 +337,7 @@ class SearchPanel extends Backbone.View
     @clear()
     @trigger 'onclicktimeline',d
 
-  appendTimeline:(tile)->
+  appendTimeline:(tile)=>
     timelineChildView = new TimelineChildView model: tile
 
     $("#searchResult").append timelineChildView.render().el
@@ -581,8 +591,7 @@ class SearchResult extends Backbone.View
       pageQuery = '&page='+@page
     else
       pageQuery = 'page='+@page
-
-    $.ajax TIMELINE_API,
+    $.ajax SEARCH_API,
       type:"GET"
       data:query+pageQuery
       dataType:"json"
@@ -1341,7 +1350,7 @@ class Point
     @locked
   #座標を取得
   @getPoint:(e)->
-    if Point.isTouch()
+    if Point.isTouch(e)
       #SP or Tab
       #for Single Touch
       if e.originalEvent.touches.length is 1
@@ -1383,8 +1392,7 @@ class Point
       [e.pageX,e.pageY]
 
   #タッチされている
-  @isTouch:-> 'ontouchstart' of window
-
+  @isTouch:(e)-> e.originalEvent.touches
 #テンポラリクラス
 class Shadow extends Backbone.View
   @el: '#Shadow'
@@ -1418,6 +1426,15 @@ class Popup extends Backbone.View
   el: '#Popup'
 
   initialize:->
+    $(@el).load "/assets/html/popup.html",@popupHtmlLoaded
+
+  popupHtmlLoaded:(data,status)=>
+    if status isnt 'success'
+      console.log "ERROR:Popuphtmlが読み込めません"
+    else
+      #置換処理を入れる
+      #@@@@@@@@@@@@@
+      $(@el).html(data)
 
   openPopupFromPoint:(p)=>
     Shadow.show()
@@ -1431,7 +1448,9 @@ class Popup extends Backbone.View
   clear:=>
     if $(@el).html() isnt ''
       $("#closeButton").unbind()
-      $(@el).html ''
+      $("#loadImage").
+        attr('src','')
+#      $(@el).html ''
 
   closePopup:(e)=>
     if e isnt undefined
@@ -1441,54 +1460,26 @@ class Popup extends Backbone.View
 
   render:(data)=>
     #Popup要素初期化
-    $(@el).empty()
-    $('<img />').
+    $("#loadImage").
       css('margin-top',5).
       attr('src',zoomImageDir+data.img+tileImageExtension).
       load( =>
-#        v = encodeURIComponent 'http://instantmosaiq.com/sp/sp.php?uid='+UID#+'&dt='+DT
-#        v = encodeURIComponent "http://abenoharukas.pitcom.jp/sp.php#mosaic/#{data.id}/"
-        vf = encodeURIComponent "#{DOMAIN}/#{APP_FILE}#mosaic/#{data.id}/?utm_source=facebook_sp_id&utm_medium=social&utm_campaign=#{DOMAIN}"
-        vt = encodeURIComponent "#{DOMAIN}/#{APP_FILE}#mosaic/#{data.id}/?utm_source=twitter_sp_id&utm_medium=social&utm_campaign=#{DOMAIN}"
-        $('<div />').
-          attr('id','popupOuterText').
-          appendTo $(@el)
-        $("#popupOuterText").css {'width':'80%','margin':'auto'}
-        $('<p>').
-          attr('class','popupB1Style').
-          html(data.b1).
-          appendTo $(@el)
-        $('<p>').
-          attr('class','popupB3Style').
-          html(data.b3).
-          appendTo $(@el)
-        $('<p>').
-          attr('class','popupB4Style').
-          html(data.b4).
-          appendTo $(@el)
-        $('<p>').
-          attr('class','popupB2Style').
-          html(data.b2+"(#{data.id})").
-          appendTo $(@el)
-        $('<p>').
-          attr('class','popupSnsStyle').
-          html('<a href="https://www.facebook.com/sharer.php?u='+vf+'" target="_blank" class="snsFacebookButton"><img src="assets/buttons/snsFacebookIcon.png"></a> <a href="https://twitter.com/intent/tweet?url='+vt+'" target="_blank" class="snsTwitterButton"><img src="assets/buttons/snsTwitterIcon.png"></a>').
-          appendTo $(@el)
-        $('<input>').
-          attr('id','closeButton').
-          attr('type','button').
-          attr('value','閉じる').
-          appendTo $(@el)
+        @setDataToView(data)
         @snsButtonAction(data.id)
-        @mosaicButtonAction(data.mid)
         @closeButtonAction()
 
         @show()
       ).
       error( =>
         @closePopup()
-      ).
-      appendTo $(@el)
+      )
+  setDataToView:(data)=>
+    $(".snsFacebookButton").attr('href',"https://www.facebook.com/sharer.php?u="+encodeURIComponent("#{DOMAIN}#{APP_FILE}#mosaic/#{data.id}/"))
+    $(".snsTwitterButton").attr('href',"https://twitter.com/intent/tweet?url="+encodeURIComponent("#{DOMAIN}#{APP_FILE}#mosaic/#{data.id}/")+"&text="+encodeURIComponent("#{INDI_TWITTER_TEXT}"))
+    for item of data
+      str = "{##{item}#}"
+      $(@el).html($(@el).html().replace(new RegExp(str,"g"),data[item]))
+
   snsButtonAction:(_id)->
     $(".snsFacebookButton").bind "touchend",(e) ->
       _gaq.push(['_trackPageview', "/photomosaic/sp/fb/#{_id}"])
@@ -1586,6 +1577,8 @@ setInitData = (data) ->
   zoomImageDir = data.zoomImagePath
   SEARCH_API = data.searchApi
   BG_IMAGE_API = data.bgImageApi
+  INDI_TWITTER_TEXT = data.indiTwitterText
+  CAMP_TWITTER_TEXT = data.campTwitterText
 
   i=0
   for x in arrZoomSizeX
@@ -1595,4 +1588,4 @@ setInitData = (data) ->
   pmviewer = new PhotomosaicViewer
 
 $(window).load ->
-  getSection INIT_FILE+Utility.getRandom(),setInitData
+  getSection "#{INIT_FILE}?"+Utility.getRandom(),setInitData
