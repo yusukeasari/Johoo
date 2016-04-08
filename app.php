@@ -5,8 +5,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>PITビューア</title>
 <meta property="og:title" content='PITビューア'/>
-<meta property="og:url" content="http://pearl.pitcom.jp/"/>
-<meta property="og:image" content="http://pearl.pitcom.jp/fb.jpg"/>
+<meta property="og:url" content="http://xxx.pitcom.jp/"/>
+<meta property="og:image" content="http://xxx.pitcom.jp/fb.jpg"/>
 <meta property="og:site_name" content='PITビューア'/>
 <meta property="og:description" content='皆さまの写真でモザイクアートが完成しました！' />
 </head>
