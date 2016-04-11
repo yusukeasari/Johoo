@@ -13,8 +13,8 @@ $baseUrlForSolution = 'swfData/';
 $cache = 0;
 
 if(!empty($_GET["id"])){
-	if(!file_exists("sp/swfData/mosaic/{$_GET["id"]}/bg_{$_GET["id"]}.jpg") && !$cache){
-		$dirPath = "sp/swfData/mosaic/{$_GET["id"]}/web/1/";
+	if(!file_exists("swfData/mosaic/{$_GET["id"]}/bg_{$_GET["id"]}.jpg") && !$cache){
+		$dirPath = "swfData/mosaic/{$_GET["id"]}/web/1/";
 
 		$im = new Imagick();
 
