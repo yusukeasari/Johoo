@@ -710,7 +710,11 @@ class Pyramid extends Backbone.View
   初期化メソッド
   ###
   initialize:->
-    if Browser.device isnt 'pc'
+    hasTapEvent = =>
+      div = document.createElement('div')
+      div.setAttribute('ontouchstart', 'return')
+      typeof div.ontouchstart is 'function'
+    if hasTapEvent
       $(@el).bind 'touchstart',@onMouseDown
       $(@el).bind 'touchend',@onMouseUp
       $(@el).bind 'touchmove',@onMouseMove
@@ -736,11 +740,6 @@ class Pyramid extends Backbone.View
     $(@el).css
       'background-image':"url('#{BG_IMAGE_API}')"
       'background-size':'contain'
-      #'-webkit-transform':'scale(2)'
-      #'-moz-transform':'scale(2)'
-      #'-o-transform':'scale(2)'
-      #'-ms-transform':'scale(2)'
-      #'transform':'scale(2)'
 
     #初期画面を表示
     @update()

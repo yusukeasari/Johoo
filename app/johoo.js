@@ -1025,7 +1025,16 @@
      */
 
     Pyramid.prototype.initialize = function() {
-      if (Browser.device !== 'pc') {
+      var hasTapEvent;
+      hasTapEvent = (function(_this) {
+        return function() {
+          var div;
+          div = document.createElement('div');
+          div.setAttribute('ontouchstart', 'return');
+          return typeof div.ontouchstart === 'function';
+        };
+      })(this);
+      if (hasTapEvent) {
         $(this.el).bind('touchstart', this.onMouseDown);
         $(this.el).bind('touchend', this.onMouseUp);
         $(this.el).bind('touchmove', this.onMouseMove);
