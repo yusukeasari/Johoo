@@ -714,7 +714,7 @@ class Pyramid extends Backbone.View
       div = document.createElement('div')
       div.setAttribute('ontouchstart', 'return')
       typeof div.ontouchstart is 'function'
-    if hasTapEvent
+    if Browser.device isnt 'pc'
       $(@el).bind 'touchstart',@onMouseDown
       $(@el).bind 'touchend',@onMouseUp
       $(@el).bind 'touchmove',@onMouseMove
