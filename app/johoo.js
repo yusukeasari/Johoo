@@ -978,6 +978,12 @@
       return Math.floor(Math.random() * 10000);
     };
 
+    Utility.upperCase = function(str) {
+      return str.replace(/[a-z]/g, function(ch) {
+        return String.fromCharCode(ch.charCodeAt(0) & ~32);
+      });
+    };
+
     return Utility;
 
   })();
@@ -1034,7 +1040,7 @@
           return typeof div.ontouchstart === 'function';
         };
       })(this);
-      if (hasTapEvent) {
+      if (Browser.device !== 'pc') {
         $(this.el).bind('touchstart', this.onMouseDown);
         $(this.el).bind('touchend', this.onMouseUp);
         $(this.el).bind('touchmove', this.onMouseMove);
@@ -2017,6 +2023,7 @@
       this.clear = bind(this.clear, this);
       this.openPopupFromPoint = bind(this.openPopupFromPoint, this);
       this.popupHtmlLoaded = bind(this.popupHtmlLoaded, this);
+      this.initialize = bind(this.initialize, this);
       return Popup.__super__.constructor.apply(this, arguments);
     }
 
@@ -2047,27 +2054,25 @@
           }
         };
       })(this)).fail(function() {
+        console.log("Popup.fali");
         return this.hide();
       });
     };
 
     Popup.prototype.clear = function() {
       if ($(this.el).html() !== '') {
-        $("#closeButton").unbind();
-        return $("#loadImage").attr('src', '');
+        $("#Popup #closeButton").unbind();
+        return $("#Popup #loadImage").attr('src', '');
       }
     };
 
     Popup.prototype.closePopup = function(e) {
-      if (e !== void 0) {
-        e.preventDefault();
-      }
       this.clear();
       return this.hide();
     };
 
     Popup.prototype.render = function(data) {
-      return $("#loadImage").css('margin-top', 5).attr('src', zoomImageDir + data.img + tileImageExtension).load((function(_this) {
+      return $("#Popup #loadImage").css('margin-top', 5).attr('src', zoomImageDir + data.img + tileImageExtension).load((function(_this) {
         return function() {
           _this.setDataToView(data);
           _this.snsButtonAction(data.id);
@@ -2082,71 +2087,58 @@
     };
 
     Popup.prototype.setDataToView = function(data) {
-      var item, results, str;
-      $(".snsFacebookButton").attr('href', "https://www.facebook.com/sharer.php?u=" + encodeURIComponent("" + DOMAIN + APP_FILE + "#mosaic/" + data.id + "/"));
-      $(".snsTwitterButton").attr('href', "https://twitter.com/intent/tweet?url=" + encodeURIComponent("" + DOMAIN + APP_FILE + "#mosaic/" + data.id + "/") + "&text=" + encodeURIComponent("" + INDI_TWITTER_TEXT));
+      var item, results;
+      console.log("Popup.setDataToView");
+      $("#Popup .snsFacebookButton").attr('href', "https://www.facebook.com/sharer.php?u=" + encodeURIComponent("" + DOMAIN + APP_FILE + "#mosaic/" + data.id + "/"));
+      $("#Popup .snsTwitterButton").attr('href', "https://twitter.com/intent/tweet?url=" + encodeURIComponent("" + DOMAIN + APP_FILE + "#mosaic/" + data.id + "/") + "&text=" + encodeURIComponent("" + INDI_TWITTER_TEXT));
       results = [];
       for (item in data) {
-        str = "{#" + item + "#}";
-        results.push($(this.el).html($(this.el).html().replace(new RegExp(str, "g"), data[item])));
+        results.push($("#Popup .popup" + Utility.upperCase(item) + "Style").text(data[item]));
       }
       return results;
     };
 
     Popup.prototype.snsButtonAction = function(_id) {
-      $(".snsFacebookButton").bind("touchend", function(e) {
-        _gaq.push(['_trackPageview', "/photomosaic/sp/fb/" + _id]);
-        return $(".snsFacebookButton").unbind();
+      $("#Popup .snsFacebookButton").unbind();
+      $("#Popup .snsFacebookButton").bind("touchend", function(e) {
+        return _gaq.push(['_trackPageview', "/photomosaic/sp/fb/" + _id]);
       });
-      $(".snsTwitterButton").bind("touchend", function(e) {
-        _gaq.push(['_trackPageview', "/photomosaic/sp/tw/" + _id]);
-        return $(".snsTwitterButton").unbind();
+      $("#Popup .snsTwitterButton").unbind();
+      $("#Popup .snsTwitterButton").bind("touchend", function(e) {
+        return _gaq.push(['_trackPageview', "/photomosaic/sp/tw/" + _id]);
       });
-      return $(".snsLineButton").bind("touchend", function(e) {
-        _gaq.push(['_trackPageview', "/photomosaic/sp/line/" + _id]);
-        return $(".snsLineButton").unbind();
+      $("#Popup .snsLineButton").unbind();
+      return $("#Popup .snsLineButton").bind("touchend", function(e) {
+        return _gaq.push(['_trackPageview', "/photomosaic/sp/line/" + _id]);
       });
     };
 
     Popup.prototype.closeButtonAction = function() {
       if (Browser.device !== 'pc') {
-        return $("#closeButton").bind("touchend", (function(_this) {
+        return $("#Popup #closeButton").bind("touchend", (function(_this) {
           return function(e) {
-            e.preventDefault();
             _this.closePopup(e);
-            return $("#closeButton").unbind();
+            return $("#Popup #closeButton").unbind();
           };
         })(this));
       } else {
-        return $("#closeButton").bind("mouseup", (function(_this) {
+        return $("#Popup #closeButton").bind("mouseup", (function(_this) {
           return function(e) {
-            e.preventDefault();
             _this.closePopup(e);
-            return $("#closeButton").unbind();
+            return $("#Popup #closeButton").unbind();
           };
         })(this));
       }
     };
 
-    Popup.prototype.mosaicButtonAction = function(_mid) {
-      $("#mosaicButton").bind("touchend", function(e) {
-        location.href = "mosaicView.php?mid=_mid";
-        return $("#mosaicButton").unbind();
-      });
-      return $("#mosaicButton").bind("mouseup", function(e) {
-        location.href = "mosaicView.php?mid=_mid";
-        return $("#mosaicButton").unbind();
-      });
-    };
-
     Popup.prototype.show = function() {
       $(this.el).show();
       Shadow.show();
-      return Shadow.setFullSize($(this.el).height());
+      Shadow.setFullSize($(this.el).height());
+      return $("#Popup #loadImage").unbind();
     };
 
     Popup.prototype.hide = function() {
-      this.trigger("closePopup");
       Shadow.setSize();
       $(this.el).hide();
       return Shadow.hide();

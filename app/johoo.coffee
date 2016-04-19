@@ -696,6 +696,9 @@ class Utility
   #キャッシュ対策用乱数取得
   @getRandom:->
     return Math.floor(Math.random()*10000)
+  @upperCase:(str)->
+    return str.replace /[a-z]/g, (ch)->
+      String.fromCharCode(ch.charCodeAt(0) & ~32)
 
 ###
  * Class Pyramidクラス
@@ -1424,15 +1427,13 @@ class Shadow extends Backbone.View
 class Popup extends Backbone.View
   el: '#Popup'
 
-  initialize:->
+  initialize:=>
     $(@el).load "/assets/html/popup.html",@popupHtmlLoaded
 
   popupHtmlLoaded:(data,status)=>
     if status isnt 'success'
       console.log "ERROR:Popuphtmlが読み込めません"
     else
-      #置換処理を入れる
-      #@@@@@@@@@@@@@
       $(@el).html(data)
 
   openPopupFromPoint:(p)=>
@@ -1442,24 +1443,25 @@ class Popup extends Backbone.View
       ##and "#{data.img}" isnt 'undefined'
       if status and data isnt null then @render data[0] else @hide()
     .fail ->
+      console.log "Popup.fali"
       @hide()
 
   clear:=>
     if $(@el).html() isnt ''
-      $("#closeButton").unbind()
-      $("#loadImage").
+      $("#Popup #closeButton").unbind()
+      $("#Popup #loadImage").
         attr('src','')
 #      $(@el).html ''
 
   closePopup:(e)=>
-    if e isnt undefined
-      e.preventDefault()
+    #if e isnt undefined
+    #  e.preventDefault()
     @clear()
     @hide()
 
   render:(data)=>
     #Popup要素初期化
-    $("#loadImage").
+    $("#Popup #loadImage").
       css('margin-top',5).
       attr('src',zoomImageDir+data.img+tileImageExtension).
       load( =>
@@ -1473,50 +1475,44 @@ class Popup extends Backbone.View
         @closePopup()
       )
   setDataToView:(data)=>
-    $(".snsFacebookButton").attr('href',"https://www.facebook.com/sharer.php?u="+encodeURIComponent("#{DOMAIN}#{APP_FILE}#mosaic/#{data.id}/"))
-    $(".snsTwitterButton").attr('href',"https://twitter.com/intent/tweet?url="+encodeURIComponent("#{DOMAIN}#{APP_FILE}#mosaic/#{data.id}/")+"&text="+encodeURIComponent("#{INDI_TWITTER_TEXT}"))
+    console.log "Popup.setDataToView"
+    $("#Popup .snsFacebookButton").attr('href',"https://www.facebook.com/sharer.php?u="+encodeURIComponent("#{DOMAIN}#{APP_FILE}#mosaic/#{data.id}/"))
+    $("#Popup .snsTwitterButton").attr('href',"https://twitter.com/intent/tweet?url="+encodeURIComponent("#{DOMAIN}#{APP_FILE}#mosaic/#{data.id}/")+"&text="+encodeURIComponent("#{INDI_TWITTER_TEXT}"))
     for item of data
-      $(".popup"+Utility.upperCase(item)+"Style").text data[item]
+      $("#Popup .popup"+Utility.upperCase(item)+"Style").text data[item]
 
   snsButtonAction:(_id)->
-    $(".snsFacebookButton").bind "touchend",(e) ->
+    $("#Popup .snsFacebookButton").unbind()
+    $("#Popup .snsFacebookButton").bind "touchend",(e) ->
       _gaq.push(['_trackPageview', "/photomosaic/sp/fb/#{_id}"])
-      $(".snsFacebookButton").unbind()
 
-    $(".snsTwitterButton").bind "touchend",(e) ->
+    $("#Popup .snsTwitterButton").unbind()
+    $("#Popup .snsTwitterButton").bind "touchend",(e) ->
       _gaq.push(['_trackPageview', "/photomosaic/sp/tw/#{_id}"])
-      $(".snsTwitterButton").unbind()
 
-    $(".snsLineButton").bind "touchend",(e) ->
+    $("#Popup .snsLineButton").unbind()
+    $("#Popup .snsLineButton").bind "touchend",(e) ->
       _gaq.push(['_trackPageview', "/photomosaic/sp/line/#{_id}"])
-      $(".snsLineButton").unbind()
 
   closeButtonAction:=>
     if Browser.device isnt 'pc'
-      $("#closeButton").bind "touchend",(e) =>
-        e.preventDefault()
+      $("#Popup #closeButton").bind "touchend",(e) =>
+        #e.preventDefault()
         @closePopup(e)
-        $("#closeButton").unbind()
+        $("#Popup #closeButton").unbind()
     else
-      $("#closeButton").bind "mouseup",(e) =>
-        e.preventDefault()
+      $("#Popup #closeButton").bind "mouseup",(e) =>
+        #e.preventDefault()
         @closePopup(e)
-        $("#closeButton").unbind()
-  mosaicButtonAction:(_mid)->
-      $("#mosaicButton").bind "touchend",(e) ->
-        location.href="mosaicView.php?mid=_mid"
-        $("#mosaicButton").unbind()
-      $("#mosaicButton").bind "mouseup",(e) ->
-        location.href="mosaicView.php?mid=_mid"
-        $("#mosaicButton").unbind()
+        $("#Popup #closeButton").unbind()
 
   show:=>
     $(@el).show()
     Shadow.show()
     Shadow.setFullSize($(@el).height())
-
+    $("#Popup #loadImage").unbind()
   hide:=>
-    @trigger "closePopup"
+    #@trigger "closePopup"
     Shadow.setSize()
     $(@el).hide()
     Shadow.hide()
