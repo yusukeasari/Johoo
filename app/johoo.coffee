@@ -1476,8 +1476,7 @@ class Popup extends Backbone.View
     $(".snsFacebookButton").attr('href',"https://www.facebook.com/sharer.php?u="+encodeURIComponent("#{DOMAIN}#{APP_FILE}#mosaic/#{data.id}/"))
     $(".snsTwitterButton").attr('href',"https://twitter.com/intent/tweet?url="+encodeURIComponent("#{DOMAIN}#{APP_FILE}#mosaic/#{data.id}/")+"&text="+encodeURIComponent("#{INDI_TWITTER_TEXT}"))
     for item of data
-      str = "{##{item}#}"
-      $(@el).html($(@el).html().replace(new RegExp(str,"g"),data[item]))
+      $(".popup"+Utility.upperCase(item)+"Style").text data[item]
 
   snsButtonAction:(_id)->
     $(".snsFacebookButton").bind "touchend",(e) ->
