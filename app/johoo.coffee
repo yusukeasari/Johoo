@@ -86,6 +86,7 @@ class PhotomosaicViewer extends Backbone.View
 
     #メイン画面へ戻る
   backtomain:=>
+    console.log 'backtomain'
     @searchPanel.hide()
     @pyramid.closePopup()
     @popup.closePopup()
@@ -129,7 +130,7 @@ class PhotomosaicViewer extends Backbone.View
     if Browser.device isnt 'pc'
       $(window).bind "orientationchange", =>
         $(@el).hide()
-   
+
         setTimeout =>
           Browser.setup()
           @onOrient()
@@ -137,7 +138,7 @@ class PhotomosaicViewer extends Backbone.View
     else
       $(window).bind "resize", =>
         $(@el).hide()
-    
+
         setTimeout =>
           Browser.setup()
           @onOrient()
@@ -154,7 +155,7 @@ class PhotomosaicViewer extends Backbone.View
       @router.navigate "",
         trigger: true
 
-    @popup.bind 'closePopup', =>
+    @popup.bind 'backtomain', =>
       @router.navigate "",
         trigger: true
 
@@ -272,7 +273,7 @@ class SmallMap extends Backbone.View
       top:(c[1]/(@m*(zoomSize[nowZoom][1]/zoomSize[1][1])))*-1
       width:Browser.width/(@m*(zoomSize[nowZoom][0]/zoomSize[1][0]))
       height:Browser.height/(@m*(zoomSize[nowZoom][1]/zoomSize[1][1]))
-  
+
   hide:=>
     $(@el).hide()
   show:=>
@@ -725,7 +726,7 @@ class Pyramid extends Backbone.View
       $(@el).bind 'gesturestart',@onGestureStart
       $(@el).bind 'gesturechange',@onGestureMove
       $(@el).bind 'gestureend',@onGestureEnd
-  
+
     else
       $(@el).bind 'mousedown',@onMouseDown
       $(@el).bind 'mouseup',@onMouseUp
@@ -769,7 +770,7 @@ class Pyramid extends Backbone.View
 
       if Utility.type(cords[0]) isnt 'array'
         $(@el).css {'cursor':'-moz-grab'}
-    
+
         @dragStartX = cords[0]
         @dragStartY = cords[1]
         @dragStartLeft = $(@el).position().left
@@ -779,7 +780,7 @@ class Pyramid extends Backbone.View
         @dragStartPyramidY = @getPyramidPos()[1]
       else
         $(@el).css {'cursor':'-moz-grab'}
-    
+
         @dragStartX = cords[0][0]/2+cords[1][0]/2
         @dragStartY = cords[0][1]/2+cords[1][1]/2
         @dragStartLeft = $(@el).position().left
@@ -809,7 +810,7 @@ class Pyramid extends Backbone.View
       $(@el).css {'cursor':''}
 
       #マウスの位置がdownとupで変わらない＝単純クリックなら拡大表示実行
-  
+
       cordx = if Utility.type(cords[0]) isnt 'array' then cords[0] else cords[0][0]
       cordy = if Utility.type(cords[1]) isnt 'array' then cords[1] else cords[0][1]
 
@@ -845,7 +846,7 @@ class Pyramid extends Backbone.View
     if Point.isLock() is false
       localX = @dragStartX-@dragStartLeft
       localY = @dragStartY-@dragStartTop
-  
+
       dx = (zoomSize[nowZoom][0]-(zoomSize[nowZoom][0]*e.originalEvent.scale))/2
       dx = (dx/e.originalEvent.scale)+(zoomSize[nowZoom][0]-localX)
 
@@ -907,7 +908,7 @@ class Pyramid extends Backbone.View
         nowZoom = minZoom
       else
         nowZoom = nowZoom+rate
-    
+
   #与えられた座標がフォトモザイク上であるかどうか調べる
   isOnTiles:(p)=>
     if p[0] >= @getPyramidPos()[0] &&
@@ -1066,7 +1067,7 @@ class Pyramid extends Backbone.View
     else
       prevPyramidWidth = zoomSize[prevZoom][0]
       prevPyramidHeight = zoomSize[prevZoom][1]
-  
+
     x = (_x+prevPyramidWidth/2)-Browser.width/2
     y = (_y+prevPyramidHeight/2)-Browser.height/2
 
@@ -1512,7 +1513,8 @@ class Popup extends Backbone.View
     Shadow.setFullSize($(@el).height())
     $("#Popup #loadImage").unbind()
   hide:=>
-    #@trigger "closePopup"
+    console.log 'Popup hide'
+    @trigger "backtomain"
     Shadow.setSize()
     $(@el).hide()
     Shadow.hide()
