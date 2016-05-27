@@ -4,6 +4,7 @@
 <?php require_once 'assets/viewport.php'; ?>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>PITビューア</title>
+<meta name="description" content="">
 <meta property="og:title" content='PITビューア'/>
 <meta property="og:url" content="http://xxx.pitcom.jp/"/>
 <meta property="og:image" content="http://xxx.pitcom.jp/fb.jpg"/>
