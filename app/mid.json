@@ -1,14 +1,14 @@
 {
-  "domain": "http:\/\/lunch.pitcom.jp\/",
-  "app": "test_app.php",
+  "domain": "",
+  "app": "app.php",
   "tileWidth": 256,
   "tileHeight": 256,
   "motifWidth": 105,
   "motifHeight": 79,
-  "blockimgPath": "http:\/\/live.pitcom.jp\/splitedge\/blockimg\/pituser\/lunch\/oriweb\/",
+  "blockimgPath": "swfData\/web\/",
   "arrZoomSize": [0, 4, 8, 16, 32, 64, 128, 256],
   "zoomImagePath": "swfData\/blockimg\/",
-  "searchApi": "swfData\/search.php",
+  "searchApi": "api\/search.php",
   "bgImageApi": "api\/makeBgImage.php",
   "indiTwitterText":"",
   "campTwitterText":""

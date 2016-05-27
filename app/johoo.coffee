@@ -110,8 +110,6 @@ class PhotomosaicViewer extends Backbone.View
     #半透明黒背景クラス
     @shadow = new Shadow
 
-    #@smallMap = new SmallMap '#SmallMap','swfData/map.jpg'
-
     #フォトモザイク部分
     @pyramid = new Pyramid
 
@@ -1158,7 +1156,7 @@ class Marker extends Backbone.View
         width:arrZoomSizeX[nowZoom]-(2*weight)
         height:arrZoomSizeY[nowZoom]-(2*weight)
         left:tx
-        top:ty-2
+        top:ty
         border:'solid '+weight+'px #FF0000'
         'background-color':'rgba(255,0,0,0.4)'
 
