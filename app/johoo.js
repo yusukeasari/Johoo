@@ -122,6 +122,7 @@
     };
 
     PhotomosaicViewer.prototype.backtomain = function() {
+      console.log('backtomain');
       this.searchPanel.hide();
       this.pyramid.closePopup();
       this.popup.closePopup();
@@ -172,7 +173,7 @@
           });
         };
       })(this));
-      this.popup.bind('closePopup', (function(_this) {
+      this.popup.bind('backtomain', (function(_this) {
         return function() {
           return _this.router.navigate("", {
             trigger: true
@@ -456,13 +457,7 @@
       timelineChildView = new TimelineChildView({
         model: tile
       });
-      $("#searchResult").append(timelineChildView.render().el);
-      $('.tlTitle').css({
-        width: Browser.width - tlImageWidth - 10
-      });
-      return $('.tlMsg').css({
-        width: Browser.width - tlImageWidth - 10
-      });
+      return $("#searchResult").append(timelineChildView.render().el);
     };
 
     SearchPanel.prototype.setup = function() {
@@ -513,6 +508,8 @@
               return $('#loadingAnimation').unbind();
             };
           })(this));
+        } else {
+          $('#loadingAnimation').height(0);
         }
         return this.loadingStatus = bool;
       }
@@ -550,6 +547,9 @@
       }
       if ($('#SearchPanelInnerContents #b2').val() !== void 0) {
         query += 'b2=' + $('#SearchPanelInnerContents #b2').val() + '&';
+      }
+      if ($('#SearchPanelInnerContents #b3').val() !== void 0) {
+        query += 'b3=' + $('#SearchPanelInnerContents #b3').val() + '&';
       }
       if (query !== '') {
         query.slice(0, -1);
@@ -632,6 +632,7 @@
 
     SearchPanel.prototype.clear = function() {
       this.execSearched = false;
+      $('#loadingAnimation').unbind();
       $('#loadingAnimation').html('');
       return this.timeline.clear();
     };
@@ -1566,7 +1567,7 @@
           width: arrZoomSizeX[nowZoom] - (2 * weight),
           height: arrZoomSizeY[nowZoom] - (2 * weight),
           left: tx,
-          top: ty - 2,
+          top: ty,
           border: 'solid ' + weight + 'px #FF0000',
           'background-color': 'rgba(255,0,0,0.4)'
         });
@@ -2139,6 +2140,8 @@
     };
 
     Popup.prototype.hide = function() {
+      console.log('Popup hide');
+      this.trigger("backtomain");
       Shadow.setSize();
       $(this.el).hide();
       return Shadow.hide();

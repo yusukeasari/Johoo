@@ -3,7 +3,7 @@
 $FOUND=false;
 
 if(!empty($_GET['id'])){
-	$json = file("swfData/pitcomdb.json");
+	$json = file("../swfData/pitcomdb.json");
 	$line=json_decode($json[0],true);
 	foreach($line as $k=>$v){
 		if($v["id"] == $_GET['id'] && strlen($_GET['id'])==6){
@@ -18,7 +18,7 @@ if(!empty($_GET['id'])){
 		echo '[[],[{"ERROR":"NOTFOUND"}]]';
 	}
 }else if(!empty($_GET['n'])){
-	$json = file("swfData/pitcomdb.json");
+	$json = file("../swfData/pitcomdb.json");
 	$line=json_decode($json[0],true);
 	foreach($line as $k=>$v){
 		if($v["num"] == $_GET['n']){
@@ -34,7 +34,7 @@ if(!empty($_GET['id'])){
 	}
 }else{
 	$result = array();
-	$json = file("swfData/pitcomdb.json");
+	$json = file("../swfData/pitcomdb.json");
 	$line=json_decode($json[0],true);
 	foreach($line as $k => $v){
 		$b1 = '';
@@ -60,7 +60,7 @@ if(!empty($_GET['id'])){
 	}
 	$count = count($result);
 
-	if (count($result) > 100){
+	if (count($result) > 300){
 		echo '[[],[{"ERROR":"TOOMUCHRESULT"},{"TOTAL":'.$count.'}]]';
 		exit;
 	}

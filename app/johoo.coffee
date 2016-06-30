@@ -340,10 +340,10 @@ class SearchPanel extends Backbone.View
     timelineChildView = new TimelineChildView model: tile
 
     $("#searchResult").append timelineChildView.render().el
-    $('.tlTitle').css
-      width:Browser.width-tlImageWidth-10
-    $('.tlMsg').css
-      width:Browser.width-tlImageWidth-10
+#    $('.tlTitle').css
+#      width:Browser.width-tlImageWidth-10
+#    $('.tlMsg').css
+#      width:Browser.width-tlImageWidth-10
 
   setup:=>
     #検索ボタンを有効化
@@ -391,6 +391,8 @@ class SearchPanel extends Backbone.View
           @loading true
           $(@el).trigger 'bottom'
           $('#loadingAnimation').unbind()
+      else
+        $('#loadingAnimation').height 0
 
       @loadingStatus = bool
 
@@ -419,7 +421,8 @@ class SearchPanel extends Backbone.View
       query += 'b1='+$('#SearchPanelInnerContents #b1').val()+'&'
     if $('#SearchPanelInnerContents #b2').val() isnt undefined
       query += 'b2='+$('#SearchPanelInnerContents #b2').val()+'&'
-
+    if $('#SearchPanelInnerContents #b3').val() isnt undefined
+      query += 'b3='+$('#SearchPanelInnerContents #b3').val()+'&'
     if query isnt '' then query.slice 0,-1
 
     @searchQuery.sendQuery query
@@ -488,6 +491,7 @@ class SearchPanel extends Backbone.View
 
   clear:=>
     @execSearched = false
+    $('#loadingAnimation').unbind()
     $('#loadingAnimation').html('')
     @timeline.clear()
 
