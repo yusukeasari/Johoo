@@ -7,14 +7,14 @@ RewriteRule ^.*bg_(\w+)\.(jpg|gif|png)$ /makeBgImage.php?id=$1 [R]
 */
 
 //ソリューション時のbg.jpgを保存パスを記述する事
-$baseUrlForSolution = 'swfData/';
+$baseUrlForSolution = '../swfData/';
 
 //ソリューションリアルタイムは0にすること。88、IMQなどは1
 $cache = 0;
 
 if(!empty($_GET["id"])){
-	if(!file_exists("swfData/mosaic/{$_GET["id"]}/bg_{$_GET["id"]}.jpg") && !$cache){
-		$dirPath = "swfData/mosaic/{$_GET["id"]}/web/1/";
+	if(!file_exists("{$baseUrlForSolution}}/mosaic/{$_GET["id"]}/bg_{$_GET["id"]}.jpg") && !$cache){
+		$dirPath = "{$baseUrlForSolution}/mosaic/{$_GET["id"]}/web/1/";
 
 		$im = new Imagick();
 
@@ -57,12 +57,12 @@ if(!empty($_GET["id"])){
 			$target->compositeImage($image["image"], imagick::COMPOSITE_COPY, 256*$x, 256*$y);
 		}
 
-		$target->writeImage("sp/swfData/mosaic/{$_GET["id"]}/bg_{$_GET["id"]}.jpg");
+		$target->writeImage("{$baseUrlForSolution}/mosaic/{$_GET["id"]}/bg_{$_GET["id"]}.jpg");
 		$target->clear();
 		$target->destroy();
 
 		header("Content-type: image/jpeg");
-		echo file_get_contents("sp/swfData/mosaic/{$_GET["id"]}/bg_{$_GET["id"]}.jpg");
+		echo file_get_contents("{$baseUrlForSolution}/mosaic/{$_GET["id"]}/bg_{$_GET["id"]}.jpg");
 	}else{
 		header("Content-type: image/jpeg");
 		echo file_get_contents("sp/swfData/mosaic/{$_GET["id"]}/bg_{$_GET["id"]}.jpg");
