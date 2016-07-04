@@ -7,6 +7,8 @@ APP_FILE = ''
 
 tileImageExtension = '.jpg'
 
+initialZoomSize = {}
+
 tileWidth = 0
 tileHeight = 0
 
@@ -43,6 +45,9 @@ class PhotomosaicViewer extends Backbone.View
   initialize:=>
     #環境設定とか
     @uniBrowse = new Browser
+
+    nowZoom = initialZoomSizeArr[Browser.device]
+    prevZoom = initialZoomSizeArr[Browser.device]
 
     css_href = 'css/johoo_'+Browser.device+'.css?'+Utility.getRandom()
     $('<link>').
@@ -1571,6 +1576,7 @@ setInitData = (data) ->
   motifHeight = data.motifHeight
   arrZoomSizeX = data.arrZoomSize
   arrZoomSizeY = data.arrZoomSize
+  initialZoomSizeArr = data.initialZoomSizeArr
   tileImageDir = data.blockimgPath
   zoomImageDir = data.zoomImagePath
   SEARCH_API = data.searchApi
