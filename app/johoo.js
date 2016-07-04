@@ -3,7 +3,7 @@
 /* 外部設定 初期化 */
 
 (function() {
-  var APP_FILE, BG_IMAGE_API, Browser, CAMP_TWITTER_TEXT, ClickOnlyButton, ControlPanel, ControlPanelModel, DOMAIN, DT, DeleteValueButton, INDI_TWITTER_TEXT, INIT_FILE, MID, Marker, PhotomosaicViewer, Point, Popup, Pyramid, SEARCH_API, SModel, SearchPanel, SearchResult, Shadow, SmallMap, TIMELINE_API, Tile, TileView, Tiles, Timeline, TimelineChild, TimelineChildView, UID, Utility, arrZoomSizeX, arrZoomSizeY, commentZoom, getSection, getUrlVars, minBlockSize, minZoom, motifHeight, motifWidth, nowZoom, pinchTrigger, prevZoom, setInitData, tileHeight, tileImageDir, tileImageExtension, tileWidth, tlImageWidth, zoomImageDir, zoomSize,
+  var APP_FILE, BG_IMAGE_API, Browser, CAMP_TWITTER_TEXT, ClickOnlyButton, ControlPanel, ControlPanelModel, DOMAIN, DT, DeleteValueButton, INDI_TWITTER_TEXT, INIT_FILE, MID, Marker, PhotomosaicViewer, Point, Popup, Pyramid, SEARCH_API, SModel, SearchPanel, SearchResult, Shadow, SmallMap, TIMELINE_API, Tile, TileView, Tiles, Timeline, TimelineChild, TimelineChildView, UID, Utility, arrZoomSizeX, arrZoomSizeY, commentZoom, getSection, getUrlVars, initialZoomSizeArr, minBlockSize, minZoom, motifHeight, motifWidth, nowZoom, pinchTrigger, prevZoom, setInitData, tileHeight, tileImageDir, tileImageExtension, tileWidth, tlImageWidth, zoomImageDir, zoomSize,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -17,6 +17,8 @@
   APP_FILE = '';
 
   tileImageExtension = '.jpg';
+
+  initialZoomSizeArr = {};
 
   tileWidth = 0;
 
@@ -80,6 +82,11 @@
     PhotomosaicViewer.prototype.initialize = function() {
       var css_href;
       this.uniBrowse = new Browser;
+      console.log(initialZoomSizeArr);
+      console.log(initialZoomSizeArr[Browser.device]);
+      minZoom = initialZoomSizeArr[Browser.device];
+      nowZoom = minZoom;
+      prevZoom = minZoom + 1;
       css_href = 'css/johoo_' + Browser.device + '.css?' + Utility.getRandom();
       $('<link>').attr('href', css_href).attr('rel', 'stylesheet').load().appendTo($('head'));
       return this.setup("");
@@ -231,8 +238,8 @@
       })(this));
       this.controlPanel.bind('onclickhomebutton', (function(_this) {
         return function() {
-          nowZoom = 1;
-          prevZoom = 2;
+          nowZoom = minZoom;
+          prevZoom = minZoom + 1;
           _this.pyramid.update();
           _this.pyramid.pyramidSetPositionToCenter();
           return setTimeout(function() {
@@ -2214,6 +2221,7 @@
     motifHeight = data.motifHeight;
     arrZoomSizeX = data.arrZoomSize;
     arrZoomSizeY = data.arrZoomSize;
+    initialZoomSizeArr = data.initialZoomSizeArr;
     tileImageDir = data.blockimgPath;
     zoomImageDir = data.zoomImagePath;
     SEARCH_API = data.searchApi;

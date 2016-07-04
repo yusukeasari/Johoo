@@ -7,7 +7,7 @@ APP_FILE = ''
 
 tileImageExtension = '.jpg'
 
-initialZoomSize = {}
+initialZoomSizeArr = {}
 
 tileWidth = 0
 tileHeight = 0
@@ -46,8 +46,12 @@ class PhotomosaicViewer extends Backbone.View
     #環境設定とか
     @uniBrowse = new Browser
 
-    nowZoom = initialZoomSizeArr[Browser.device]
-    prevZoom = initialZoomSizeArr[Browser.device]
+    console.log initialZoomSizeArr
+    console.log initialZoomSizeArr[Browser.device]
+
+    minZoom = initialZoomSizeArr[Browser.device]
+    nowZoom = minZoom
+    prevZoom = minZoom+1
 
     css_href = 'css/johoo_'+Browser.device+'.css?'+Utility.getRandom()
     $('<link>').
@@ -201,8 +205,8 @@ class PhotomosaicViewer extends Backbone.View
 
     #フォトモザイクを標準位置へセット
     @controlPanel.bind 'onclickhomebutton', =>
-      nowZoom = 1
-      prevZoom = 2
+      nowZoom = minZoom
+      prevZoom = minZoom+1
       @pyramid.update()
       @pyramid.pyramidSetPositionToCenter()
       setTimeout =>
