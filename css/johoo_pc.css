@@ -2,14 +2,15 @@
 
 body {
 	margin: 0;
-	/*background-image:url(../form/img/pattern.jpg);	*/
+	background-image:url(../form/img/bg.png);
+	background-size: cover;
 }
 img{
 	border: none;
 }
 #Logo{
 	position: absolute;
-	background-image: url(../assets/buttons/logo.jpg);
+	background-image: url(../assets/buttons/logo.png);
 	width:300px;
 	height:100px;
 

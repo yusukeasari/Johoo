@@ -5,7 +5,7 @@ body {
 }
 #Logo{
 	position: absolute;
-	background-image: url(../assets/buttons/logo.jpg);
+	background-image: url(../assets/buttons/logo.png);
 	width:300px;
 	height:100px;
 	top:5px;
