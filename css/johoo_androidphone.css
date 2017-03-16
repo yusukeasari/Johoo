@@ -6,10 +6,13 @@ body {
 #Logo{
 	position: absolute;
 	background-image: url(../assets/buttons/logo.png);
-	width:300px;
-	height:100px;
-	top:5px;
-	right:5px;
+	background-size: contain;
+	background-repeat: no-repeat;
+	width:350px;
+	height:85px;
+	right: 0px;
+	left:0px;
+	margin:auto;
 	z-index: 15;
 }
 #copy{
