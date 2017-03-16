@@ -52,8 +52,7 @@ class PhotomosaicViewer extends Backbone.View
     minZoom = initialZoomSizeArr[Browser.device]
     nowZoom = minZoom
     prevZoom = minZoom+1
-
-    css_href = 'css/johoo_'+Browser.device+'.css?'+Utility.getRandom()
+    css_href = 'css/johoo_'+Browser.device+'.css' + cache
     $('<link>').
       attr('href',css_href).
       attr('rel','stylesheet').
@@ -1211,7 +1210,7 @@ class TileView extends Backbone.View
     x = @model.get 'x'
     y = @model.get 'y'
     z = @model.get 'z'
-    url = "#{tileImageDir}#{z}/#{y}/z#{z}x#{x}y#{y}#{tileImageExtension}?"+Utility.getRandom()
+    url = "#{tileImageDir}#{z}/#{y}/z#{z}x#{x}y#{y}#{tileImageExtension}" + cache
 
     $(@el).
       attr({id:'z'+z+'x'+x+'y'+y,src:url}).
@@ -1574,6 +1573,7 @@ if DT isnt 0
 setInitData = (data) ->
   DOMAIN = data.domain
   APP_FILE = data.app
+  cache = if data.cache is true then "" else '?'+Utility.getRandom()
   tileWidth = data.tileWidth
   tileHeight = data.tileHeight
   motifWidth = data.motifWidth
@@ -1596,4 +1596,4 @@ setInitData = (data) ->
   pmviewer = new PhotomosaicViewer
 
 $(window).load ->
-  getSection "#{INIT_FILE}?"+Utility.getRandom(),setInitData
+  getSection "#{INIT_FILE}"+cache,setInitData

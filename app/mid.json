@@ -1,6 +1,7 @@
 {
   "domain": "",
-  "app": "app.php",
+  "app": "photomosaic.php",
+  "cache": false,
   "tileWidth": 256,
   "tileHeight": 256,
   "motifWidth": 36,
