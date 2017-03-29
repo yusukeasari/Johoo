@@ -559,6 +559,19 @@ class TimelineChildView extends Backbone.View
     item = @model.get 'data'
     @data = item
 
+    # title and message column
+    inner = $('<div>').
+      attr('class','tlOutline')
+    $('<div>').
+      attr('class','tlTitle').
+      html(item.b1).
+      appendTo inner
+    $('<div>').
+      attr('class','tlMsg').
+      #html(item.b2+"(#{item.id})").
+      html(item.b2).
+      appendTo inner
+
     tl = $(@el).
       attr('class','timelineChild').
       attr('id','timelineChild'+item.id)
@@ -568,16 +581,7 @@ class TimelineChildView extends Backbone.View
       attr('src',zoomImageDir+item.img+tileImageExtension).
       load().
       appendTo tl
-    $('<div>').
-      attr('class','tlTitle').
-      html(item.b1).
-      appendTo tl
-    $('<br />').
-      appendTo tl
-    $('<div>').
-      attr('class','tlMsg').
-      #html(item.b2+"(#{item.id})").
-      html(item.b2).
+    inner.
       appendTo tl
     $('<br />').
       attr('class','timelineBR').

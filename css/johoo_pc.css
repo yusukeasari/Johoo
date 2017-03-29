@@ -275,17 +275,17 @@ img{
 .tlImg{
 	float:left;
 }
+.tlOutline {
+	float:left;
+}
 .tlTitle{
-	margin-left:90px;
+	margin-left:5px;
 	font-weight: bold;
 	text-align:left;
-	word-break: break-word;
-	/*PC用*/
-	width:inherit;
+	font-size:140%;
 }
 .tlMsg{
-	height: 100%;
-	margin-left:90px;
-	width:inherit;
-	height: 100%;
+	margin-left:5px;
+	text-align:left;
+	font-size:180%;
 }

@@ -11,8 +11,9 @@ body {
 	width:300px;
 	height:100px;
 	
-	top:5px;
-	left:5px;
+	right: 0px;
+	left:0px;
+	margin:auto;
 
 	z-index: 15;
 }
@@ -262,14 +263,17 @@ body {
 .tlImg {
 	float:left;
 }
-.tlTitle{
+.tlOutline {
 	float:left;
+}
+.tlTitle{
 	margin-left:5px;
 	font-weight: bold;
 	text-align:left;
+	font-size:140%;
 }
 .tlMsg{
-	float:left;
 	margin-left:5px;
 	text-align:left;
+	font-size:180%;
 }
