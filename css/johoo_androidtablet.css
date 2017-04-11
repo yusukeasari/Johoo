@@ -237,6 +237,30 @@ body {
 
 	z-index: 12;
 }
+#ControlPanel #FacebookButton {
+	position: absolute;
+	background-image: url(../assets/buttons/snsFacebookIcon.png);
+	background-size:60px 60px;
+	width:60px;
+	height:60px;
+	
+	right:5px;
+	top:265px;
+
+	z-index: 14;
+}
+#ControlPanel #TwitterButton {
+	position: absolute;
+	background-image: url(../assets/buttons/snsTwitterIcon.png);
+	background-size:60px 60px;
+	width:60px;
+	height:60px;
+
+	right:5px;
+	top:325px;
+
+	z-index: 14;
+}
 #SmallMap {
 	position: absolute;
 	z-index: 30;

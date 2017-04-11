@@ -2,6 +2,8 @@
 
 body {
 	margin: 0;
+	background-image:url(../form/img/bg.png);
+	background-size: cover;
 }
 #Logo{
 	position: absolute;
@@ -143,7 +145,7 @@ font-size: 9px;
 	font-size: 150%;
 }
 #SearchPanel #SearchPanelInnerContents #b1 {
-	width:80%;
+	width:70%;
 	font-size: 150%;
 }
 #SearchPanel #SearchPanelInnerContents #b2 {
@@ -233,7 +235,30 @@ font-size: 9px;
 	right:5px;
 	z-index: 12;
 }
+#ControlPanel #FacebookButton {
+	position: absolute;
+	background-image: url(../assets/buttons/snsFacebookIcon.png);
+	background-size:60px 60px;
+	width:60px;
+	height:60px;
 
+	top:378px;
+	right:5px;
+
+	z-index: 14;
+}
+#ControlPanel #TwitterButton {
+	position: absolute;
+	background-image: url(../assets/buttons/snsTwitterIcon.png);
+	background-size:60px 60px;
+	width:60px;
+	height:60px;
+
+	top:445px;
+	right:5px;
+
+	z-index: 14;
+}
 #SmallMap {
 	position: absolute;
 	z-index: 30;

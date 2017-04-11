@@ -2,6 +2,8 @@
 
 body {
 	margin: 0;
+	background-image:url(../form/img/bg.png);
+	background-size: cover;
 }
 #Logo{
 	position: absolute;
@@ -144,7 +146,7 @@ body {
 	font-size: 150%;
 }
 #SearchPanel #SearchPanelInnerContents #b1 {
-	width:80%;
+	width:70%;
 	font-size: 150%;
 }
 #SearchPanel #SearchPanelInnerContents #b2 {
@@ -193,7 +195,7 @@ body {
 	background-image: url(../assets/buttons/home.png);
 	width:60px;
 	height:60px;
-	top:125px;
+	top:605px;
 	right:5px;
 	z-index: 14;
 }
@@ -203,7 +205,7 @@ body {
 	background-image: url(../assets/buttons/searchOn.png);
 	width:60px;
 	height:60px;
-	top:185px;
+	top:125px;
 	right:5px;
 	z-index: 13;
 }
@@ -221,7 +223,7 @@ body {
 	background-image: url(../assets/buttons/plus.png);
 	width:60px;
 	height:60px;
-	top:245px;
+	top:185px;
 	right:5px;
 	z-index: 11;
 }
@@ -230,9 +232,33 @@ body {
 	background-image: url(../assets/buttons/minus.png);
 	width:60px;
 	height:60px;
-	top:305px;
+	top:245px;
 	right:5px;
 	z-index: 12;
+}
+#ControlPanel #FacebookButton {
+	position: absolute;
+	background-image: url(../assets/buttons/snsFacebookIcon.png);
+	background-size:60px 60px;
+	width:60px;
+	height:60px;
+
+	top:318px;
+	right:5px;
+
+	z-index: 14;
+}
+#ControlPanel #TwitterButton {
+	position: absolute;
+	background-image: url(../assets/buttons/snsTwitterIcon.png);
+	background-size:60px 60px;
+	width:60px;
+	height:60px;
+
+	top:385px;
+	right:5px;
+
+	z-index: 14;
 }
 #SmallMap {
 	position: absolute;

@@ -158,7 +158,7 @@ img{
 	font-size: 140%;
 }
 #SearchPanel #SearchPanelInnerContents #b1 {
-	width:80%;
+	width:400px;
 	font-size: 140%;
 }
 #SearchPanel #SearchPanelInnerContents #b2 {
@@ -234,6 +234,28 @@ img{
 	left:65px;
 
 	z-index: 12;
+}
+#ControlPanel #FacebookButton {
+	position: absolute;
+	background-image: url(../assets/buttons/snsFacebookIcon.png);
+	background-size:60px 60px;
+	width:60px;
+	height:60px;
+
+	left:260px;
+
+	z-index: 14;
+}
+#ControlPanel #TwitterButton {
+	position: absolute;
+	background-image: url(../assets/buttons/snsTwitterIcon.png);
+	background-size:60px 60px;
+	width:60px;
+	height:60px;
+
+	left:325px;
+
+	z-index: 14;
 }
 #ControlPanel #SearchPanelButton {
 	position: absolute;
