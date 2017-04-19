@@ -16,7 +16,7 @@
 
   APP_FILE = '';
 
-  cache = true;
+  cache = '';
 
   tileImageExtension = '.jpg';
 
