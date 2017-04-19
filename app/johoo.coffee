@@ -5,6 +5,8 @@ DOMAIN = ''
 BG_IMAGE_API = ''
 APP_FILE = ''
 
+cache = true
+
 tileImageExtension = '.jpg'
 
 initialZoomSizeArr = {}
@@ -1577,7 +1579,7 @@ if DT isnt 0
 setInitData = (data) ->
   DOMAIN = data.domain
   APP_FILE = data.app
-  cache = if data.cache is true then "" else '?'+Utility.getRandom()
+  cache = if data.cache is false then "" else '?'+Utility.getRandom()
   tileWidth = data.tileWidth
   tileHeight = data.tileHeight
   motifWidth = data.motifWidth

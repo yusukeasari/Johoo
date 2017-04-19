@@ -3,7 +3,7 @@
 /* 外部設定 初期化 */
 
 (function() {
-  var APP_FILE, BG_IMAGE_API, Browser, CAMP_TWITTER_TEXT, ClickOnlyButton, ControlPanel, ControlPanelModel, DOMAIN, DT, DeleteValueButton, INDI_TWITTER_TEXT, INIT_FILE, MID, Marker, PhotomosaicViewer, Point, Popup, Pyramid, SEARCH_API, SModel, SearchPanel, SearchResult, Shadow, SmallMap, TIMELINE_API, Tile, TileView, Tiles, Timeline, TimelineChild, TimelineChildView, UID, Utility, arrZoomSizeX, arrZoomSizeY, commentZoom, getSection, getUrlVars, initialZoomSizeArr, minBlockSize, minZoom, motifHeight, motifWidth, nowZoom, pinchTrigger, prevZoom, setInitData, tileHeight, tileImageDir, tileImageExtension, tileWidth, tlImageWidth, zoomImageDir, zoomSize,
+  var APP_FILE, BG_IMAGE_API, Browser, CAMP_TWITTER_TEXT, ClickOnlyButton, ControlPanel, ControlPanelModel, DOMAIN, DT, DeleteValueButton, INDI_TWITTER_TEXT, INIT_FILE, MID, Marker, PhotomosaicViewer, Point, Popup, Pyramid, SEARCH_API, SModel, SearchPanel, SearchResult, Shadow, SmallMap, TIMELINE_API, Tile, TileView, Tiles, Timeline, TimelineChild, TimelineChildView, UID, Utility, arrZoomSizeX, arrZoomSizeY, cache, commentZoom, getSection, getUrlVars, initialZoomSizeArr, minBlockSize, minZoom, motifHeight, motifWidth, nowZoom, pinchTrigger, prevZoom, setInitData, tileHeight, tileImageDir, tileImageExtension, tileWidth, tlImageWidth, zoomImageDir, zoomSize,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -15,6 +15,8 @@
   BG_IMAGE_API = '';
 
   APP_FILE = '';
+
+  cache = true;
 
   tileImageExtension = '.jpg';
 
@@ -777,14 +779,15 @@
     };
 
     TimelineChildView.prototype.render = function() {
-      var item, tl;
+      var inner, item, tl;
       item = this.model.get('data');
       this.data = item;
+      inner = $('<div>').attr('class', 'tlOutline');
+      $('<div>').attr('class', 'tlTitle').html(item.b1).appendTo(inner);
+      $('<div>').attr('class', 'tlMsg').html(item.b2).appendTo(inner);
       tl = $(this.el).attr('class', 'timelineChild').attr('id', 'timelineChild' + item.id);
       $('<img />').attr('class', 'tlImg').attr('width', tlImageWidth).attr('src', zoomImageDir + item.img + tileImageExtension).load().appendTo(tl);
-      $('<div>').attr('class', 'tlTitle').html(item.b1).appendTo(tl);
-      $('<br />').appendTo(tl);
-      $('<div>').attr('class', 'tlMsg').html(item.b2).appendTo(tl);
+      inner.appendTo(tl);
       $('<br />').attr('class', 'timelineBR').appendTo(tl);
       return this;
     };
@@ -2101,7 +2104,7 @@
       $("#Popup .snsTwitterButton").attr('href', "https://twitter.com/intent/tweet?url=" + encodeURIComponent("" + DOMAIN + APP_FILE + "#mosaic/" + data.id + "/") + "&text=" + encodeURIComponent("" + INDI_TWITTER_TEXT));
       results = [];
       for (item in data) {
-        results.push($("#Popup .popup" + Utility.upperCase(item) + "Style").text(data[item]));
+        results.push($("#Popup .popup" + Utility.upperCase(item) + "Style").html(data[item]));
       }
       return results;
     };
@@ -2212,10 +2215,10 @@
   }
 
   setInitData = function(data) {
-    var cache, i, j, len, pmviewer, x;
+    var i, j, len, pmviewer, x;
     DOMAIN = data.domain;
     APP_FILE = data.app;
-    cache = data.cache === true ? "" : '?' + Utility.getRandom();
+    cache = data.cache === false ? "" : '?' + Utility.getRandom();
     tileWidth = data.tileWidth;
     tileHeight = data.tileHeight;
     motifWidth = data.motifWidth;
