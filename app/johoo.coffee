@@ -81,6 +81,27 @@ class PhotomosaicViewer extends Backbone.View
     .fail ->
       console.log 'error:'+status
 
+  sharedOpenPopupFromPoint:(_id)=>
+    p = 0
+    $.getJSON SEARCH_API,{'id':_id},(data,status)=>
+      #タップ拡大時に特殊なフラグによって条件分岐するならココ
+      ##and "#{data.img}" isnt 'undefined'
+      if status and data isnt null
+        p = data[0][0].num
+        @popup.clear()
+        @searchPanel.hide()
+        #@smallMap.show()
+        Pyramid.show()
+        ControlPanel.show()
+
+        nowZoom = arrZoomSizeX.length-2
+        prevZoom = arrZoomSizeX.length-3
+
+        @marker.setResult p
+        @pyramid.moveToNum p
+    .fail ->
+      console.log 'error:'+status
+
   openPopupFromTimeline:(_id)=>
     @popup.clear()
     @searchPanel.hide()
@@ -1492,9 +1513,10 @@ class Popup extends Backbone.View
         @closePopup()
       )
   setDataToView:(data)=>
-    console.log "Popup.setDataToView"
-    $("#Popup .snsFacebookButton").attr('href',"https://www.facebook.com/sharer.php?u="+encodeURIComponent("#{DOMAIN}#{APP_FILE}#mosaic/#{data.id}/"))
-    $("#Popup .snsTwitterButton").attr('href',"https://twitter.com/intent/tweet?url="+encodeURIComponent("#{DOMAIN}#{APP_FILE}#mosaic/#{data.id}/")+"&text="+encodeURIComponent("#{INDI_TWITTER_TEXT}"))
+    shareUrl = "#{DOMAIN}#{APP_FILE}#mosaic/#{data.id}/"
+    $("#Popup .snsFacebookButton").attr('href',"https://www.facebook.com/sharer.php?u="+encodeURIComponent(shareUrl))
+    $("#Popup .snsTwitterButton").attr('href',"https://twitter.com/intent/tweet?url="+encodeURIComponent(shareUrl)+"&text="+encodeURIComponent("#{INDI_TWITTER_TEXT}"))
+    $("#Popup .snsLineButton").attr('href',"https://line.me/R/msg/text/?"+"#{INDI_TWITTER_TEXT}"+'%0D%0A'+shareUrl)
     for item of data
       $("#Popup .popup"+Utility.upperCase(item)+"Style").html data[item]
 

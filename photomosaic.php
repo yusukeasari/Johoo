@@ -40,20 +40,7 @@
 	<![endif]-->
 	<script type="text/javascript" src="lib/jquery.flickable-1.0b3.js"></script>
 	<script type="text/javascript" src="lib/jquery.bottom-1.0.js"></script>
-	<script>
-	<!--
-	function openLink(_url,_str){
-		var openF = window.confirm(_str);
-		if(openF){
-			window.open(_url);
-			return true;
-		}else{
-			return false;
-		}
-	}
-	</script>
-	<script>
-	</script>
+	
 
 </body>
 </html>

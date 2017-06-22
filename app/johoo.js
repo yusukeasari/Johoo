@@ -2098,10 +2098,11 @@
     };
 
     Popup.prototype.setDataToView = function(data) {
-      var item, results;
-      console.log("Popup.setDataToView");
-      $("#Popup .snsFacebookButton").attr('href', "https://www.facebook.com/sharer.php?u=" + encodeURIComponent("" + DOMAIN + APP_FILE + "#mosaic/" + data.id + "/"));
-      $("#Popup .snsTwitterButton").attr('href', "https://twitter.com/intent/tweet?url=" + encodeURIComponent("" + DOMAIN + APP_FILE + "#mosaic/" + data.id + "/") + "&text=" + encodeURIComponent("" + INDI_TWITTER_TEXT));
+      var item, results, shareUrl;
+      shareUrl = "" + DOMAIN + APP_FILE + "#mosaic/" + data.id + "/";
+      $("#Popup .snsFacebookButton").attr('href', "https://www.facebook.com/sharer.php?u=" + encodeURIComponent(shareUrl));
+      $("#Popup .snsTwitterButton").attr('href', "https://twitter.com/intent/tweet?url=" + encodeURIComponent(shareUrl) + "&text=" + encodeURIComponent("" + INDI_TWITTER_TEXT));
+      $("#Popup .snsLineButton").attr('href', "https://line.me/R/msg/text/?" + ("" + INDI_TWITTER_TEXT) + '%0D%0A' + shareUrl);
       results = [];
       for (item in data) {
         results.push($("#Popup .popup" + Utility.upperCase(item) + "Style").html(data[item]));
