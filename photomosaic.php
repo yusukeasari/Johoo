@@ -6,8 +6,8 @@
 	<title></title>
 	<meta name="description" content="">
 	<meta property="og:title" content=''/>
-	<meta property="og:url" content="http://xxx.pitcom.jp/"/>
-	<meta property="og:image" content="http://xxx.pitcom.jp/fb.jpg"/>
+	<meta property="og:url" content="http://SUBDOMAIN.pitcom.jp/"/>
+	<meta property="og:image" content="http://SUBDOMAIN.pitcom.jp/fb.jpg"/>
 	<meta property="og:site_name" content=''/>
 	<meta property="og:description" content='' />
 </head>
