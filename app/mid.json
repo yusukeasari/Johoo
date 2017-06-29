@@ -1,5 +1,5 @@
 {
-  "domain": "http://DOMAIN/",
+  "domain": "http://SUBDOMAIN/",
   "app": "photomosaic.php",
   "cache": false,
   "tileWidth": 256,
