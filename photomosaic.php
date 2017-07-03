@@ -23,6 +23,9 @@
 			<div id="ZoomOutButton"></div>
 			<div id="SearchPanelButton"></div>
 			<div id="HomeButton"></div>
+			<div id="FacebookButton" onclick="openFacebook()"></div>
+			<div id="TwitterButton" onclick="openTwitter()"></div>
+
 		</div>
 		<!-- <div id="Logo"></div> -->
 		<!-- <div id="copy"></div> -->
@@ -40,7 +43,14 @@
 	<![endif]-->
 	<script type="text/javascript" src="lib/jquery.flickable-1.0b3.js"></script>
 	<script type="text/javascript" src="lib/jquery.bottom-1.0.js"></script>
-	
-
+	<script>
+	function openFacebook(){
+	    window.open('https://www.facebook.com/sharer.php?u=http://pearl.pitcom.jp/');
+	}
+	function openTwitter(){
+		var string = "";
+	    window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(""));
+	}
+	</script>
 </body>
 </html>
