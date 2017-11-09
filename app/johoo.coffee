@@ -2,7 +2,7 @@
 
 INIT_FILE = 'app/mid.json'
 DOMAIN = ''
-BG_IMAGE_API = ''
+bgImageApi = ''
 APP_FILE = ''
 
 cache = ''
@@ -17,14 +17,15 @@ tileHeight = 0
 motifWidth = 0
 motifHeight = 0
 
-SEARCH_API = ''
-TIMELINE_API = ''
+searchApi = ''
 
 tileImageDir = ''
 zoomImageDir = ''
 
-INDI_TWITTER_TEXT = ''
-CAMP_TWITTER_TEXT = ''
+indiTwitterText = ''
+campTwitterText = ''
+
+snsLinkage = false
 
 commentZoom = false
 pinchTrigger = 15
@@ -48,9 +49,6 @@ class PhotomosaicViewer extends Backbone.View
     #環境設定とか
     @uniBrowse = new Browser
 
-    console.log initialZoomSizeArr
-    console.log initialZoomSizeArr[Browser.device]
-
     minZoom = initialZoomSizeArr[Browser.device]
     nowZoom = minZoom
     prevZoom = minZoom+1
@@ -70,7 +68,7 @@ class PhotomosaicViewer extends Backbone.View
     $(@el).show()
   openPopupFromPoint:(_id)=>
     p = 0
-    $.getJSON SEARCH_API,{'id':_id},(data,status)=>
+    $.getJSON searchApi,{'id':_id},(data,status)=>
       #タップ拡大時に特殊なフラグによって条件分岐するならココ
       ##and "#{data.img}" isnt 'undefined'
       if status and data isnt null
@@ -83,7 +81,7 @@ class PhotomosaicViewer extends Backbone.View
 
   sharedOpenPopupFromPoint:(_id)=>
     p = 0
-    $.getJSON SEARCH_API,{'id':_id},(data,status)=>
+    $.getJSON searchApi,{'id':_id},(data,status)=>
       #タップ拡大時に特殊なフラグによって条件分岐するならココ
       ##and "#{data.img}" isnt 'undefined'
       if status and data isnt null
@@ -117,7 +115,6 @@ class PhotomosaicViewer extends Backbone.View
 
     #メイン画面へ戻る
   backtomain:=>
-    console.log 'backtomain'
     @searchPanel.hide()
     @pyramid.closePopup()
     @popup.closePopup()
@@ -190,7 +187,7 @@ class PhotomosaicViewer extends Backbone.View
 
     @pyramid.bind 'openPopupFromPoint',(_p) =>
 
-      $.getJSON SEARCH_API,{'n':_p},(data,status)=>
+      $.getJSON searchApi,{'n':_p},(data,status)=>
         #タップ拡大時に特殊なフラグによって条件分岐するならココ
         if status and data isnt null
           if data[0].id isnt undefined
@@ -385,7 +382,6 @@ class SearchPanel extends Backbone.View
     $('span.delig').each (i,o)->
       deleteValueButtons.push new DeleteValueButton $(@)
     $('input[type=text]').each (i,o)->
-      console.log @,o,i
       $(@).bind 'keyup', @inputKeyup
 
     #「続きを読む」を有効化
@@ -629,7 +625,7 @@ class SearchResult extends Backbone.View
       pageQuery = '&page='+@page
     else
       pageQuery = 'page='+@page
-    $.ajax SEARCH_API,
+    $.ajax searchApi,
       type:"GET"
       data:query+pageQuery
       dataType:"json"
@@ -703,7 +699,6 @@ class Browser extends Backbone.View
   @tests:(_var)=>
 
     for b in @browserNameList
-      console.log _var
       if _var.toLowerCase().match(new RegExp(b.name))
         return b.name
 
@@ -779,7 +774,7 @@ class Pyramid extends Backbone.View
 
     #背景を設定
     $(@el).css
-      'background-image':"url('#{BG_IMAGE_API}')"
+      'background-image':"url('#{bgImageApi}')"
       'background-size':'contain'
 
     #初期画面を表示
@@ -1476,12 +1471,11 @@ class Popup extends Backbone.View
 
   openPopupFromPoint:(p)=>
     Shadow.show()
-    $.getJSON SEARCH_API,{'n':p},(data,status)=>
+    $.getJSON searchApi,{'n':p},(data,status)=>
       #タップ拡大時に特殊なフラグによって条件分岐するならココ
       ##and "#{data.img}" isnt 'undefined'
       if status and data isnt null then @render data[0] else @hide()
     .fail ->
-      console.log "Popup.fali"
       @hide()
 
   clear:=>
@@ -1515,8 +1509,8 @@ class Popup extends Backbone.View
   setDataToView:(data)=>
     shareUrl = "#{DOMAIN}#{APP_FILE}#mosaic/#{data.id}/"
     $("#Popup .snsFacebookButton").attr('href',"https://www.facebook.com/sharer.php?u="+encodeURIComponent(shareUrl))
-    $("#Popup .snsTwitterButton").attr('href',"https://twitter.com/intent/tweet?url="+encodeURIComponent(shareUrl)+"&text="+encodeURIComponent("#{INDI_TWITTER_TEXT}"))
-    $("#Popup .snsLineButton").attr('href',"https://line.me/R/msg/text/?"+"#{INDI_TWITTER_TEXT}"+'%0D%0A'+shareUrl)
+    $("#Popup .snsTwitterButton").attr('href',"https://twitter.com/intent/tweet?url="+encodeURIComponent(shareUrl)+"&text="+encodeURIComponent("#{indiTwitterText}"))
+    $("#Popup .snsLineButton").attr('href',"https://line.me/R/msg/text/?"+"#{indiTwitterText}"+'%0D%0A'+shareUrl)
     for item of data
       $("#Popup .popup"+Utility.upperCase(item)+"Style").html data[item]
 
@@ -1551,7 +1545,6 @@ class Popup extends Backbone.View
     Shadow.setFullSize($(@el).height())
     $("#Popup #loadImage").unbind()
   hide:=>
-    console.log 'Popup hide'
     @trigger "backtomain"
     Shadow.setSize()
     $(@el).hide()
@@ -1611,10 +1604,12 @@ setInitData = (data) ->
   initialZoomSizeArr = data.initialZoomSizeArr
   tileImageDir = data.blockimgPath
   zoomImageDir = data.zoomImagePath
-  SEARCH_API = data.searchApi
-  BG_IMAGE_API = data.bgImageApi
-  INDI_TWITTER_TEXT = data.indiTwitterText
-  CAMP_TWITTER_TEXT = data.campTwitterText
+  searchApi = data.searchApi
+  bgImageApi = data.bgImageApi
+  indiTwitterText = data.indiTwitterText
+  campTwitterText = data.campTwitterText
+
+  snsLinkage = data.snsLinkage
 
   i=0
   for x in arrZoomSizeX

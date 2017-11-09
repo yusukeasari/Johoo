@@ -41,7 +41,6 @@ if(!empty($_GET["id"])){
 					}
 				}
 				$mheight += $target->getImageHeight();
-				//
 			}else if(!$file->isDot() && !$file->isDir()){
 				array_push($files, $file->getRealPath().'/'.$file->getFilename);
 			}

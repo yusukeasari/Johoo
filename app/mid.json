@@ -13,5 +13,8 @@
   "searchApi": "api\/search.php",
   "bgImageApi": "api\/makeBgImage.php",
   "indiTwitterText":"",
-  "campTwitterText":""
+  "campTwitterText":"",
+  "pitcomSnap":true,
+  "pitcomSnapVersion":4,
+  "snsLinkage":false
 }

@@ -3,7 +3,7 @@
 /* 外部設定 初期化 */
 
 (function() {
-  var APP_FILE, BG_IMAGE_API, Browser, CAMP_TWITTER_TEXT, ClickOnlyButton, ControlPanel, ControlPanelModel, DOMAIN, DT, DeleteValueButton, INDI_TWITTER_TEXT, INIT_FILE, MID, Marker, PhotomosaicViewer, Point, Popup, Pyramid, SEARCH_API, SModel, SearchPanel, SearchResult, Shadow, SmallMap, TIMELINE_API, Tile, TileView, Tiles, Timeline, TimelineChild, TimelineChildView, UID, Utility, arrZoomSizeX, arrZoomSizeY, cache, commentZoom, getSection, getUrlVars, initialZoomSizeArr, minBlockSize, minZoom, motifHeight, motifWidth, nowZoom, pinchTrigger, prevZoom, setInitData, tileHeight, tileImageDir, tileImageExtension, tileWidth, tlImageWidth, zoomImageDir, zoomSize,
+  var APP_FILE, Browser, ClickOnlyButton, ControlPanel, ControlPanelModel, DOMAIN, DT, DeleteValueButton, INIT_FILE, MID, Marker, PhotomosaicViewer, Point, Popup, Pyramid, SModel, SearchPanel, SearchResult, Shadow, SmallMap, Tile, TileView, Tiles, Timeline, TimelineChild, TimelineChildView, UID, Utility, arrZoomSizeX, arrZoomSizeY, bgImageApi, cache, campTwitterText, commentZoom, getSection, getUrlVars, indiTwitterText, initialZoomSizeArr, minBlockSize, minZoom, motifHeight, motifWidth, nowZoom, pinchTrigger, prevZoom, searchApi, setInitData, snsLinkage, tileHeight, tileImageDir, tileImageExtension, tileWidth, tlImageWidth, zoomImageDir, zoomSize,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -12,7 +12,7 @@
 
   DOMAIN = '';
 
-  BG_IMAGE_API = '';
+  bgImageApi = '';
 
   APP_FILE = '';
 
@@ -30,17 +30,17 @@
 
   motifHeight = 0;
 
-  SEARCH_API = '';
-
-  TIMELINE_API = '';
+  searchApi = '';
 
   tileImageDir = '';
 
   zoomImageDir = '';
 
-  INDI_TWITTER_TEXT = '';
+  indiTwitterText = '';
 
-  CAMP_TWITTER_TEXT = '';
+  campTwitterText = '';
+
+  snsLinkage = false;
 
   commentZoom = false;
 
@@ -73,6 +73,7 @@
       this.showSearchPanel = bind(this.showSearchPanel, this);
       this.backtomain = bind(this.backtomain, this);
       this.openPopupFromTimeline = bind(this.openPopupFromTimeline, this);
+      this.sharedOpenPopupFromPoint = bind(this.sharedOpenPopupFromPoint, this);
       this.openPopupFromPoint = bind(this.openPopupFromPoint, this);
       this.onOrient = bind(this.onOrient, this);
       this.initialize = bind(this.initialize, this);
@@ -84,8 +85,6 @@
     PhotomosaicViewer.prototype.initialize = function() {
       var css_href;
       this.uniBrowse = new Browser;
-      console.log(initialZoomSizeArr);
-      console.log(initialZoomSizeArr[Browser.device]);
       minZoom = initialZoomSizeArr[Browser.device];
       nowZoom = minZoom;
       prevZoom = minZoom + 1;
@@ -103,7 +102,7 @@
     PhotomosaicViewer.prototype.openPopupFromPoint = function(_id) {
       var p;
       p = 0;
-      return $.getJSON(SEARCH_API, {
+      return $.getJSON(searchApi, {
         'id': _id
       }, (function(_this) {
         return function(data, status) {
@@ -112,6 +111,30 @@
             _this.popup.openPopupFromPoint(p);
             _this.marker.setResult(p);
             return _this.marker.render();
+          }
+        };
+      })(this)).fail(function() {
+        return console.log('error:' + status);
+      });
+    };
+
+    PhotomosaicViewer.prototype.sharedOpenPopupFromPoint = function(_id) {
+      var p;
+      p = 0;
+      return $.getJSON(searchApi, {
+        'id': _id
+      }, (function(_this) {
+        return function(data, status) {
+          if (status && data !== null) {
+            p = data[0][0].num;
+            _this.popup.clear();
+            _this.searchPanel.hide();
+            Pyramid.show();
+            ControlPanel.show();
+            nowZoom = arrZoomSizeX.length - 2;
+            prevZoom = arrZoomSizeX.length - 3;
+            _this.marker.setResult(p);
+            return _this.pyramid.moveToNum(p);
           }
         };
       })(this)).fail(function() {
@@ -131,7 +154,6 @@
     };
 
     PhotomosaicViewer.prototype.backtomain = function() {
-      console.log('backtomain');
       this.searchPanel.hide();
       this.pyramid.closePopup();
       this.popup.closePopup();
@@ -191,7 +213,7 @@
       })(this));
       this.pyramid.bind('openPopupFromPoint', (function(_this) {
         return function(_p) {
-          return $.getJSON(SEARCH_API, {
+          return $.getJSON(searchApi, {
             'n': _p
           }, function(data, status) {
             var p;
@@ -477,7 +499,6 @@
         return deleteValueButtons.push(new DeleteValueButton($(this)));
       });
       $('input[type=text]').each(function(i, o) {
-        console.log(this, o, i);
         return $(this).bind('keyup', this.inputKeyup);
       });
       return $(this.el).bind('bottom', this.bottom);
@@ -827,7 +848,7 @@
       } else {
         pageQuery = 'page=' + this.page;
       }
-      return $.ajax(SEARCH_API, {
+      return $.ajax(searchApi, {
         type: "GET",
         data: query + pageQuery,
         dataType: "json",
@@ -934,7 +955,6 @@
       ref = Browser.browserNameList;
       for (j = 0, len = ref.length; j < len; j++) {
         b = ref[j];
-        console.log(_var);
         if (_var.toLowerCase().match(new RegExp(b.name))) {
           return b.name;
         }
@@ -1070,7 +1090,7 @@
         'cursor': '-moz-grab'
       });
       $(this.el).css({
-        'background-image': "url('" + BG_IMAGE_API + "')",
+        'background-image': "url('" + bgImageApi + "')",
         'background-size': 'contain'
       });
       this.update();
@@ -2054,7 +2074,7 @@
 
     Popup.prototype.openPopupFromPoint = function(p) {
       Shadow.show();
-      return $.getJSON(SEARCH_API, {
+      return $.getJSON(searchApi, {
         'n': p
       }, (function(_this) {
         return function(data, status) {
@@ -2065,7 +2085,6 @@
           }
         };
       })(this)).fail(function() {
-        console.log("Popup.fali");
         return this.hide();
       });
     };
@@ -2101,8 +2120,8 @@
       var item, results, shareUrl;
       shareUrl = "" + DOMAIN + APP_FILE + "#mosaic/" + data.id + "/";
       $("#Popup .snsFacebookButton").attr('href', "https://www.facebook.com/sharer.php?u=" + encodeURIComponent(shareUrl));
-      $("#Popup .snsTwitterButton").attr('href', "https://twitter.com/intent/tweet?url=" + encodeURIComponent(shareUrl) + "&text=" + encodeURIComponent("" + INDI_TWITTER_TEXT));
-      $("#Popup .snsLineButton").attr('href', "https://line.me/R/msg/text/?" + ("" + INDI_TWITTER_TEXT) + '%0D%0A' + shareUrl);
+      $("#Popup .snsTwitterButton").attr('href', "https://twitter.com/intent/tweet?url=" + encodeURIComponent(shareUrl) + "&text=" + encodeURIComponent("" + indiTwitterText));
+      $("#Popup .snsLineButton").attr('href', "https://line.me/R/msg/text/?" + ("" + indiTwitterText) + '%0D%0A' + shareUrl);
       results = [];
       for (item in data) {
         results.push($("#Popup .popup" + Utility.upperCase(item) + "Style").html(data[item]));
@@ -2151,7 +2170,6 @@
     };
 
     Popup.prototype.hide = function() {
-      console.log('Popup hide');
       this.trigger("backtomain");
       Shadow.setSize();
       $(this.el).hide();
@@ -2229,10 +2247,11 @@
     initialZoomSizeArr = data.initialZoomSizeArr;
     tileImageDir = data.blockimgPath;
     zoomImageDir = data.zoomImagePath;
-    SEARCH_API = data.searchApi;
-    BG_IMAGE_API = data.bgImageApi;
-    INDI_TWITTER_TEXT = data.indiTwitterText;
-    CAMP_TWITTER_TEXT = data.campTwitterText;
+    searchApi = data.searchApi;
+    bgImageApi = data.bgImageApi;
+    indiTwitterText = data.indiTwitterText;
+    campTwitterText = data.campTwitterText;
+    snsLinkage = data.snsLinkage;
     i = 0;
     for (j = 0, len = arrZoomSizeX.length; j < len; j++) {
       x = arrZoomSizeX[j];
