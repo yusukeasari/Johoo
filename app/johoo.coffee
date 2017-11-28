@@ -1,6 +1,6 @@
 ### 外部設定 初期化 ###
 
-INIT_FILE = 'app/mid.json'
+INIT_FILE = 'app/mid2.json'
 DOMAIN = ''
 bgImageApi = ''
 APP_FILE = ''
@@ -450,6 +450,9 @@ class SearchPanel extends Backbone.View
       query += 'b2='+$('#SearchPanelInnerContents #b2').val()+'&'
     if $('#SearchPanelInnerContents #b3').val() isnt undefined
       query += 'b3='+$('#SearchPanelInnerContents #b3').val()+'&'
+    if $('#SearchPanelInnerContents #b4').val() isnt undefined
+      query += 'b4='+$('#SearchPanelInnerContents #b4').val()+'&'
+
     if query isnt '' then query.slice 0,-1
 
     @searchQuery.sendQuery query
@@ -583,16 +586,17 @@ class TimelineChildView extends Backbone.View
       attr('class','tlOutline')
     $('<div>').
       attr('class','tlTitle').
-      html(item.b1).
+      html(item.b4).
       appendTo inner
     $('<div>').
       attr('class','tlMsg').
-      #html(item.b2+"(#{item.id})").
-      html(item.b2).
+#forH
+#      html(item.b2).
       appendTo inner
 
     tl = $(@el).
       attr('class','timelineChild').
+#forH
       attr('id','timelineChild'+item.id)
     $('<img />').
       attr('class','tlImg').
@@ -1468,13 +1472,18 @@ class Popup extends Backbone.View
       console.log "ERROR:Popuphtmlが読み込めません"
     else
       $(@el).html(data)
+    @base = $.extend(true,{},$('#snsPost').clone());
 
   openPopupFromPoint:(p)=>
     Shadow.show()
     $.getJSON searchApi,{'n':p},(data,status)=>
       #タップ拡大時に特殊なフラグによって条件分岐するならココ
-      ##and "#{data.img}" isnt 'undefined'
-      if status and data isnt null then @render data[0] else @hide()
+      ##and "#{data.img}" isnt 'undefined'    #Popup要素初期化
+      if snsLinkage && data[0].b5 isnt 1
+        imgUrl = data[0].b1
+      else
+        imgUrl = zoomImageDir+data[0].img+tileImageExtension
+      if status and data isnt null then @render(data[0],imgUrl) else @hide()
     .fail ->
       @hide()
 
@@ -1491,29 +1500,47 @@ class Popup extends Backbone.View
     @clear()
     @hide()
 
-  render:(data)=>
-    #Popup要素初期化
+  render:(data,imgSrc)=>
     $("#Popup #loadImage").
       css('margin-top',5).
-      attr('src',zoomImageDir+data.img+tileImageExtension).
+      attr('src',imgSrc).
       load( =>
         @setDataToView(data)
         @snsButtonAction(data.id)
         @closeButtonAction()
-
+        $("#Popup #loadImage").css("width", "300px")
+        $("#Popup img").css("vertical-align", "middle")
         @show()
       ).
-      error( =>
+      error( (status)=>
+#        console.log 'error:'+JSON.stringify(status)
+#        if status == '404'
         @closePopup()
+        @render(data,'img/private.png')
+      #else
       )
   setDataToView:(data)=>
     shareUrl = "#{DOMAIN}#{APP_FILE}#mosaic/#{data.id}/"
     $("#Popup .snsFacebookButton").attr('href',"https://www.facebook.com/sharer.php?u="+encodeURIComponent(shareUrl))
     $("#Popup .snsTwitterButton").attr('href',"https://twitter.com/intent/tweet?url="+encodeURIComponent(shareUrl)+"&text="+encodeURIComponent("#{indiTwitterText}"))
     $("#Popup .snsLineButton").attr('href',"https://line.me/R/msg/text/?"+"#{indiTwitterText}"+'%0D%0A'+shareUrl)
+    copy = $.extend(true,{},@base);
+    txt = copy.html()
     for item of data
-      $("#Popup .popup"+Utility.upperCase(item)+"Style").html data[item]
-
+      if snsLinkage == true
+          txt = txt.replace(new RegExp('{#'+item+'#}','g'),data[item])
+          $('#snsPost').html(txt)
+          $("a:link").css("color", "#ffffff")
+          $(".popupB1Style").css("fontSize", "1.2em")
+          if data.b3 is "Tagtoru" or data.b5 is 1
+            $('#snsPost a').css('pointer-events', 'none')
+            $('#snsPost a').css('text-decoration', 'none')
+      else
+        $("#Popup .popup"+Utility.upperCase(item)+"Style").html data[item]
+    if snsLinkage is true
+      return $('#nonSnsPost').hide()
+    else
+      return $('#snsPost').hide()
   snsButtonAction:(_id)->
     $("#Popup .snsFacebookButton").unbind()
     $("#Popup .snsFacebookButton").bind "touchend",(e) ->
