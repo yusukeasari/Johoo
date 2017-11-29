@@ -1,6 +1,6 @@
 ### 外部設定 初期化 ###
 
-INIT_FILE = 'app/mid2.json'
+INIT_FILE = 'app/mid.json'
 DOMAIN = ''
 bgImageApi = ''
 APP_FILE = ''
@@ -66,7 +66,7 @@ class PhotomosaicViewer extends Backbone.View
     #@smallMap.setup()
     @popup.resize()
     $(@el).show()
-  openPopupFromPoint:(_id)=>
+  openPopupFromId:(_id)=>
     p = 0
     $.getJSON searchApi,{'id':_id},(data,status)=>
       #タップ拡大時に特殊なフラグによって条件分岐するならココ
@@ -76,27 +76,6 @@ class PhotomosaicViewer extends Backbone.View
         @popup.openPopupFromPoint p
         @marker.setResult p
         @marker.render()
-    .fail ->
-      console.log 'error:'+status
-
-  sharedOpenPopupFromPoint:(_id)=>
-    p = 0
-    $.getJSON searchApi,{'id':_id},(data,status)=>
-      #タップ拡大時に特殊なフラグによって条件分岐するならココ
-      ##and "#{data.img}" isnt 'undefined'
-      if status and data isnt null
-        p = data[0][0].num
-        @popup.clear()
-        @searchPanel.hide()
-        #@smallMap.show()
-        Pyramid.show()
-        ControlPanel.show()
-
-        nowZoom = arrZoomSizeX.length-2
-        prevZoom = arrZoomSizeX.length-3
-
-        @marker.setResult p
-        @pyramid.moveToNum p
     .fail ->
       console.log 'error:'+status
 
@@ -191,8 +170,8 @@ class PhotomosaicViewer extends Backbone.View
         #タップ拡大時に特殊なフラグによって条件分岐するならココ
         if status and data isnt null
           if data[0].id isnt undefined
-            p = data[0].id
-            @router.navigate "mosaic/#{p}/",
+            p = data[0].num
+            @router.navigate "mosaic/n/#{p}/",
               trigger: true
 
       .fail ->
@@ -241,7 +220,11 @@ class PhotomosaicViewer extends Backbone.View
     ###
 
     @router = new Backbone.Router
-    @router.route "mosaic/:id/", (_id)=> @openPopupFromPoint(_id)
+    @router.route "mosaic/id/:id/", (_id)=> @openPopupFromId(_id)
+    @router.route "mosaic/n/:n/", (_n)=>
+      @popup.openPopupFromPoint(_n)
+      @marker.setResult _n
+      @marker.render()
     @router.route "timeline/:id/", (_id)=> @openPopupFromTimeline(_id)
     @router.route "search/", (_p)=> @showSearchPanel()
     @router.route "", => @backtomain()
@@ -1520,7 +1503,7 @@ class Popup extends Backbone.View
       #else
       )
   setDataToView:(data)=>
-    shareUrl = "#{DOMAIN}#{APP_FILE}#mosaic/#{data.id}/"
+    shareUrl = "#{DOMAIN}#{APP_FILE}#mosaic/id/#{data.id}/"
     $("#Popup .snsFacebookButton").attr('href',"https://www.facebook.com/sharer.php?u="+encodeURIComponent(shareUrl))
     $("#Popup .snsTwitterButton").attr('href',"https://twitter.com/intent/tweet?url="+encodeURIComponent(shareUrl)+"&text="+encodeURIComponent("#{indiTwitterText}"))
     $("#Popup .snsLineButton").attr('href',"https://line.me/R/msg/text/?"+"#{indiTwitterText}"+'%0D%0A'+shareUrl)
