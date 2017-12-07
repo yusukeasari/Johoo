@@ -8,7 +8,7 @@
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
-  INIT_FILE = 'app/mid2.json';
+  INIT_FILE = 'app/mid.json';
 
   DOMAIN = '';
 
@@ -73,8 +73,7 @@
       this.showSearchPanel = bind(this.showSearchPanel, this);
       this.backtomain = bind(this.backtomain, this);
       this.openPopupFromTimeline = bind(this.openPopupFromTimeline, this);
-      this.sharedOpenPopupFromPoint = bind(this.sharedOpenPopupFromPoint, this);
-      this.openPopupFromPoint = bind(this.openPopupFromPoint, this);
+      this.openPopupFromId = bind(this.openPopupFromId, this);
       this.onOrient = bind(this.onOrient, this);
       this.initialize = bind(this.initialize, this);
       return PhotomosaicViewer.__super__.constructor.apply(this, arguments);
@@ -89,7 +88,11 @@
       nowZoom = minZoom;
       prevZoom = minZoom + 1;
       css_href = 'css/johoo_' + Browser.device + '.css' + cache;
-      $('<link>').attr('href', css_href).attr('rel', 'stylesheet').load().appendTo($('head'));
+      $("<link/>", {
+        rel: "stylesheet",
+        type: "text/css",
+        href: css_href
+      }).appendTo($('head'));
       return this.setup("");
     };
 
@@ -99,7 +102,7 @@
       return $(this.el).show();
     };
 
-    PhotomosaicViewer.prototype.openPopupFromPoint = function(_id) {
+    PhotomosaicViewer.prototype.openPopupFromId = function(_id) {
       var p;
       p = 0;
       return $.getJSON(searchApi, {
@@ -111,30 +114,6 @@
             _this.popup.openPopupFromPoint(p);
             _this.marker.setResult(p);
             return _this.marker.render();
-          }
-        };
-      })(this)).fail(function() {
-        return console.log('error:' + status);
-      });
-    };
-
-    PhotomosaicViewer.prototype.sharedOpenPopupFromPoint = function(_id) {
-      var p;
-      p = 0;
-      return $.getJSON(searchApi, {
-        'id': _id
-      }, (function(_this) {
-        return function(data, status) {
-          if (status && data !== null) {
-            p = data[0][0].num;
-            _this.popup.clear();
-            _this.searchPanel.hide();
-            Pyramid.show();
-            ControlPanel.show();
-            nowZoom = arrZoomSizeX.length - 2;
-            prevZoom = arrZoomSizeX.length - 3;
-            _this.marker.setResult(p);
-            return _this.pyramid.moveToNum(p);
           }
         };
       })(this)).fail(function() {
@@ -177,7 +156,7 @@
       this.controlPanel = new ControlPanel;
       this.marker = new Marker;
       if (Browser.device !== 'pc') {
-        $(window).bind("orientationchange", (function(_this) {
+        $(window).on("orientationchange", (function(_this) {
           return function() {
             $(_this.el).hide();
             return setTimeout(function() {
@@ -187,7 +166,7 @@
           };
         })(this));
       } else {
-        $(window).bind("resize", (function(_this) {
+        $(window).on("resize", (function(_this) {
           return function() {
             $(_this.el).hide();
             return setTimeout(function() {
@@ -197,21 +176,21 @@
           };
         })(this));
       }
-      this.searchPanel.bind('backtomain', (function(_this) {
+      this.searchPanel.on('backtomain', (function(_this) {
         return function() {
           return _this.router.navigate("", {
             trigger: true
           });
         };
       })(this));
-      this.popup.bind('backtomain', (function(_this) {
+      this.popup.on('backtomain', (function(_this) {
         return function() {
           return _this.router.navigate("", {
             trigger: true
           });
         };
       })(this));
-      this.pyramid.bind('openPopupFromPoint', (function(_this) {
+      this.pyramid.on('openPopupFromPoint', (function(_this) {
         return function(_p) {
           return $.getJSON(searchApi, {
             'n': _p
@@ -219,8 +198,8 @@
             var p;
             if (status && data !== null) {
               if (data[0].id !== void 0) {
-                p = data[0].id;
-                return _this.router.navigate("mosaic/" + p + "/", {
+                p = data[0].num;
+                return _this.router.navigate("mosaic/n/" + p + "/", {
                   trigger: true
                 });
               }
@@ -230,37 +209,37 @@
           });
         };
       })(this));
-      this.controlPanel.bind('showSearchPanel', (function(_this) {
+      this.controlPanel.on('showSearchPanel', (function(_this) {
         return function() {
           return _this.router.navigate("search/", {
             trigger: true
           });
         };
       })(this));
-      this.pyramid.bind('marker', (function(_this) {
+      this.pyramid.on('marker', (function(_this) {
         return function() {
           return _this.marker.render();
         };
       })(this));
-      this.searchPanel.bind('startSearch', (function(_this) {
+      this.searchPanel.on('startSearch', (function(_this) {
         return function() {
           return _this.marker.clear();
         };
       })(this));
-      this.searchPanel.bind('onclicktimeline', (function(_this) {
+      this.searchPanel.on('onclicktimeline', (function(_this) {
         return function(d) {
           return _this.router.navigate("timeline/" + d + "/", {
             trigger: true
           });
         };
       })(this));
-      this.pyramid.bind('moving', function(c) {});
-      this.controlPanel.bind('change', (function(_this) {
+      this.pyramid.on('moving', function(c) {});
+      this.controlPanel.on('change', (function(_this) {
         return function(h) {
           return _this.pyramid.update(h);
         };
       })(this));
-      this.controlPanel.bind('onclickhomebutton', (function(_this) {
+      this.controlPanel.on('onclickhomebutton', (function(_this) {
         return function() {
           nowZoom = minZoom;
           prevZoom = minZoom + 1;
@@ -279,9 +258,16 @@
        * Router振り分け
        */
       this.router = new Backbone.Router;
-      this.router.route("mosaic/:id/", (function(_this) {
+      this.router.route("mosaic/id/:id/", (function(_this) {
         return function(_id) {
-          return _this.openPopupFromPoint(_id);
+          return _this.openPopupFromId(_id);
+        };
+      })(this));
+      this.router.route("mosaic/n/:n/", (function(_this) {
+        return function(_n) {
+          _this.popup.openPopupFromPoint(_n);
+          _this.marker.setResult(_n);
+          return _this.marker.render();
         };
       })(this));
       this.router.route("timeline/:id/", (function(_this) {
@@ -398,7 +384,7 @@
     }
 
     SModel.prototype.setEvent = function(_target, _eventname) {
-      return this.bind(_eventname, (function(_this) {
+      return this.on(_eventname, (function(_this) {
         return function(_data) {
           return _this.cEvent(_eventname, _data);
         };
@@ -406,7 +392,7 @@
     };
 
     SModel.prototype.removeEvent = function(_e) {
-      return this.unbind(_e);
+      return this.off(_e);
     };
 
     SModel.prototype.cEvent = function(_event, _data) {
@@ -451,13 +437,15 @@
 
     SearchPanel.prototype.initialize = function() {
       this.timeline = new Timeline;
-      this.timeline.bind('test', this.test);
-      this.timeline.bind('add', this.appendTimeline);
-      this.timeline.bind('onclicktimeline', this.onclicktimeline);
+      this.timeline.on('test', this.test);
+      this.timeline.on('add', this.appendTimeline);
+      this.timeline.on('onclicktimeline', this.onclicktimeline);
       this.searchQuery = new SearchResult;
       this.loadingStatus = false;
       this.execSearched = false;
-      return $(this.el).load("/assets/html/searchPanel.html", this.searchpanelloaded);
+      return $.ajax('/assets/html/searchPanel.html', {
+        datatype: 'html'
+      }).then(this.searchpanelloaded);
     };
 
     SearchPanel.prototype.test = function(a) {
@@ -468,9 +456,9 @@
       if (status !== 'success') {
         alert("ERROR:検索パネルが読み込めません");
       } else {
-        $(SearchPanel.el).html(data);
+        $(this.el).html(data);
       }
-      $('#backToMainButton').bind('click', this.onBackToMain);
+      $('#backToMainButton').on('click', this.onBackToMain);
       return this.setup();
     };
 
@@ -493,15 +481,15 @@
 
     SearchPanel.prototype.setup = function() {
       var deleteValueButtons;
-      $('#searchSubmitButton').bind('click', this.onTapSubmitButton);
+      $('#searchSubmitButton').on('click', this.onTapSubmitButton);
       deleteValueButtons = [];
       $('span.delig').each(function(i, o) {
         return deleteValueButtons.push(new DeleteValueButton($(this)));
       });
       $('input[type=text]').each(function(i, o) {
-        return $(this).bind('keyup', this.inputKeyup);
+        return $(this).on('keyup', this.inputKeyup);
       });
-      return $(this.el).bind('bottom', this.bottom);
+      return $(this.el).on('bottom', this.bottom);
     };
 
     SearchPanel.prototype.inputKeyup = function(e) {
@@ -531,11 +519,11 @@
         if (this.noMoreResult !== true) {
           $('#loadingAnimation').append('<span style="font-size:24px;margin:auto;vertical-align: middle;">タップして続きを見る</span>');
           $('#loadingAnimation').height(48);
-          $('#loadingAnimation').bind('click', (function(_this) {
+          $('#loadingAnimation').on('click', (function(_this) {
             return function() {
               _this.loading(true);
               $(_this.el).trigger('bottom');
-              return $('#loadingAnimation').unbind();
+              return $('#loadingAnimation').off();
             };
           })(this));
         } else {
@@ -558,13 +546,13 @@
     SearchPanel.prototype.sendQuery = function() {
       var query;
       query = '';
-      this.searchQuery.unbind();
-      this.searchQuery.bind('return', (function(_this) {
+      this.searchQuery.off();
+      this.searchQuery.on('return', (function(_this) {
         return function(result) {
           return _this.render(result);
         };
       })(this));
-      this.searchQuery.bind('error', (function(_this) {
+      this.searchQuery.on('error', (function(_this) {
         return function() {
           return _this.error;
         };
@@ -665,7 +653,7 @@
 
     SearchPanel.prototype.clear = function() {
       this.execSearched = false;
-      $('#loadingAnimation').unbind();
+      $('#loadingAnimation').off();
       $('#loadingAnimation').html('');
       return this.timeline.clear();
     };
@@ -701,7 +689,7 @@
         'backgroundRepeat': 'no-repeat',
         'backgroundPosition': 'center'
       });
-      this.el.children('input').bind('keyup', (function(_this) {
+      this.el.children('input').on('keyup', (function(_this) {
         return function() {
           if (_this.el.children('input').val() === '') {
             return $('#' + _this.el.children('input').attr('id') + 'DelButton').css({
@@ -714,7 +702,7 @@
           }
         };
       })(this));
-      $('#' + this.el.children('input').attr('id') + 'DelButton').bind('click', (function(_this) {
+      $('#' + this.el.children('input').attr('id') + 'DelButton').on('click', (function(_this) {
         return function() {
           _this.el.children('input').val('');
           $('#' + _this.el.children('input').attr('id') + 'DelButton').css({
@@ -766,11 +754,11 @@
     };
 
     TimelineChild.prototype.initialize = function() {
-      return this.bind('onclicktimeline', this.onclicktimeline);
+      return this.on('onclicktimeline', this.onclicktimeline);
     };
 
     TimelineChild.prototype.clear = function() {
-      this.unbind;
+      this.off;
       this.destroy;
       return this.view.unrender();
     };
@@ -810,7 +798,7 @@
       $('<div>').attr('class', 'tlTitle').html(item.b4).appendTo(inner);
       $('<div>').attr('class', 'tlMsg').appendTo(inner);
       tl = $(this.el).attr('class', 'timelineChild').attr('id', 'timelineChild' + item.id);
-      $('<img />').attr('class', 'tlImg').attr('width', tlImageWidth).attr('src', zoomImageDir + item.img + tileImageExtension).load().appendTo(tl);
+      $('<img />').attr('class', 'tlImg').attr('width', tlImageWidth).attr('src', zoomImageDir + item.img + tileImageExtension).appendTo(tl);
       inner.appendTo(tl);
       $('<br />').attr('class', 'timelineBR').appendTo(tl);
       return this;
@@ -818,7 +806,7 @@
 
     TimelineChildView.prototype.unrender = function() {
       $(this.el).remove();
-      return $(this.el).unbind();
+      return $(this.el).off();
     };
 
     TimelineChildView.prototype.onclicks = function() {
@@ -1075,20 +1063,20 @@
         };
       })(this);
       if (Browser.device !== 'pc') {
-        $(this.el).bind('touchstart', this.onMouseDown);
-        $(this.el).bind('touchend', this.onMouseUp);
-        $(this.el).bind('touchmove', this.onMouseMove);
-        $(this.el).bind('gesturestart', this.onGestureStart);
-        $(this.el).bind('gesturechange', this.onGestureMove);
-        $(this.el).bind('gestureend', this.onGestureEnd);
+        $(this.el).on('touchstart', this.onMouseDown);
+        $(this.el).on('touchend', this.onMouseUp);
+        $(this.el).on('touchmove', this.onMouseMove);
+        $(this.el).on('gesturestart', this.onGestureStart);
+        $(this.el).on('gesturechange', this.onGestureMove);
+        $(this.el).on('gestureend', this.onGestureEnd);
       } else {
-        $(this.el).bind('mousedown', this.onMouseDown);
-        $(this.el).bind('mouseup', this.onMouseUp);
-        $(this.el).bind('mousemove', this.onMouseMove);
+        $(this.el).on('mousedown', this.onMouseDown);
+        $(this.el).on('mouseup', this.onMouseUp);
+        $(this.el).on('mousemove', this.onMouseMove);
       }
       this.dragging = false;
       this.tiles = new Tiles;
-      this.tiles.bind('add', this.appendTile);
+      this.tiles.on('add', this.appendTile);
       $(this.el).css({
         'cursor': '-moz-grab'
       });
@@ -1172,12 +1160,12 @@
         cordy = Utility.type(cords[1]) !== 'array' ? cords[1] : cords[0][1];
         if (this.isSingleTap(this.dragStartX, cordx) && this.isSingleTap(this.dragStartY, cordy)) {
           if (!Shadow.isShow() && nowZoom > 3) {
-            $(this.el).unbind('touchend', this.onMouseUp);
+            $(this.el).off('touchend', this.onMouseUp);
             return this.trigger('openPopupFromPoint', this.getNumFromPoint([cords[0], cords[1]]));
           }
         } else if (this.isSingleTap(this.dragStartX, cordx) && this.isSingleTap(this.dragStartY, cordy) && this.isOnTiles([cords[0][0], cords[0][1]])) {
           if (!Shadow.isShow() && nowZoom > 3) {
-            $(this.el).unbind('touchend', this.onMouseUp);
+            $(this.el).off('touchend', this.onMouseUp);
             return this.trigger('openPopupFromPoint', this.getNumFromPoint([cords[0][0], cords[0][1]]));
           }
         } else {
@@ -1506,7 +1494,7 @@
 
     /*
      * addイベントのコールバックメソッド
-     * 原則としてcollectionへbindする事
+     * 原則としてcollectionへonする事
      * @param {tile} Tile
      */
 
@@ -1549,7 +1537,7 @@
     };
 
     Pyramid.prototype.closePopup = function() {
-      return $(this.el).bind('touchend', this.onMouseUp);
+      return $(this.el).on('touchend', this.onMouseUp);
     };
 
     return Pyramid;
@@ -1689,7 +1677,7 @@
         'position': 'absolute',
         'left': x * tileWidth,
         'top': y * tileWidth
-      }).load();
+      }).on('load', function() {});
       return this;
     };
 
@@ -1805,19 +1793,19 @@
       zoomInButton = new ClickOnlyButton({
         'el': '#ZoomInButton'
       });
-      zoomInButton.bind('change', this.zoomIn);
+      zoomInButton.on('change', this.zoomIn);
       zoomOutButton = new ClickOnlyButton({
         'el': '#ZoomOutButton'
       });
-      zoomOutButton.bind('change', this.zoomOut);
+      zoomOutButton.on('change', this.zoomOut);
       showSearchPanelButton = new ClickOnlyButton({
         'el': '#SearchPanelButton'
       });
-      showSearchPanelButton.bind('change', this.showSearchPanel);
+      showSearchPanelButton.on('change', this.showSearchPanel);
       showHomeButton = new ClickOnlyButton({
         'el': '#HomeButton'
       });
-      return showHomeButton.bind('change', this.onclickhomebutton);
+      return showHomeButton.on('change', this.onclickhomebutton);
     };
 
     ControlPanel.prototype.zoomIn = function() {
@@ -1888,11 +1876,11 @@
     ClickOnlyButton.prototype.initialize = function(_obj) {
       var el;
       el = _obj.el;
-      $(this.el).unbind();
+      $(this.el).off();
       if (Browser.device !== 'pc') {
-        return $(this.el).bind("touchend", this.onMouseUp);
+        return $(this.el).on("touchend", this.onMouseUp);
       } else {
-        return $(this.el).bind("mouseup", this.onMouseUp);
+        return $(this.el).on("mouseup", this.onMouseUp);
       }
     };
 
@@ -1902,7 +1890,7 @@
     };
 
     ClickOnlyButton.prototype.destroy = function() {
-      $(this.el).unbind();
+      $(this.el).off();
       return $(this.el).remove();
     };
 
@@ -2064,7 +2052,9 @@
     Popup.prototype.el = '#Popup';
 
     Popup.prototype.initialize = function() {
-      return $(this.el).load("/assets/html/popup.html", this.popupHtmlLoaded);
+      return $.ajax('/assets/html/popup.html', {
+        datatype: 'html'
+      }).then(this.popupHtmlLoaded);
     };
 
     Popup.prototype.popupHtmlLoaded = function(data, status) {
@@ -2073,7 +2063,7 @@
       } else {
         $(this.el).html(data);
       }
-      return this.base = $.extend(true, {}, $('#snsPost').clone());
+      return this.base = $('#snsPost').html();
     };
 
     Popup.prototype.openPopupFromPoint = function(p) {
@@ -2101,7 +2091,7 @@
 
     Popup.prototype.clear = function() {
       if ($(this.el).html() !== '') {
-        $("#Popup #closeButton").unbind();
+        $("#Popup #closeButton").off();
         return $("#Popup #loadImage").attr('src', '');
       }
     };
@@ -2112,8 +2102,8 @@
     };
 
     Popup.prototype.render = function(data, imgSrc) {
-      return $("#Popup #loadImage").css('margin-top', 5).attr('src', imgSrc).load((function(_this) {
-        return function() {
+      return $("#Popup #loadImage").css('margin-top', 5).attr('src', imgSrc).on('load', (function(_this) {
+        return function(status) {
           _this.setDataToView(data);
           _this.snsButtonAction(data.id);
           _this.closeButtonAction();
@@ -2121,22 +2111,16 @@
           $("#Popup img").css("vertical-align", "middle");
           return _this.show();
         };
-      })(this)).error((function(_this) {
-        return function(status) {
-          _this.closePopup();
-          return _this.render(data, 'img/private.png');
-        };
       })(this));
     };
 
     Popup.prototype.setDataToView = function(data) {
-      var copy, item, shareUrl, txt;
-      shareUrl = "" + DOMAIN + APP_FILE + "#mosaic/" + data.id + "/";
+      var item, shareUrl, txt;
+      shareUrl = "" + DOMAIN + APP_FILE + "#mosaic/id/" + data.id + "/";
       $("#Popup .snsFacebookButton").attr('href', "https://www.facebook.com/sharer.php?u=" + encodeURIComponent(shareUrl));
       $("#Popup .snsTwitterButton").attr('href', "https://twitter.com/intent/tweet?url=" + encodeURIComponent(shareUrl) + "&text=" + encodeURIComponent("" + indiTwitterText));
       $("#Popup .snsLineButton").attr('href', "https://line.me/R/msg/text/?" + ("" + indiTwitterText) + '%0D%0A' + shareUrl);
-      copy = $.extend(true, {}, this.base);
-      txt = copy.html();
+      txt = this.base;
       for (item in data) {
         if (snsLinkage === true) {
           txt = txt.replace(new RegExp('{#' + item + '#}', 'g'), data[item]);
@@ -2159,33 +2143,33 @@
     };
 
     Popup.prototype.snsButtonAction = function(_id) {
-      $("#Popup .snsFacebookButton").unbind();
-      $("#Popup .snsFacebookButton").bind("touchend", function(e) {
+      $("#Popup .snsFacebookButton").off();
+      $("#Popup .snsFacebookButton").on("touchend", function(e) {
         return _gaq.push(['_trackPageview', "/photomosaic/sp/fb/" + _id]);
       });
-      $("#Popup .snsTwitterButton").unbind();
-      $("#Popup .snsTwitterButton").bind("touchend", function(e) {
+      $("#Popup .snsTwitterButton").off();
+      $("#Popup .snsTwitterButton").on("touchend", function(e) {
         return _gaq.push(['_trackPageview', "/photomosaic/sp/tw/" + _id]);
       });
-      $("#Popup .snsLineButton").unbind();
-      return $("#Popup .snsLineButton").bind("touchend", function(e) {
+      $("#Popup .snsLineButton").off();
+      return $("#Popup .snsLineButton").on("touchend", function(e) {
         return _gaq.push(['_trackPageview', "/photomosaic/sp/line/" + _id]);
       });
     };
 
     Popup.prototype.closeButtonAction = function() {
       if (Browser.device !== 'pc') {
-        return $("#Popup #closeButton").bind("touchend", (function(_this) {
+        return $("#Popup #closeButton").on("touchend", (function(_this) {
           return function(e) {
             _this.closePopup(e);
-            return $("#Popup #closeButton").unbind();
+            return $("#Popup #closeButton").off();
           };
         })(this));
       } else {
-        return $("#Popup #closeButton").bind("mouseup", (function(_this) {
+        return $("#Popup #closeButton").on("mouseup", (function(_this) {
           return function(e) {
             _this.closePopup(e);
-            return $("#Popup #closeButton").unbind();
+            return $("#Popup #closeButton").off();
           };
         })(this));
       }
@@ -2195,7 +2179,7 @@
       $(this.el).show();
       Shadow.show();
       Shadow.setFullSize($(this.el).height());
-      return $("#Popup #loadImage").unbind();
+      return $("#Popup #loadImage").off();
     };
 
     Popup.prototype.hide = function() {
@@ -2218,11 +2202,15 @@
 
   })(Backbone.View);
 
-  getSection = function(url, callback) {
-    var req;
-    req = $.getJSON(url);
-    return req.success(function(data) {
-      return callback(data);
+  getSection = function(url, _data, callback) {
+    return $.ajax(url, {
+      type: 'GET',
+      dataType: 'json',
+      success: (function(_this) {
+        return function(data) {
+          return callback(data);
+        };
+      })(this)
     });
   };
 
@@ -2290,8 +2278,8 @@
     return pmviewer = new PhotomosaicViewer;
   };
 
-  $(window).load(function() {
-    return getSection(("" + INIT_FILE) + cache, setInitData);
+  $(window).on('load', function() {
+    return getSection(("" + INIT_FILE) + cache, null, setInitData);
   });
 
 }).call(this);

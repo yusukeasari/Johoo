@@ -53,11 +53,17 @@ class PhotomosaicViewer extends Backbone.View
     nowZoom = minZoom
     prevZoom = minZoom+1
     css_href = 'css/johoo_'+Browser.device+'.css' + cache
-    $('<link>').
-      attr('href',css_href).
-      attr('rel','stylesheet').
-      load().
-      appendTo $('head')
+#    $('<link>')
+#      .attr('href',css_href)
+#      .attr('rel','stylesheet')
+#      .on 'load', =>
+#        $(this).appendTo $('head')
+
+    $("<link/>",
+      rel: "stylesheet",
+      type: "text/css",
+      href: css_href
+    ).appendTo $('head')
 
     @setup("")
 
@@ -133,7 +139,7 @@ class PhotomosaicViewer extends Backbone.View
     @marker = new Marker
 
     if Browser.device isnt 'pc'
-      $(window).bind "orientationchange", =>
+      $(window).on "orientationchange", =>
         $(@el).hide()
 
         setTimeout =>
@@ -141,7 +147,7 @@ class PhotomosaicViewer extends Backbone.View
           @onOrient()
         ,1000
     else
-      $(window).bind "resize", =>
+      $(window).on "resize", =>
         $(@el).hide()
 
         setTimeout =>
@@ -149,22 +155,16 @@ class PhotomosaicViewer extends Backbone.View
           @onOrient()
         ,1000
 
-
-    #フォトモザイク部分がクリックされ、かつ有効な座標であった場合、拡大表示を実行
-    #@pyramid.bind 'openPopupFromPoint',(p) =>
-    #  @popup.openPopupFromPoint p
-    #  @marker.setResult p
-    #  @marker.render()
     #メイン画面へ戻る
-    @searchPanel.bind 'backtomain', =>
+    @searchPanel.on 'backtomain', =>
       @router.navigate "",
         trigger: true
 
-    @popup.bind 'backtomain', =>
+    @popup.on 'backtomain', =>
       @router.navigate "",
         trigger: true
 
-    @pyramid.bind 'openPopupFromPoint',(_p) =>
+    @pyramid.on 'openPopupFromPoint',(_p) =>
 
       $.getJSON searchApi,{'n':_p},(data,status)=>
         #タップ拡大時に特殊なフラグによって条件分岐するならココ
@@ -178,31 +178,31 @@ class PhotomosaicViewer extends Backbone.View
         console.log 'error:'+status
 
     #検索パネル表示イベント
-    @controlPanel.bind 'showSearchPanel', =>
+    @controlPanel.on 'showSearchPanel', =>
       @router.navigate "search/",
         trigger: true
 
     #検索位置を示すマーカーを表示
-    @pyramid.bind 'marker', =>
+    @pyramid.on 'marker', =>
       @marker.render()
 
     #検索開始イベント
-    @searchPanel.bind 'startSearch', =>
+    @searchPanel.on 'startSearch', =>
       @marker.clear()
 
     #タイムラインクリック時のイベント
-    @searchPanel.bind 'onclicktimeline',(d) =>
+    @searchPanel.on 'onclicktimeline',(d) =>
       @router.navigate "timeline/#{d}/",
         trigger: true
 
-    @pyramid.bind 'moving',(c) ->
+    @pyramid.on 'moving',(c) ->
       #@smallMap.setCoords c
     #コンパネイベント
-    @controlPanel.bind 'change',(h) =>
+    @controlPanel.on 'change',(h) =>
       @pyramid.update h
 
     #フォトモザイクを標準位置へセット
-    @controlPanel.bind 'onclickhomebutton', =>
+    @controlPanel.on 'onclickhomebutton', =>
       nowZoom = minZoom
       prevZoom = minZoom+1
       @pyramid.update()
@@ -288,21 +288,16 @@ class SmallMap extends Backbone.View
   show:=>
     $(@el).show()
 
-  #setCursolSize:=>
-    # コレが基準
-    #@cursor.width(Browser.width*(zoomSize[nowZoom][0]/Browser.width))
-    #@cursor.height(Browser.height*(zoomSize[nowZoom][1]/Browser.height))
-
 ###*
  * Class SModel 現在はイベント管理のみ
 ###
 class SModel extends Backbone.Model
   setEvent:(_target,_eventname)=>
-    @.bind _eventname,(_data) =>
+    @.on _eventname,(_data) =>
       @cEvent(_eventname,_data)
 
   removeEvent:(_e)=>
-    @.unbind _e
+    @.off _e
 
   cEvent:(_event,_data)=>
     @trigger "#{_event}R",_data
@@ -314,20 +309,19 @@ class SearchPanel extends Backbone.View
   @timeline: ''
 
   initialize:=>
-    #_.bindAll @
-
     #タイムラインを構築
     @timeline = new Timeline
-    @timeline.bind 'test', @test
-    @timeline.bind 'add', @appendTimeline
-    @timeline.bind 'onclicktimeline', @onclicktimeline
+    @timeline.on 'test', @test
+    @timeline.on 'add', @appendTimeline
+    @timeline.on 'onclicktimeline', @onclicktimeline
 
     @searchQuery = new SearchResult
     @loadingStatus = false
     @execSearched = false
 
-    $(@el).load "/assets/html/searchPanel.html",@searchpanelloaded
-
+    $.ajax '/assets/html/searchPanel.html',
+      datatype: 'html'
+    .then @searchpanelloaded
   test:(a)=>
     console.log a
   searchpanelloaded:(data,status)=>
@@ -336,8 +330,8 @@ class SearchPanel extends Backbone.View
     else
       #置換処理を入れる
       #@@@@@@@@@@@@@
-      $(SearchPanel.el).html(data)
-    $('#backToMainButton').bind 'click', @onBackToMain
+      $(@el).html(data)
+    $('#backToMainButton').on 'click', @onBackToMain
     @setup()
 
   onBackToMain:=>
@@ -351,24 +345,20 @@ class SearchPanel extends Backbone.View
     timelineChildView = new TimelineChildView model: tile
 
     $("#searchResult").append timelineChildView.render().el
-#    $('.tlTitle').css
-#      width:Browser.width-tlImageWidth-10
-#    $('.tlMsg').css
-#      width:Browser.width-tlImageWidth-10
 
   setup:=>
     #検索ボタンを有効化
-    $('#searchSubmitButton').bind 'click', @onTapSubmitButton
+    $('#searchSubmitButton').on 'click', @onTapSubmitButton
 
     #ボタンリスト(MVCは？)
     deleteValueButtons = []
     $('span.delig').each (i,o)->
       deleteValueButtons.push new DeleteValueButton $(@)
     $('input[type=text]').each (i,o)->
-      $(@).bind 'keyup', @inputKeyup
+      $(@).on 'keyup', @inputKeyup
 
     #「続きを読む」を有効化
-    $(@el).bind 'bottom',@bottom
+    $(@el).on 'bottom',@bottom
 
     #スクロールされたら自動読み込み。現在凍結中。
     #$(window).scroll =>
@@ -397,10 +387,10 @@ class SearchPanel extends Backbone.View
       if @noMoreResult isnt true
         $('#loadingAnimation').append('<span style="font-size:24px;margin:auto;vertical-align: middle;">タップして続きを見る</span>')
         $('#loadingAnimation').height 48
-        $('#loadingAnimation').bind 'click', =>
+        $('#loadingAnimation').on 'click', =>
           @loading true
           $(@el).trigger 'bottom'
-          $('#loadingAnimation').unbind()
+          $('#loadingAnimation').off()
       else
         $('#loadingAnimation').height 0
 
@@ -420,9 +410,9 @@ class SearchPanel extends Backbone.View
   sendQuery:=>
     #query = 'uid='+UID+'&'
     query = ''
-    @searchQuery.unbind()
-    @searchQuery.bind 'return',(result) => @render result
-    @searchQuery.bind 'error', => @error
+    @searchQuery.off()
+    @searchQuery.on 'return',(result) => @render result
+    @searchQuery.on 'error', => @error
 
     #検索条件整形。とりあえず版に過ぎず、改良の余地あり。設定ファイルから読み込む方式にする事。
     if $('#SearchPanelInnerContents #id').val() isnt undefined
@@ -477,7 +467,6 @@ class SearchPanel extends Backbone.View
 
   show:=>
     if $('#searchSubmitButton')[0] isnt undefined
-    #if $._data($('#searchSubmitButton')[0],'events') isnt undefined
       @clear()
       Shadow.show()
       $(@el).show()
@@ -504,7 +493,7 @@ class SearchPanel extends Backbone.View
 
   clear:=>
     @execSearched = false
-    $('#loadingAnimation').unbind()
+    $('#loadingAnimation').off()
     $('#loadingAnimation').html('')
     @timeline.clear()
 
@@ -521,9 +510,9 @@ class DeleteValueButton extends Backbone.View
 
     $('#'+@el.children('input').attr('id')+'DelButton').css {'position':'relative','height':'22px','width':'22px','top':'2px','right':'25px','background-image':'url(img/delval.png)','cursor':'pointer','display':'inline-block','backgroundRepeat':'no-repeat','backgroundPosition':'center'}
 
-    @el.children('input').bind 'keyup', =>
+    @el.children('input').on 'keyup', =>
       if @el.children('input').val() is '' then $('#'+@el.children('input').attr('id')+'DelButton').css {'opacity':0} else $('#'+@el.children('input').attr('id')+'DelButton').css {'opacity':1}
-    $('#'+@el.children('input').attr('id')+'DelButton').bind 'click', =>
+    $('#'+@el.children('input').attr('id')+'DelButton').on 'click', =>
       @el.children('input').val('')
       $('#'+@el.children('input').attr('id')+'DelButton').css {'opacity':0}
       $('#'+@el.children('input').attr('id')+'DelButton').focus()
@@ -542,10 +531,10 @@ class TimelineChild extends Backbone.Model
     data: ''
 
   initialize:=>
-    @bind 'onclicktimeline',@onclicktimeline
+    @on 'onclicktimeline',@onclicktimeline
 
   clear:=>
-    @unbind
+    @off
     @destroy
     @view.unrender()
 
@@ -581,12 +570,11 @@ class TimelineChildView extends Backbone.View
       attr('class','timelineChild').
 #forH
       attr('id','timelineChild'+item.id)
-    $('<img />').
-      attr('class','tlImg').
-      attr('width',tlImageWidth).
-      attr('src',zoomImageDir+item.img+tileImageExtension).
-      load().
-      appendTo tl
+    $('<img />')
+      .attr('class','tlImg')
+      .attr('width',tlImageWidth)
+      .attr('src',zoomImageDir+item.img+tileImageExtension)
+      .appendTo tl
     inner.
       appendTo tl
     $('<br />').
@@ -597,7 +585,7 @@ class TimelineChildView extends Backbone.View
 
   unrender:=>
     $(@el).remove()
-    $(@el).unbind()
+    $(@el).off()
 
   onclicks:=>
     @model.trigger 'onclicktimeline',@data.num
@@ -738,24 +726,24 @@ class Pyramid extends Backbone.View
       div.setAttribute('ontouchstart', 'return')
       typeof div.ontouchstart is 'function'
     if Browser.device isnt 'pc'
-      $(@el).bind 'touchstart',@onMouseDown
-      $(@el).bind 'touchend',@onMouseUp
-      $(@el).bind 'touchmove',@onMouseMove
+      $(@el).on 'touchstart',@onMouseDown
+      $(@el).on 'touchend',@onMouseUp
+      $(@el).on 'touchmove',@onMouseMove
       #一旦コメントアウト
-      $(@el).bind 'gesturestart',@onGestureStart
-      $(@el).bind 'gesturechange',@onGestureMove
-      $(@el).bind 'gestureend',@onGestureEnd
+      $(@el).on 'gesturestart',@onGestureStart
+      $(@el).on 'gesturechange',@onGestureMove
+      $(@el).on 'gestureend',@onGestureEnd
 
     else
-      $(@el).bind 'mousedown',@onMouseDown
-      $(@el).bind 'mouseup',@onMouseUp
-      $(@el).bind 'mousemove',@onMouseMove
+      $(@el).on 'mousedown',@onMouseDown
+      $(@el).on 'mouseup',@onMouseUp
+      $(@el).on 'mousemove',@onMouseMove
 
     #初期化
     @dragging = false
 
     @tiles = new Tiles
-    @tiles.bind 'add', @appendTile
+    @tiles.on 'add', @appendTile
 
     $(@el).css {'cursor':'-moz-grab'}
 
@@ -809,14 +797,6 @@ class Pyramid extends Backbone.View
 
         @dragStartPyramidY = @getPyramidPos()[1]
 
-    ###
-    else if Utility.type(cords[0]) is 'array'
-      $(@el).css {'cursor':'-moz-grab'}
-      @pinchinStartCenterX = (cords[0][0]+cords[1][0])/2
-      @pinchinStartCenterY = (cords[0][1]+cords[1][1])/2
-
-      @pinchinStart = cords
-    ###
   onMouseUp:(e)=>
     cords = Point.getPoint e
 
@@ -836,12 +816,12 @@ class Pyramid extends Backbone.View
       if @isSingleTap(@dragStartX,cordx) and @isSingleTap(@dragStartY,cordy)
         #！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
         if not Shadow.isShow() and nowZoom > 3
-          $(@el).unbind 'touchend',@onMouseUp
+          $(@el).off 'touchend',@onMouseUp
           @trigger 'openPopupFromPoint',@getNumFromPoint [cords[0],cords[1]]
       else if @isSingleTap(@dragStartX,cordx) and @isSingleTap(@dragStartY,cordy) and @isOnTiles [cords[0][0],cords[0][1]]
         #！！なぜか一行でいけないので！！　既に某か開かれていないかチェック
         if not Shadow.isShow() and nowZoom > 3
-          $(@el).unbind 'touchend',@onMouseUp
+          $(@el).off 'touchend',@onMouseUp
           @trigger 'openPopupFromPoint',@getNumFromPoint [cords[0][0],cords[0][1]]
       else
         #フォトモザイクを描画
@@ -1106,7 +1086,7 @@ class Pyramid extends Backbone.View
 
   ###
    * addイベントのコールバックメソッド
-   * 原則としてcollectionへbindする事
+   * 原則としてcollectionへonする事
    * @param {tile} Tile
   ###
   appendTile:(tile)=>
@@ -1136,7 +1116,7 @@ class Pyramid extends Backbone.View
   getPyramidPos:=>
     [$(@el).position().left,$(@el).position().top]
   closePopup:=>
-    $(@el).bind 'touchend',@onMouseUp
+    $(@el).on 'touchend',@onMouseUp
 
 class Marker extends Backbone.View
   result: ''
@@ -1223,10 +1203,9 @@ class TileView extends Backbone.View
 
     $(@el).
       attr({id:'z'+z+'x'+x+'y'+y,src:url}).
-      css({'position':'absolute','left':x*tileWidth,'top':y*tileWidth}).
-      load()
+      css({'position':'absolute','left':x*tileWidth,'top':y*tileWidth})
+      .on 'load', ->
     @
-
   loadTile: ->
 
 
@@ -1279,23 +1258,23 @@ class ControlPanel extends Backbone.View
   @el: '#ControlPanel'
 
   initialize:=>
-    #_.bindAll @
+    #_.onAll @
 
     #ズームインボタン
     zoomInButton = new ClickOnlyButton {'el':'#ZoomInButton'}
-    zoomInButton.bind 'change',@zoomIn
+    zoomInButton.on 'change',@zoomIn
 
     #ズームアウトボタン
     zoomOutButton = new ClickOnlyButton {'el':'#ZoomOutButton'}
-    zoomOutButton.bind 'change',@zoomOut
+    zoomOutButton.on 'change',@zoomOut
 
     #検索パネル表示ボタン
     showSearchPanelButton = new ClickOnlyButton {'el':'#SearchPanelButton'}
-    showSearchPanelButton.bind 'change',@showSearchPanel
+    showSearchPanelButton.on 'change',@showSearchPanel
 
     #タイムラインパネル表示ボタン
     showHomeButton = new ClickOnlyButton {'el':'#HomeButton'}
-    showHomeButton.bind 'change',@onclickhomebutton
+    showHomeButton.on 'change',@onclickhomebutton
 
   #ズームインボタンが押下された
   zoomIn:=>
@@ -1333,21 +1312,21 @@ class ClickOnlyButton extends Backbone.View
   el: ''
 
   initialize:(_obj)=>
-    #_.bindAll @
+    #_.onAll @
     el = _obj.el
-    $(@el).unbind()
+    $(@el).off()
 
     if Browser.device isnt 'pc'
-      $(@el).bind "touchend",@onMouseUp
+      $(@el).on "touchend",@onMouseUp
     else
-      $(@el).bind "mouseup",@onMouseUp
+      $(@el).on "mouseup",@onMouseUp
 
   onMouseUp:(e)=>
     e.preventDefault()
     @trigger 'change'
 
   destroy:=>
-    $(@el).unbind()
+    $(@el).off()
     $(@el).remove()
 
 ###*
@@ -1448,14 +1427,16 @@ class Popup extends Backbone.View
   el: '#Popup'
 
   initialize:=>
-    $(@el).load "/assets/html/popup.html",@popupHtmlLoaded
+    $.ajax '/assets/html/popup.html',
+      datatype: 'html'
+    .then @popupHtmlLoaded
 
   popupHtmlLoaded:(data,status)=>
     if status isnt 'success'
       console.log "ERROR:Popuphtmlが読み込めません"
     else
       $(@el).html(data)
-    @base = $.extend(true,{},$('#snsPost').clone());
+    @base = $('#snsPost').html()
 
   openPopupFromPoint:(p)=>
     Shadow.show()
@@ -1472,7 +1453,7 @@ class Popup extends Backbone.View
 
   clear:=>
     if $(@el).html() isnt ''
-      $("#Popup #closeButton").unbind()
+      $("#Popup #closeButton").off()
       $("#Popup #loadImage").
         attr('src','')
 #      $(@el).html ''
@@ -1484,31 +1465,23 @@ class Popup extends Backbone.View
     @hide()
 
   render:(data,imgSrc)=>
-    $("#Popup #loadImage").
-      css('margin-top',5).
-      attr('src',imgSrc).
-      load( =>
+    $("#Popup #loadImage")
+      .css('margin-top',5)
+      .attr('src',imgSrc)
+      .on 'load', (status)=>
         @setDataToView(data)
         @snsButtonAction(data.id)
         @closeButtonAction()
         $("#Popup #loadImage").css("width", "300px")
         $("#Popup img").css("vertical-align", "middle")
         @show()
-      ).
-      error( (status)=>
-#        console.log 'error:'+JSON.stringify(status)
-#        if status == '404'
-        @closePopup()
-        @render(data,'img/private.png')
-      #else
-      )
+
   setDataToView:(data)=>
     shareUrl = "#{DOMAIN}#{APP_FILE}#mosaic/id/#{data.id}/"
     $("#Popup .snsFacebookButton").attr('href',"https://www.facebook.com/sharer.php?u="+encodeURIComponent(shareUrl))
     $("#Popup .snsTwitterButton").attr('href',"https://twitter.com/intent/tweet?url="+encodeURIComponent(shareUrl)+"&text="+encodeURIComponent("#{indiTwitterText}"))
     $("#Popup .snsLineButton").attr('href',"https://line.me/R/msg/text/?"+"#{indiTwitterText}"+'%0D%0A'+shareUrl)
-    copy = $.extend(true,{},@base);
-    txt = copy.html()
+    txt = @base
     for item of data
       if snsLinkage == true
           txt = txt.replace(new RegExp('{#'+item+'#}','g'),data[item])
@@ -1525,35 +1498,35 @@ class Popup extends Backbone.View
     else
       return $('#snsPost').hide()
   snsButtonAction:(_id)->
-    $("#Popup .snsFacebookButton").unbind()
-    $("#Popup .snsFacebookButton").bind "touchend",(e) ->
+    $("#Popup .snsFacebookButton").off()
+    $("#Popup .snsFacebookButton").on "touchend",(e) ->
       _gaq.push(['_trackPageview', "/photomosaic/sp/fb/#{_id}"])
 
-    $("#Popup .snsTwitterButton").unbind()
-    $("#Popup .snsTwitterButton").bind "touchend",(e) ->
+    $("#Popup .snsTwitterButton").off()
+    $("#Popup .snsTwitterButton").on "touchend",(e) ->
       _gaq.push(['_trackPageview', "/photomosaic/sp/tw/#{_id}"])
 
-    $("#Popup .snsLineButton").unbind()
-    $("#Popup .snsLineButton").bind "touchend",(e) ->
+    $("#Popup .snsLineButton").off()
+    $("#Popup .snsLineButton").on "touchend",(e) ->
       _gaq.push(['_trackPageview', "/photomosaic/sp/line/#{_id}"])
 
   closeButtonAction:=>
     if Browser.device isnt 'pc'
-      $("#Popup #closeButton").bind "touchend",(e) =>
+      $("#Popup #closeButton").on "touchend",(e) =>
         #e.preventDefault()
         @closePopup(e)
-        $("#Popup #closeButton").unbind()
+        $("#Popup #closeButton").off()
     else
-      $("#Popup #closeButton").bind "mouseup",(e) =>
+      $("#Popup #closeButton").on "mouseup",(e) =>
         #e.preventDefault()
         @closePopup(e)
-        $("#Popup #closeButton").unbind()
+        $("#Popup #closeButton").off()
 
   show:=>
     $(@el).show()
     Shadow.show()
     Shadow.setFullSize($(@el).height())
-    $("#Popup #loadImage").unbind()
+    $("#Popup #loadImage").off()
   hide:=>
     @trigger "backtomain"
     Shadow.setSize()
@@ -1565,10 +1538,14 @@ class Popup extends Backbone.View
   @setSize:=>
     $(@el).width Browser.width
     $(@el).height Browser.height
-getSection = (url, callback) ->
-  req = $.getJSON url
-  req.success (data) ->
-    callback(data)
+getSection = (url,_data,callback) ->
+  $.ajax url,
+    type: 'GET'
+    dataType: 'json'
+    success: (data) =>
+      callback(data)
+
+    
 getUrlVars = (_id)=>
   vars = {}
   params = location.search.substring(1).split('&')
@@ -1628,5 +1605,5 @@ setInitData = (data) ->
 
   pmviewer = new PhotomosaicViewer
 
-$(window).load ->
-  getSection "#{INIT_FILE}"+cache,setInitData
+$(window).on 'load', ->
+  getSection "#{INIT_FILE}"+cache,null,setInitData

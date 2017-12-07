@@ -43,6 +43,9 @@
 	<![endif]-->
 	<script type="text/javascript" src="lib/jquery.flickable-1.0b3.js"></script>
 	<script type="text/javascript" src="lib/jquery.bottom-1.0.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js"></script>
+
 	<script>
 	function openFacebook(){
 	    window.open('https://www.facebook.com/sharer.php?u=http://pearl.pitcom.jp/');
