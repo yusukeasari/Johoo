@@ -53,11 +53,6 @@ class PhotomosaicViewer extends Backbone.View
     nowZoom = minZoom
     prevZoom = minZoom+1
     css_href = 'css/johoo_'+Browser.device+'.css' + cache
-#    $('<link>')
-#      .attr('href',css_href)
-#      .attr('rel','stylesheet')
-#      .on 'load', =>
-#        $(this).appendTo $('head')
 
     $("<link/>",
       rel: "stylesheet",
@@ -107,14 +102,11 @@ class PhotomosaicViewer extends Backbone.View
     ControlPanel.show()
     #検索パネル表示イベント
   showSearchPanel:=>
-    #@popup.closePopup()
     @popup.clear()
     @searchPanel.show()
     #@smallMap.hide()
     Pyramid.hide()
     ControlPanel.hide()
-#  closePopup:=>
-#    @pyramid.closePopup()
 
   setup:(_init)=>
     #基底モデル
@@ -211,6 +203,12 @@ class PhotomosaicViewer extends Backbone.View
         @pyramid.update()
       ,100
 
+    @controlPanel.on 'onclickformbutton', =>
+      $.fancybox.open
+        type : 'iframe'
+        src : 'http://test.pitcom.jp/form/?page=input'
+        buttons :['close']
+
     Browser.setup()
     @onOrient()
     @controlPanel.trigger 'onclickhomebutton'
@@ -218,7 +216,6 @@ class PhotomosaicViewer extends Backbone.View
     ###
     # Router振り分け
     ###
-
     @router = new Backbone.Router
     @router.route "mosaic/id/:id/", (_id)=> @openPopupFromId(_id)
     @router.route "mosaic/n/:n/", (_n)=>
@@ -269,7 +266,6 @@ class SmallMap extends Backbone.View
       top:50
 
     $(@el).css
-      #left:Browser.width-(zoomSize[1][0]/@m)-10
       top:Browser.height-(zoomSize[1][1]/@m)-10
       width:zoomSize[1][0]/@m
       height:zoomSize[1][1]/@m
@@ -319,11 +315,11 @@ class SearchPanel extends Backbone.View
     @loadingStatus = false
     @execSearched = false
 
+    $(@el).hide()
+
     $.ajax '/assets/html/searchPanel.html',
       datatype: 'html'
     .then @searchpanelloaded
-  test:(a)=>
-    console.log a
   searchpanelloaded:(data,status)=>
     if status isnt 'success'
       alert "ERROR:検索パネルが読み込めません"
@@ -468,27 +464,31 @@ class SearchPanel extends Backbone.View
   show:=>
     if $('#searchSubmitButton')[0] isnt undefined
       @clear()
-      Shadow.show()
+      $.fancybox.open
+        src : @el
+        type : 'inline'
+        buttons : ['close']
+        smallBtn : false
+        afterClose: =>
+          @trigger 'backtomain'
+
+
       $(@el).show()
       $('input[type=tel]').each =>
         $(@).focus()
 
-      $('#loadingAnimation').show()
-      $('#loadingAnimation').height 0
     else
       setTimeout =>
         @show()
       ,100
 
   hide:=>
+    $.fancybox.close()
+
     @execSearched = false
     @loadingStatus = false
-    $('#loadingAnimation').hide()
-    $('#loadingAnimation').html('')
-    $('#loadingAnimation').height 0
     $('#searchResultError').html('')
 
-    Shadow.hide()
     $(@el).hide()
 
   clear:=>
@@ -729,7 +729,7 @@ class Pyramid extends Backbone.View
       $(@el).on 'touchstart',@onMouseDown
       $(@el).on 'touchend',@onMouseUp
       $(@el).on 'touchmove',@onMouseMove
-      #一旦コメントアウト
+
       $(@el).on 'gesturestart',@onGestureStart
       $(@el).on 'gesturechange',@onGestureMove
       $(@el).on 'gestureend',@onGestureEnd
@@ -809,7 +809,6 @@ class Pyramid extends Backbone.View
       $(@el).css {'cursor':''}
 
       #マウスの位置がdownとupで変わらない＝単純クリックなら拡大表示実行
-
       cordx = if Utility.type(cords[0]) isnt 'array' then cords[0] else cords[0][0]
       cordy = if Utility.type(cords[1]) isnt 'array' then cords[1] else cords[0][1]
 
@@ -1276,6 +1275,11 @@ class ControlPanel extends Backbone.View
     showHomeButton = new ClickOnlyButton {'el':'#HomeButton'}
     showHomeButton.on 'change',@onclickhomebutton
 
+    #タイムラインパネル表示ボタン
+    showFormButton = new ClickOnlyButton {'el':'#FormButton'}
+    showFormButton.on 'change',@onclickformbutton
+
+
   #ズームインボタンが押下された
   zoomIn:=>
     if nowZoom < zoomSize.length-1
@@ -1297,6 +1301,11 @@ class ControlPanel extends Backbone.View
   #タイムラインパネル表示ボタンが押下された
   onclickhomebutton:=>
     @trigger 'onclickhomebutton'
+
+  #投稿ボタンが押下された
+  onclickformbutton:=>
+    @trigger 'onclickformbutton'
+
 
   @show:=> $(@el).show()
   @hide:=> $(@el).hide()
@@ -1439,7 +1448,7 @@ class Popup extends Backbone.View
     @base = $('#snsPost').html()
 
   openPopupFromPoint:(p)=>
-    Shadow.show()
+#    Shadow.show()
     $.getJSON searchApi,{'n':p},(data,status)=>
       #タップ拡大時に特殊なフラグによって条件分岐するならココ
       ##and "#{data.img}" isnt 'undefined'    #Popup要素初期化
@@ -1453,15 +1462,14 @@ class Popup extends Backbone.View
 
   clear:=>
     if $(@el).html() isnt ''
-      $("#Popup #closeButton").off()
+#      $("#Popup #closeButton").off()
       $("#Popup #loadImage").
         attr('src','')
-#      $(@el).html ''
+    $(@el).hide()
 
   closePopup:(e)=>
-    #if e isnt undefined
-    #  e.preventDefault()
     @clear()
+    $.fancybox.close()
     @hide()
 
   render:(data,imgSrc)=>
@@ -1471,7 +1479,6 @@ class Popup extends Backbone.View
       .on 'load', (status)=>
         @setDataToView(data)
         @snsButtonAction(data.id)
-        @closeButtonAction()
         $("#Popup #loadImage").css("width", "300px")
         $("#Popup img").css("vertical-align", "middle")
         @show()
@@ -1524,14 +1531,18 @@ class Popup extends Backbone.View
 
   show:=>
     $(@el).show()
-    Shadow.show()
-    Shadow.setFullSize($(@el).height())
+#    Shadow.show()
+    $.fancybox.open
+      src : '#Popup'
+      type : 'inline'
+      buttons : ['close']
+      smallBtn : false
+
+#    Shadow.setFullSize($(@el).height())
     $("#Popup #loadImage").off()
   hide:=>
     @trigger "backtomain"
-    Shadow.setSize()
     $(@el).hide()
-    Shadow.hide()
 
   resize:-> Shadow.setSize()
 

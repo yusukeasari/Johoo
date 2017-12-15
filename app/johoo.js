@@ -250,6 +250,15 @@
           }, 100);
         };
       })(this));
+      this.controlPanel.on('onclickformbutton', (function(_this) {
+        return function() {
+          return $.fancybox.open({
+            type: 'iframe',
+            src: 'http://test.pitcom.jp/form/?page=input',
+            buttons: ['close']
+          });
+        };
+      })(this));
       Browser.setup();
       this.onOrient();
       this.controlPanel.trigger('onclickhomebutton');
@@ -422,7 +431,6 @@
       this.onclicktimeline = bind(this.onclicktimeline, this);
       this.onBackToMain = bind(this.onBackToMain, this);
       this.searchpanelloaded = bind(this.searchpanelloaded, this);
-      this.test = bind(this.test, this);
       this.initialize = bind(this.initialize, this);
       return SearchPanel.__super__.constructor.apply(this, arguments);
     }
@@ -443,13 +451,10 @@
       this.searchQuery = new SearchResult;
       this.loadingStatus = false;
       this.execSearched = false;
+      $(this.el).hide();
       return $.ajax('/assets/html/searchPanel.html', {
         datatype: 'html'
       }).then(this.searchpanelloaded);
-    };
-
-    SearchPanel.prototype.test = function(a) {
-      return console.log(a);
     };
 
     SearchPanel.prototype.searchpanelloaded = function(data, status) {
@@ -622,15 +627,23 @@
     SearchPanel.prototype.show = function() {
       if ($('#searchSubmitButton')[0] !== void 0) {
         this.clear();
-        Shadow.show();
+        $.fancybox.open({
+          src: this.el,
+          type: 'inline',
+          buttons: ['close'],
+          smallBtn: false,
+          afterClose: (function(_this) {
+            return function() {
+              return _this.trigger('backtomain');
+            };
+          })(this)
+        });
         $(this.el).show();
-        $('input[type=tel]').each((function(_this) {
+        return $('input[type=tel]').each((function(_this) {
           return function() {
             return $(_this).focus();
           };
         })(this));
-        $('#loadingAnimation').show();
-        return $('#loadingAnimation').height(0);
       } else {
         return setTimeout((function(_this) {
           return function() {
@@ -641,13 +654,10 @@
     };
 
     SearchPanel.prototype.hide = function() {
+      $.fancybox.close();
       this.execSearched = false;
       this.loadingStatus = false;
-      $('#loadingAnimation').hide();
-      $('#loadingAnimation').html('');
-      $('#loadingAnimation').height(0);
       $('#searchResultError').html('');
-      Shadow.hide();
       return $(this.el).hide();
     };
 
@@ -1133,15 +1143,6 @@
           return this.dragStartPyramidY = this.getPyramidPos()[1];
         }
       }
-
-      /*
-      else if Utility.type(cords[0]) is 'array'
-        $(@el).css {'cursor':'-moz-grab'}
-        @pinchinStartCenterX = (cords[0][0]+cords[1][0])/2
-        @pinchinStartCenterY = (cords[0][1]+cords[1][1])/2
-      
-        @pinchinStart = cords
-       */
     };
 
     Pyramid.prototype.onMouseUp = function(e) {
@@ -1778,6 +1779,7 @@
     extend(ControlPanel, superClass);
 
     function ControlPanel() {
+      this.onclickformbutton = bind(this.onclickformbutton, this);
       this.onclickhomebutton = bind(this.onclickhomebutton, this);
       this.showSearchPanel = bind(this.showSearchPanel, this);
       this.zoomOut = bind(this.zoomOut, this);
@@ -1789,7 +1791,7 @@
     ControlPanel.el = '#ControlPanel';
 
     ControlPanel.prototype.initialize = function() {
-      var showHomeButton, showSearchPanelButton, zoomInButton, zoomOutButton;
+      var showFormButton, showHomeButton, showSearchPanelButton, zoomInButton, zoomOutButton;
       zoomInButton = new ClickOnlyButton({
         'el': '#ZoomInButton'
       });
@@ -1805,7 +1807,11 @@
       showHomeButton = new ClickOnlyButton({
         'el': '#HomeButton'
       });
-      return showHomeButton.on('change', this.onclickhomebutton);
+      showHomeButton.on('change', this.onclickhomebutton);
+      showFormButton = new ClickOnlyButton({
+        'el': '#FormButton'
+      });
+      return showFormButton.on('change', this.onclickformbutton);
     };
 
     ControlPanel.prototype.zoomIn = function() {
@@ -1830,6 +1836,10 @@
 
     ControlPanel.prototype.onclickhomebutton = function() {
       return this.trigger('onclickhomebutton');
+    };
+
+    ControlPanel.prototype.onclickformbutton = function() {
+      return this.trigger('onclickformbutton');
     };
 
     ControlPanel.show = function() {
@@ -2067,7 +2077,6 @@
     };
 
     Popup.prototype.openPopupFromPoint = function(p) {
-      Shadow.show();
       return $.getJSON(searchApi, {
         'n': p
       }, (function(_this) {
@@ -2091,13 +2100,14 @@
 
     Popup.prototype.clear = function() {
       if ($(this.el).html() !== '') {
-        $("#Popup #closeButton").off();
-        return $("#Popup #loadImage").attr('src', '');
+        $("#Popup #loadImage").attr('src', '');
       }
+      return $(this.el).hide();
     };
 
     Popup.prototype.closePopup = function(e) {
       this.clear();
+      $.fancybox.close();
       return this.hide();
     };
 
@@ -2106,7 +2116,6 @@
         return function(status) {
           _this.setDataToView(data);
           _this.snsButtonAction(data.id);
-          _this.closeButtonAction();
           $("#Popup #loadImage").css("width", "300px");
           $("#Popup img").css("vertical-align", "middle");
           return _this.show();
@@ -2177,16 +2186,18 @@
 
     Popup.prototype.show = function() {
       $(this.el).show();
-      Shadow.show();
-      Shadow.setFullSize($(this.el).height());
+      $.fancybox.open({
+        src: '#Popup',
+        type: 'inline',
+        buttons: ['close'],
+        smallBtn: false
+      });
       return $("#Popup #loadImage").off();
     };
 
     Popup.prototype.hide = function() {
       this.trigger("backtomain");
-      Shadow.setSize();
-      $(this.el).hide();
-      return Shadow.hide();
+      return $(this.el).hide();
     };
 
     Popup.prototype.resize = function() {

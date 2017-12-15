@@ -23,6 +23,7 @@
 			<div id="ZoomOutButton"></div>
 			<div id="SearchPanelButton"></div>
 			<div id="HomeButton"></div>
+			<div id="FormButton"></div>
 			<div id="FacebookButton" onclick="openFacebook()"></div>
 			<div id="TwitterButton" onclick="openTwitter()"></div>
 

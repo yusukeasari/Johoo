@@ -80,14 +80,10 @@ body {
 	z-index: 2001;
 }
 #Popup {
-	opacity: 1;
-	display: none;
-	position: absolute;
-	z-index: 3001;
+	background-color: rgba(0,0,0,0);
 	margin: auto;
-	width:100%;
-	color: #FFF;
 	text-align: center;
+
 }
 #Popup #closeButton {
 	width:80%;
@@ -119,13 +115,12 @@ body {
 }
 
 #SearchPanel {
-	opacity: 1;
-	display: none;
-	position: absolute;
-	z-index: 4001;
 	width:100%;
 	color: #FFF;
-}
+	background-color: rgba(0,0,0,0);
+	margin: auto;
+	text-align: center;
+	}
 #SearchPanel #SearchPanelInnerContents {
 	margin: auto;
 	margin-top:15px;
@@ -195,7 +190,7 @@ body {
 	background-image: url(../assets/buttons/home.png);
 	width:60px;
 	height:60px;
-	top:65px;
+	top:35px;
 	right:5px;
 	z-index: 14;
 }
@@ -205,25 +200,16 @@ body {
 	background-image: url(../assets/buttons/searchOn.png);
 	width:60px;
 	height:60px;
-	top:125px;
+	top:95px;
 	right:5px;
 	z-index: 13;
-}
-#ControlPanel #PostPanelButton {
-	position: absolute;
-	background-image: url(../assets/buttons/post.png);
-	width:60px;
-	height:60px;
-	top:5px;
-	left:185px;
-	z-index: 17;
 }
 #ControlPanel #ZoomInButton {
 	position: absolute;
 	background-image: url(../assets/buttons/plus.png);
 	width:60px;
 	height:60px;
-	top:185px;
+	top:155px;
 	right:5px;
 	z-index: 11;
 }
@@ -232,10 +218,20 @@ body {
 	background-image: url(../assets/buttons/minus.png);
 	width:60px;
 	height:60px;
-	top:245px;
+	top:215px;
 	right:5px;
 	z-index: 12;
 }
+#ControlPanel #FormButton {
+	position: absolute;
+	background-image: url(../assets/buttons/form.png);
+	width:60px;
+	height:60px;
+	top:282px;
+	right:5px;
+	z-index: 12;
+}
+
 #ControlPanel #FacebookButton {
 	position: absolute;
 	background-image: url(../assets/buttons/snsFacebookIcon.png);
@@ -243,7 +239,7 @@ body {
 	width:60px;
 	height:60px;
 
-	top:318px;
+	top:355px;
 	right:5px;
 
 	z-index: 14;
@@ -255,7 +251,7 @@ body {
 	width:60px;
 	height:60px;
 
-	top:385px;
+	top:420px;
 	right:5px;
 
 	z-index: 14;
@@ -299,4 +295,17 @@ body {
 	margin-left:5px;
 	text-align:left;
 	font-size:180%;
+}
+.fancybox-slide--iframe .fancybox-content {
+	max-width  : 90%;
+	max-height : 90%;
+	margin: 0;
+	background: transparent;
+}
+.fancybox-bg {
+    background: #888;
+}
+
+.fancybox-bg {
+  background: #000;
 }
