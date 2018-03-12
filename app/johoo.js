@@ -793,7 +793,8 @@
     TimelineChildView.prototype.data = '';
 
     TimelineChildView.prototype.events = {
-      "click": "onclicks"
+      "click": "onclicks",
+      "touchend": "onclicks"
     };
 
     TimelineChildView.prototype.initialize = function() {
@@ -805,7 +806,7 @@
       item = this.model.get('data');
       this.data = item;
       inner = $('<div>').attr('class', 'tlOutline');
-      $('<div>').attr('class', 'tlTitle').html(item.b4).appendTo(inner);
+      $('<div>').attr('class', 'tlTitle').html(item.b1).appendTo(inner);
       $('<div>').attr('class', 'tlMsg').appendTo(inner);
       tl = $(this.el).attr('class', 'timelineChild').attr('id', 'timelineChild' + item.id);
       $('<img />').attr('class', 'tlImg').attr('width', tlImageWidth).attr('src', zoomImageDir + item.img + tileImageExtension).appendTo(tl);
@@ -1576,7 +1577,7 @@
           tx = (motifWidth - 1) * arrZoomSizeX[nowZoom];
           ty = Math.floor((this.result / motifWidth) - 1) * arrZoomSizeX[nowZoom];
         } else {
-          tx = (this.result % motifWidth - 1) * arrZoomSizeY[nowZoom];
+          tx = (this.result % motifWidth - 1) * arrZoomSizeX[nowZoom];
           ty = Math.floor(this.result / motifWidth) * arrZoomSizeY[nowZoom];
         }
         if (tx < 0) {
@@ -1677,7 +1678,7 @@
       }).css({
         'position': 'absolute',
         'left': x * tileWidth,
-        'top': y * tileWidth
+        'top': y * tileHeight
       }).on('load', function() {});
       return this;
     };
@@ -2190,7 +2191,12 @@
         src: '#Popup',
         type: 'inline',
         buttons: ['close'],
-        smallBtn: false
+        smallBtn: false,
+        afterClose: (function(_this) {
+          return function() {
+            return _this.trigger('backtomain');
+          };
+        })(this)
       });
       return $("#Popup #loadImage").off();
     };
@@ -2262,7 +2268,7 @@
   }
 
   setInitData = function(data) {
-    var i, j, len, pmviewer, x;
+    var i, j, len, pmviewer, xz, yz;
     DOMAIN = data.domain;
     APP_FILE = data.app;
     cache = data.cache === false ? "" : '?' + Utility.getRandom();
@@ -2271,7 +2277,7 @@
     motifWidth = data.motifWidth;
     motifHeight = data.motifHeight;
     arrZoomSizeX = data.arrZoomSize;
-    arrZoomSizeY = data.arrZoomSize;
+    arrZoomSizeY = data.arrZoomSize2;
     initialZoomSizeArr = data.initialZoomSizeArr;
     tileImageDir = data.blockimgPath;
     zoomImageDir = data.zoomImagePath;
@@ -2282,8 +2288,10 @@
     snsLinkage = data.snsLinkage;
     i = 0;
     for (j = 0, len = arrZoomSizeX.length; j < len; j++) {
-      x = arrZoomSizeX[j];
-      zoomSize.push([motifWidth * minBlockSize * arrZoomSizeX[i], motifHeight * minBlockSize * arrZoomSizeY[i]]);
+      i = arrZoomSizeX[j];
+      xz = motifWidth * minBlockSize * arrZoomSizeX[i];
+      yz = motifHeight * minBlockSize * arrZoomSizeY[i];
+      zoomSize.push([xz, yz]);
       i++;
     }
     return pmviewer = new PhotomosaicViewer;

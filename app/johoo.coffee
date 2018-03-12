@@ -5,6 +5,7 @@ DOMAIN = ''
 bgImageApi = ''
 APP_FILE = ''
 
+
 cache = ''
 
 tileImageExtension = '.jpg'
@@ -544,6 +545,7 @@ class TimelineChildView extends Backbone.View
 
   events:
     "click"  :  "onclicks"
+    "touchend"  :  "onclicks"
 
   initialize:=>
     @model.view = @
@@ -558,7 +560,7 @@ class TimelineChildView extends Backbone.View
       attr('class','tlOutline')
     $('<div>').
       attr('class','tlTitle').
-      html(item.b4).
+      html(item.b1).
       appendTo inner
     $('<div>').
       attr('class','tlMsg').
@@ -1138,7 +1140,7 @@ class Marker extends Backbone.View
         tx = (motifWidth-1)*arrZoomSizeX[nowZoom]
         ty = Math.floor((this.result/motifWidth)-1)*arrZoomSizeX[nowZoom]
       else
-        tx = (this.result%motifWidth-1)*arrZoomSizeY[nowZoom]
+        tx = (this.result%motifWidth-1)*arrZoomSizeX[nowZoom]
         ty = Math.floor(this.result/motifWidth)*arrZoomSizeY[nowZoom]
 
       if tx < 0
@@ -1202,7 +1204,7 @@ class TileView extends Backbone.View
 
     $(@el).
       attr({id:'z'+z+'x'+x+'y'+y,src:url}).
-      css({'position':'absolute','left':x*tileWidth,'top':y*tileWidth})
+      css({'position':'absolute','left':x*tileWidth,'top':y*tileHeight})
       .on 'load', ->
     @
   loadTile: ->
@@ -1537,7 +1539,8 @@ class Popup extends Backbone.View
       type : 'inline'
       buttons : ['close']
       smallBtn : false
-
+      afterClose: =>
+        @trigger 'backtomain'
 #    Shadow.setFullSize($(@el).height())
     $("#Popup #loadImage").off()
   hide:=>
@@ -1598,7 +1601,7 @@ setInitData = (data) ->
   motifWidth = data.motifWidth
   motifHeight = data.motifHeight
   arrZoomSizeX = data.arrZoomSize
-  arrZoomSizeY = data.arrZoomSize
+  arrZoomSizeY = data.arrZoomSize2
   initialZoomSizeArr = data.initialZoomSizeArr
   tileImageDir = data.blockimgPath
   zoomImageDir = data.zoomImagePath
@@ -1610,8 +1613,10 @@ setInitData = (data) ->
   snsLinkage = data.snsLinkage
 
   i=0
-  for x in arrZoomSizeX
-    zoomSize.push [motifWidth*minBlockSize*arrZoomSizeX[i],motifHeight*minBlockSize*arrZoomSizeY[i]]
+  for i in arrZoomSizeX
+    xz = motifWidth*minBlockSize*arrZoomSizeX[i]
+    yz = motifHeight*minBlockSize*arrZoomSizeY[i]
+    zoomSize.push [xz,yz]
     i++
 
   pmviewer = new PhotomosaicViewer

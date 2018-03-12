@@ -1,3 +1,6 @@
+<?php
+$json = file_get_contents('http://instantmosaiq.com/client_divide/get_created_json.php?mid='.$_GET['mid']);
+?>
 <!DOCTYPE html>
 <html>
 <head>
