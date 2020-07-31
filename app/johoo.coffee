@@ -1099,6 +1099,7 @@ class Pyramid extends Backbone.View
   ###
   #中央寄せ処理
   pyramidSetPositionToCenter:=>
+    console.log("pyramidSetPositionToCenter")
     $(@el).css
       left:Browser.width/2-zoomSize[nowZoom][0]/2
       top:Browser.height/2-zoomSize[nowZoom][1]/2
@@ -1601,7 +1602,7 @@ setInitData = (data) ->
   motifWidth = data.motifWidth
   motifHeight = data.motifHeight
   arrZoomSizeX = data.arrZoomSize
-  arrZoomSizeY = data.arrZoomSize2
+  arrZoomSizeY = data.arrZoomSize
   initialZoomSizeArr = data.initialZoomSizeArr
   tileImageDir = data.blockimgPath
   zoomImageDir = data.zoomImagePath
@@ -1613,7 +1614,7 @@ setInitData = (data) ->
   snsLinkage = data.snsLinkage
 
   i=0
-  for i in arrZoomSizeX
+  for item in arrZoomSizeX
     xz = motifWidth*minBlockSize*arrZoomSizeX[i]
     yz = motifHeight*minBlockSize*arrZoomSizeY[i]
     zoomSize.push [xz,yz]
