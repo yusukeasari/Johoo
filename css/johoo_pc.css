@@ -334,6 +334,9 @@ img{
 	margin: 0;
 	background: transparent;
 }
+.fancybox-slide {
+	height : 0% !important;
+}
 .fancybox-bg {
     background: #888;
 }

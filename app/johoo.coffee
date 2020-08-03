@@ -1459,7 +1459,11 @@ class Popup extends Backbone.View
         imgUrl = data[0].b1
       else
         imgUrl = zoomImageDir+data[0].img+tileImageExtension
-      if status and data isnt null then @render(data[0],imgUrl) else @hide()
+      if status and data isnt null
+        console.log("render")
+        @render(data[0],imgUrl)
+      else
+        @hide()
     .fail ->
       @hide()
 
@@ -1539,6 +1543,7 @@ class Popup extends Backbone.View
       src : '#Popup'
       type : 'inline'
       buttons : ['close']
+      idleTime : 300
       smallBtn : false
       afterClose: =>
         @trigger 'backtomain'

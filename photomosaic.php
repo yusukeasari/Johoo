@@ -1,6 +1,3 @@
-<?php
-$json = file_get_contents('http://instantmosaiq.com/client_divide/get_created_json.php?mid='.$_GET['mid']);
-?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -47,7 +44,7 @@ $json = file_get_contents('http://instantmosaiq.com/client_divide/get_created_js
 	<![endif]-->
 	<script type="text/javascript" src="lib/jquery.flickable-1.0b3.js"></script>
 	<script type="text/javascript" src="lib/jquery.bottom-1.0.js"></script>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" />
+	<link rel="stylesheet" href="css/fancybox.css" />
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js"></script>
 
 	<script>
