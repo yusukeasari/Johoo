@@ -10,6 +10,12 @@
 	<meta property="og:image" content="http://SUBDOMAIN.pitcom.jp/fb.jpg"/>
 	<meta property="og:site_name" content=''/>
 	<meta property="og:description" content='' />
+	<link rel="stylesheet" href="css/bulma.min.css">
+	<script src="https://kit.fontawesome.com/4d5d87c7aa.js" crossorigin="anonymous"></script>
+	<!--
+	<link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+	<script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+	-->
 </head>
 
 <body>
@@ -45,7 +51,7 @@
 	<script type="text/javascript" src="lib/jquery.flickable-1.0b3.js"></script>
 	<script type="text/javascript" src="lib/jquery.bottom-1.0.js"></script>
 	<link rel="stylesheet" href="css/fancybox.css" />
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js"></script>
+	<script src="lib/jquery.fancybox.min.js"></script>
 
 	<script>
 	function openFacebook(){
