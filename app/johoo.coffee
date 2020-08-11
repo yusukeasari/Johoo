@@ -1156,8 +1156,8 @@ class Marker extends Backbone.View
 
       $('#Marker').css
         zIndex:3000
-        width:arrZoomSizeX[nowZoom]-(2*weight)
-        height:arrZoomSizeY[nowZoom]-(2*weight)
+        width:arrZoomSizeX[nowZoom]
+        height:arrZoomSizeY[nowZoom]
         left:tx
         top:ty
         border:'solid '+weight+'px #FF0000'
