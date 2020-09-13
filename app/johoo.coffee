@@ -121,113 +121,128 @@ class PhotomosaicViewer extends Backbone.View
 
     #拡大表示クラス
     @popup = new Popup
+    deferred = @popup.load()
+    deferred.done ()=>
+      console.log("complete")
+      @pyramid.on 'openPopupFromPoint',(_p) =>
 
-    #検索パネルクラス
-    @searchPanel = new SearchPanel
+        $.getJSON searchApi,{'n':_p},(data,status)=>
+          #タップ拡大時に特殊なフラグによって条件分岐するならココ
+          if status and data isnt null
+            if data[0].id isnt undefined
+              p = data[0].num
+              @router.navigate "mosaic/n/#{p}/",
+                trigger: true
 
-    #コンパネ ズームボタン、検索ウィンドウ表示ボタン、ヘルプ表示ボタンとか
-    @controlPanel = new ControlPanel
+        .fail ->
+          console.log 'error:'+status
 
-    #検索位置を示すマーカー
-    @marker = new Marker
+      #検索パネルクラス
+      @searchPanel = new SearchPanel
 
-    if Browser.device isnt 'pc'
-      $(window).on "orientationchange", =>
-        $(@el).hide()
+      #コンパネ ズームボタン、検索ウィンドウ表示ボタン、ヘルプ表示ボタンとか
+      @controlPanel = new ControlPanel
 
-        setTimeout =>
-          Browser.setup()
-          @onOrient()
-        ,1000
-    else
-      $(window).on "resize", =>
-        $(@el).hide()
+      #検索位置を示すマーカー
+      @marker = new Marker
 
-        setTimeout =>
-          Browser.setup()
-          @onOrient()
-        ,1000
+      if Browser.device isnt 'pc'
+        $(window).on "orientationchange", =>
+          $(@el).hide()
 
-    #メイン画面へ戻る
-    @searchPanel.on 'backtomain', =>
-      @router.navigate "",
-        trigger: true
+          setTimeout =>
+            Browser.setup()
+            @onOrient()
+          ,1000
+      else
+        $(window).on "resize", =>
+          $(@el).hide()
 
-    @popup.on 'backtomain', =>
-      @router.navigate "",
-        trigger: true
+          setTimeout =>
+            Browser.setup()
+            @onOrient()
+          ,1000
 
-    @pyramid.on 'openPopupFromPoint',(_p) =>
+      #メイン画面へ戻る
+      @searchPanel.on 'backtomain', =>
+        @router.navigate "",
+          trigger: true
 
-      $.getJSON searchApi,{'n':_p},(data,status)=>
-        #タップ拡大時に特殊なフラグによって条件分岐するならココ
-        if status and data isnt null
-          if data[0].id isnt undefined
-            p = data[0].num
-            @router.navigate "mosaic/n/#{p}/",
-              trigger: true
+      @popup.on 'backtomain', =>
+        @router.navigate "",
+          trigger: true
 
-      .fail ->
-        console.log 'error:'+status
+      @pyramid.on 'openPopupFromPoint',(_p) =>
 
-    #検索パネル表示イベント
-    @controlPanel.on 'showSearchPanel', =>
-      @router.navigate "search/",
-        trigger: true
+        $.getJSON searchApi,{'n':_p},(data,status)=>
+          #タップ拡大時に特殊なフラグによって条件分岐するならココ
+          if status and data isnt null
+            if data[0].id isnt undefined
+              p = data[0].num
+              @router.navigate "mosaic/n/#{p}/",
+                trigger: true
 
-    #検索位置を示すマーカーを表示
-    @pyramid.on 'marker', =>
-      @marker.render()
+        .fail ->
+          console.log 'error:'+status
 
-    #検索開始イベント
-    @searchPanel.on 'startSearch', =>
-      @marker.clear()
+      #検索パネル表示イベント
+      @controlPanel.on 'showSearchPanel', =>
+        @router.navigate "search/",
+          trigger: true
 
-    #タイムラインクリック時のイベント
-    @searchPanel.on 'onclicktimeline',(d) =>
-      @router.navigate "timeline/#{d}/",
-        trigger: true
+      #検索位置を示すマーカーを表示
+      @pyramid.on 'marker', =>
+        @marker.render()
 
-    @pyramid.on 'moving',(c) ->
-      #@smallMap.setCoords c
-    #コンパネイベント
-    @controlPanel.on 'change',(h) =>
-      @pyramid.update h
+      #検索開始イベント
+      @searchPanel.on 'startSearch', =>
+        @marker.clear()
 
-    #フォトモザイクを標準位置へセット
-    @controlPanel.on 'onclickhomebutton', =>
-      nowZoom = minZoom
-      prevZoom = minZoom+1
-      @pyramid.update()
-      @pyramid.pyramidSetPositionToCenter()
-      setTimeout =>
+      #タイムラインクリック時のイベント
+      @searchPanel.on 'onclicktimeline',(d) =>
+        @router.navigate "timeline/#{d}/",
+          trigger: true
+
+      @pyramid.on 'moving',(c) ->
+        #@smallMap.setCoords c
+      #コンパネイベント
+      @controlPanel.on 'change',(h) =>
+        @pyramid.update h
+
+      #フォトモザイクを標準位置へセット
+      @controlPanel.on 'onclickhomebutton', =>
+        nowZoom = minZoom
+        prevZoom = minZoom+1
         @pyramid.update()
-      ,100
+        @pyramid.pyramidSetPositionToCenter()
+        setTimeout =>
+          @pyramid.update()
+        ,100
 
-    @controlPanel.on 'onclickformbutton', =>
-      $.fancybox.open
-        type : 'iframe'
-        src : 'http://test.pitcom.jp/form/?page=input'
-        buttons :['close']
+      @controlPanel.on 'onclickformbutton', =>
+        $.fancybox.open
+          type : 'iframe'
+          src : 'http://test.pitcom.jp/form/?page=input'
+          buttons :['close']
 
-    Browser.setup()
-    @onOrient()
-    @controlPanel.trigger 'onclickhomebutton'
+      Browser.setup()
+      @onOrient()
+      @controlPanel.trigger 'onclickhomebutton'
 
-    ###
-    # Router振り分け
-    ###
-    @router = new Backbone.Router
-    @router.route "mosaic/id/:id/", (_id)=> @openPopupFromId(_id)
-    @router.route "mosaic/n/:n/", (_n)=>
-      @popup.openPopupFromPoint(_n)
-      @marker.setResult _n
-      @marker.render()
-    @router.route "timeline/:id/", (_id)=> @openPopupFromTimeline(_id)
-    @router.route "search/", (_p)=> @showSearchPanel()
-    @router.route "", => @backtomain()
+      ###
+      # Router振り分け
+      ###
+      @router = new Backbone.Router
+      @router.route "mosaic/id/:id/", (_id)=> @openPopupFromId(_id)
+      @router.route "mosaic/n/:n/", (_n)=>
+        @popup.openPopupFromPoint(_n)
+        @marker.setResult _n
+        @marker.render()
+      @router.route "timeline/:id/", (_id)=> @openPopupFromTimeline(_id)
+      @router.route "search/", (_p)=> @showSearchPanel()
+      @router.route "", => @backtomain()
 
-    Backbone.history.start()
+      Backbone.history.start()
 
 class SmallMap extends Backbone.View
   el: ''
@@ -1437,17 +1452,27 @@ class Shadow extends Backbone.View
 
 class Popup extends Backbone.View
   el: '#Popup'
+  html: ""
+  id: ""
 
-  initialize:=>
+  load:=>
+    console.log "s load"
+    deferred = new $.Deferred()
     $.ajax '/assets/html/popup.html',
       datatype: 'html'
-    .then @popupHtmlLoaded
+    .then (data,status)=>
+      console.log "s loaded",data,status
+      if status isnt 'success'
+        console.log("popup html cannot load.")
+      else
+        deferred.resolve()
+        @html = data
+        @popupHtmlLoaded()
+      
+      return deferred
 
-  popupHtmlLoaded:(data,status)=>
-    if status isnt 'success'
-      console.log "ERROR:Popuphtmlが読み込めません"
-    else
-      $(@el).html(data)
+  popupHtmlLoaded:()=>
+    $(@el).html(@html)
     @base = $('#snsPost').html()
 
   openPopupFromPoint:(p)=>
@@ -1491,6 +1516,7 @@ class Popup extends Backbone.View
         @show()
 
   setDataToView:(data)=>
+    @id = data.id
     shareUrl = "#{DOMAIN}#{APP_FILE}#mosaic/id/#{data.id}/"
     $("#Popup .snsFacebookButton").attr('href',"https://www.facebook.com/sharer.php?u="+encodeURIComponent(shareUrl))
     $("#Popup .snsTwitterButton").attr('href',"https://twitter.com/intent/tweet?url="+encodeURIComponent(shareUrl)+"&text="+encodeURIComponent("#{indiTwitterText}"))
